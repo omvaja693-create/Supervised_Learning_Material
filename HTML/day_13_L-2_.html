@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python ML Quest — Support Vector Regression (Beginner Friendly)!</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4ff;--bg2:#e8edf8;--card:#ffffff;
+  --border:rgba(99,102,241,0.12);--border2:rgba(99,102,241,0.25);
+  --neon-blue:#2563eb;--neon-cyan:#0891b2;--neon-purple:#7c3aed;
+  --neon-pink:#db2777;--neon-green:#16a34a;--neon-yellow:#b45309;
+  --neon-orange:#c2410c;--neon-red:#dc2626;
+  --text:#1e1b4b;--muted:#4b5563;--dim:#9ca3af;
+  --font-head:'Syne',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --glow-purple:0 4px 16px rgba(124,58,237,0.18);
+  --glow-cyan:0 4px 16px rgba(8,145,178,0.18);
+  --glow-pink:0 4px 16px rgba(219,39,119,0.18);
+  --glow-green:0 4px 16px rgba(22,163,74,0.18);
+  --glow-yellow:0 4px 16px rgba(180,83,9,0.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.85;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--neon-purple);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(37,99,235,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.05) 1px,transparent 1px);background-size:52px 52px;}
+.container-main{max-width:1200px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1;}
+
+/* XP BAR */
+.xp-strip{position:sticky;top:0;z-index:1000;background:rgba(240,244,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);box-shadow:0 2px 12px rgba(37,99,235,0.08);padding:0.65rem 0;}
+.xp-inner{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.xp-label{font-family:var(--font-head);font-weight:800;font-size:0.8rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.xp-bar-wrap{flex:1;min-width:120px;background:rgba(37,99,235,0.1);border-radius:50px;height:10px;border:1px solid var(--border2);overflow:hidden;}
+.xp-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink),var(--neon-cyan));border-radius:50px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(124,58,237,0.3);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+.xp-score{font-family:var(--font-head);font-weight:800;font-size:0.9rem;color:var(--neon-yellow);white-space:nowrap;}
+.xp-badges{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.xp-badge{font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:50px;border:1px solid;white-space:nowrap;transition:0.3s;opacity:0.35;}
+.xp-badge.earned{opacity:1;animation:badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes badgePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.xp-badge.b1{border-color:var(--neon-purple);color:var(--neon-purple);}
+.xp-badge.b2{border-color:var(--neon-pink);color:var(--neon-pink);}
+.xp-badge.b3{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.xp-badge.b4{border-color:var(--neon-green);color:var(--neon-green);}
+.xp-badge.b5{border-color:var(--neon-yellow);color:var(--neon-yellow);}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:5.5rem 0 4.5rem;background:radial-gradient(ellipse at 20% 50%,rgba(124,58,237,0.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(219,39,119,0.10) 0%,transparent 55%),radial-gradient(ellipse at 60% 80%,rgba(8,145,178,0.07) 0%,transparent 50%),var(--bg);}
+.hero-orbit{position:absolute;top:50%;right:8%;transform:translateY(-50%);width:380px;height:380px;pointer-events:none;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(124,58,237,0.25);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-ring:nth-child(1){width:140px;height:140px;animation:spin 12s linear infinite;}
+.orbit-ring:nth-child(2){width:230px;height:230px;animation:spin 20s linear infinite reverse;border-color:rgba(219,39,119,0.2);}
+.orbit-ring:nth-child(3){width:330px;height:330px;animation:spin 30s linear infinite;border-color:rgba(8,145,178,0.15);}
+.orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;transform:translateX(-50%);}
+.orbit-ring:nth-child(1) .orbit-dot{background:var(--neon-purple);box-shadow:var(--glow-purple);}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--neon-pink);box-shadow:var(--glow-pink);}
+.orbit-ring:nth-child(3) .orbit-dot{background:var(--neon-cyan);box-shadow:var(--glow-cyan);}
+.orbit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.8rem;animation:float 4s ease-in-out infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.3);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--neon-purple);margin-bottom:1.5rem;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-purple);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-family:var(--font-head);font-weight:800;font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.1;letter-spacing:-1.5px;margin-bottom:1.5rem;}
+.hero h1 .line1{display:block;color:#1e1b4b;}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--neon-purple) 0%,var(--neon-pink) 50%,var(--neon-cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.05rem;color:var(--muted);max-width:560px;margin-bottom:2rem;line-height:1.8;}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:var(--font-head);font-weight:800;font-size:1.8rem;line-height:1;background:linear-gradient(135deg,var(--neon-purple),var(--neon-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-label{font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem;}
+.hero-cta{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--neon-purple),var(--neon-pink));color:white;font-weight:700;font-size:0.95rem;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(124,58,237,0.3);transition:0.3s;animation:pulse-btn 2s infinite;}
+@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(124,58,237,0.28);}50%{box-shadow:0 4px 32px rgba(124,58,237,0.45);}}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);color:white;}
+
+/* QUEST MAP */
+.quest-map{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2rem;margin:3rem 0;box-shadow:0 4px 24px rgba(37,99,235,0.07);}
+.quest-map-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.quest-map-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(234,179,8,0.3),transparent);}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:0.75rem;}
+.quest-item{display:flex;align-items:center;gap:0.75rem;background:#f8f9ff;border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;text-decoration:none;color:var(--muted);font-weight:600;font-size:0.88rem;transition:0.25s;}
+.quest-item:hover{background:rgba(124,58,237,0.07);border-color:rgba(124,58,237,0.3);color:var(--neon-purple);transform:translateX(4px);}
+.quest-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;flex-shrink:0;}
+
+/* LEVEL CARD */
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:24px 24px 0 0;}
+.level-card.lvl-purple::before{background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink));}
+.level-card.lvl-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple));}
+.level-card.lvl-cyan::before{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green));}
+.level-card.lvl-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));}
+.level-card.lvl-orange::before{background:linear-gradient(90deg,var(--neon-orange),var(--neon-yellow));}
+.level-card.lvl-yellow::before{background:linear-gradient(90deg,var(--neon-yellow),var(--neon-orange));}
+.level-card:hover{box-shadow:0 8px 32px rgba(37,99,235,0.12);}
+.level-card .corner-deco{position:absolute;top:1.2rem;right:1.5rem;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;opacity:0.22;}
+.lv-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.8rem;}
+.lv-icon-wrap{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;}
+.lv-icon-wrap::after{content:'';position:absolute;inset:-3px;border-radius:18px;border:1px solid;opacity:0.4;}
+.ico-purple{background:rgba(124,58,237,0.12);color:var(--neon-purple);}.ico-purple::after{border-color:var(--neon-purple);}
+.ico-pink{background:rgba(219,39,119,0.12);color:var(--neon-pink);}.ico-pink::after{border-color:var(--neon-pink);}
+.ico-cyan{background:rgba(8,145,178,0.12);color:var(--neon-cyan);}.ico-cyan::after{border-color:var(--neon-cyan);}
+.ico-green{background:rgba(22,163,74,0.12);color:var(--neon-green);}.ico-green::after{border-color:var(--neon-green);}
+.ico-orange{background:rgba(194,65,12,0.12);color:var(--neon-orange);}.ico-orange::after{border-color:var(--neon-orange);}
+.ico-yellow{background:rgba(180,83,9,0.12);color:var(--neon-yellow);}.ico-yellow::after{border-color:var(--neon-yellow);}
+.lv-meta{flex:1;}
+.lv-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.35rem;}
+.lv-title{font-family:var(--font-head);font-weight:800;font-size:1.55rem;line-height:1.2;color:var(--text);}
+.lv-xp{margin-top:0.4rem;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(180,83,9,0.08);border:1px solid rgba(180,83,9,0.25);border-radius:50px;padding:0.2rem 0.75rem;font-size:0.75rem;font-weight:700;color:var(--neon-yellow);}
+
+/* CALLOUT */
+.callout{border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;border:1px solid;position:relative;overflow:hidden;}
+.callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.callout .ct{font-weight:800;font-size:0.95rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;}
+.cb-purple{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2);}.cb-purple::before{background:var(--neon-purple);}.cb-purple .ct{color:var(--neon-purple);}
+.cb-pink{background:rgba(219,39,119,0.06);border-color:rgba(219,39,119,0.2);}.cb-pink::before{background:var(--neon-pink);}.cb-pink .ct{color:var(--neon-pink);}
+.cb-cyan{background:rgba(8,145,178,0.06);border-color:rgba(8,145,178,0.2);}.cb-cyan::before{background:var(--neon-cyan);}.cb-cyan .ct{color:var(--neon-cyan);}
+.cb-green{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.2);}.cb-green::before{background:var(--neon-green);}.cb-green .ct{color:var(--neon-green);}
+.cb-yellow{background:rgba(180,83,9,0.06);border-color:rgba(180,83,9,0.2);}.cb-yellow::before{background:var(--neon-yellow);}.cb-yellow .ct{color:var(--neon-yellow);}
+.cb-orange{background:rgba(194,65,12,0.06);border-color:rgba(194,65,12,0.2);}.cb-orange::before{background:var(--neon-orange);}.cb-orange .ct{color:var(--neon-orange);}
+.cb-red{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.2);}.cb-red::before{background:var(--neon-red);}.cb-red .ct{color:var(--neon-red);}
+
+/* FORMULA BOX */
+.formula-box{background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(219,39,119,0.04));border:1.5px solid rgba(124,58,237,0.25);border-radius:16px;padding:1.4rem 1.8rem;margin:1.4rem 0;text-align:center;position:relative;overflow:hidden;}
+.formula-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(124,58,237,0.04),transparent 70%);pointer-events:none;}
+.formula-main{font-family:var(--font-mono);font-size:1.15rem;font-weight:700;color:var(--neon-purple);letter-spacing:0.5px;line-height:2;}
+.formula-sub{font-size:0.84rem;color:var(--muted);margin-top:0.5rem;line-height:1.65;}
+.formula-label{position:absolute;top:0.55rem;right:1rem;font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-purple);opacity:0.6;}
+.formula-box.fb-cyan{background:linear-gradient(135deg,rgba(8,145,178,0.06),rgba(22,163,74,0.04));border-color:rgba(8,145,178,0.25);}
+.formula-box.fb-cyan .formula-main{color:var(--neon-cyan);}
+.formula-box.fb-cyan .formula-label{color:var(--neon-cyan);}
+.formula-box.fb-green{background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(8,145,178,0.04));border-color:rgba(22,163,74,0.25);}
+.formula-box.fb-green .formula-main{color:var(--neon-green);}
+.formula-box.fb-green .formula-label{color:var(--neon-green);}
+.formula-box.fb-orange{background:linear-gradient(135deg,rgba(194,65,12,0.06),rgba(180,83,9,0.04));border-color:rgba(194,65,12,0.25);}
+.formula-box.fb-orange .formula-main{color:var(--neon-orange);}
+.formula-box.fb-orange .formula-label{color:var(--neon-orange);}
+
+/* MATH TERMS */
+.math-terms{display:flex;flex-wrap:wrap;gap:0.6rem;margin:0.8rem 0;}
+.math-term{display:inline-flex;align-items:center;gap:0.45rem;background:#f0f4ff;border:1px solid var(--border2);border-radius:8px;padding:0.3rem 0.75rem;font-size:0.84rem;}
+.math-term .sym{font-family:var(--font-mono);font-weight:700;color:var(--neon-purple);}
+.math-term .meaning{color:var(--muted);}
+
+/* STEP TIMELINE */
+.step-timeline{position:relative;padding-left:2.8rem;}
+.step-timeline::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon-purple),var(--neon-pink),var(--neon-cyan));opacity:0.4;border-radius:2px;}
+.step-item{position:relative;margin-bottom:1.2rem;background:#f8f9ff;border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;transition:0.25s;}
+.step-item:hover{border-color:var(--border2);background:#eef1ff;}
+.step-item::before{content:attr(data-step);position:absolute;left:-2.8rem;top:1rem;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--neon-purple);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;color:var(--neon-purple);}
+.step-label{font-weight:700;color:var(--text);font-size:0.98rem;margin-bottom:0.35rem;}
+.step-body{color:var(--muted);font-size:0.92rem;line-height:1.75;}
+
+/* ACH CARD */
+.ach-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;text-align:center;position:relative;overflow:hidden;}
+.ach-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s;}
+.ach-card:hover{transform:translateY(-6px);border-color:var(--border2);}
+.ach-card:hover::after{opacity:1;}
+.ach-card.ac-purple::after{background:var(--neon-purple);}.ach-card.ac-purple:hover{box-shadow:0 10px 28px rgba(124,58,237,0.15);}
+.ach-card.ac-pink::after{background:var(--neon-pink);}.ach-card.ac-pink:hover{box-shadow:0 16px 48px rgba(219,39,119,0.2);}
+.ach-card.ac-cyan::after{background:var(--neon-cyan);}.ach-card.ac-cyan:hover{box-shadow:0 16px 48px rgba(8,145,178,0.2);}
+.ach-card.ac-green::after{background:var(--neon-green);}.ach-card.ac-green:hover{box-shadow:0 16px 48px rgba(22,163,74,0.2);}
+.ach-card.ac-orange::after{background:var(--neon-orange);}.ach-card.ac-orange:hover{box-shadow:0 10px 28px rgba(194,65,12,0.15);}
+.ach-icon{font-size:2.2rem;margin-bottom:0.75rem;display:block;}
+.ach-title{font-family:var(--font-head);font-weight:800;font-size:1rem;margin-bottom:0.5rem;}
+.ach-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+
+/* CODE BLOCK */
+.code-wrap{background:#f8f9fc;border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin:1.2rem 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.06);padding:0.6rem 1.1rem;border-bottom:1px solid var(--border);}
+.code-lang{font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:var(--neon-purple);letter-spacing:1px;text-transform:uppercase;}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#dc2626;}.code-dot:nth-child(2){background:#b45309;}.code-dot:nth-child(3){background:#16a34a;}
+.code-wrap pre{margin:0;padding:1.2rem 1.4rem;overflow-x:auto;background:transparent;}
+.code-wrap pre code{font-family:var(--font-mono);font-size:0.85rem;line-height:1.75;}
+pre[class*="language-"]{border-radius:0!important;font-family:var(--font-mono)!important;font-size:0.85rem!important;margin:0!important;border:none!important;background:transparent!important;}
+.code-output{background:rgba(22,163,74,0.06);border-top:1px solid rgba(22,163,74,0.2);padding:0.7rem 1.2rem;font-family:var(--font-mono);font-size:0.82rem;color:#14532d;line-height:1.7;}
+
+/* TABLE */
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.gtbl thead th{background:rgba(124,58,237,0.08);color:var(--neon-purple);font-family:var(--font-head);font-weight:700;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid rgba(124,58,237,0.15);font-size:0.85rem;}
+.gtbl tbody td{padding:0.8rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.92rem;vertical-align:top;line-height:1.7;}
+.gtbl tbody tr:last-child td{border-bottom:none;}
+.gtbl tbody tr:hover td{background:rgba(124,58,237,0.03);color:var(--text);}
+.gtbl tbody td strong{color:var(--text);}
+
+/* STAT PILLS */
+.stat-pill{display:inline-flex;align-items:center;gap:0.4rem;border-radius:50px;padding:0.3rem 0.9rem;font-weight:700;font-size:0.8rem;border:1px solid;}
+.sp-purple{background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.3);color:var(--neon-purple);}
+.sp-pink{background:rgba(219,39,119,0.08);border-color:rgba(219,39,119,0.3);color:var(--neon-pink);}
+.sp-cyan{background:rgba(8,145,178,0.08);border-color:rgba(8,145,178,0.3);color:var(--neon-cyan);}
+.sp-green{background:rgba(22,163,74,0.08);border-color:rgba(22,163,74,0.3);color:var(--neon-green);}
+.sp-orange{background:rgba(194,65,12,0.08);border-color:rgba(194,65,12,0.3);color:var(--neon-orange);}
+.sp-yellow{background:rgba(180,83,9,0.08);border-color:rgba(180,83,9,0.3);color:var(--neon-yellow);}
+.sp-red{background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.3);color:var(--neon-red);}
+
+/* INLINE CODE */
+.inline-code{background:rgba(124,58,237,0.08);color:#5b21b6;padding:0.1rem 0.45rem;border-radius:6px;font-family:var(--font-mono);font-size:0.88em;border:1px solid rgba(124,58,237,0.2);}
+
+/* HIGHLIGHT */
+.hl{background:rgba(180,83,9,0.1);color:#92400e;padding:0 5px;border-radius:4px;}
+.hl-purple{background:rgba(124,58,237,0.1);color:var(--neon-purple);padding:0 5px;border-radius:4px;}
+.hl-pink{background:rgba(219,39,119,0.1);color:var(--neon-pink);padding:0 5px;border-radius:4px;}
+.hl-cyan{background:rgba(8,145,178,0.1);color:var(--neon-cyan);padding:0 5px;border-radius:4px;}
+.hl-green{background:rgba(22,163,74,0.1);color:var(--neon-green);padding:0 5px;border-radius:4px;}
+.hl-red{background:rgba(220,38,38,0.1);color:var(--neon-red);padding:0 5px;border-radius:4px;}
+
+/* GLOW DIVIDER */
+.glow-div{height:2px;border-radius:2px;margin:2rem 0;opacity:0.35;background:linear-gradient(90deg,transparent,var(--neon-purple),var(--neon-pink),var(--neon-cyan),transparent);}
+
+/* MERMAID */
+.mermaid-wrap{background:#f8f9ff;border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto;box-shadow:0 2px 12px rgba(37,99,235,0.05);}
+
+/* QUIZ */
+.quiz-box{background:#fffbf0;border:1px solid rgba(180,83,9,0.18);border-radius:20px;padding:1.6rem;margin:1.8rem 0;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(180,83,9,0.07);}
+.quiz-box::before{content:'⚡ QUICK CHALLENGE';position:absolute;top:0;right:0;background:linear-gradient(135deg,#b45309,#c2410c);color:#fff;font-family:var(--font-head);font-weight:800;font-size:0.62rem;letter-spacing:2px;padding:0.32rem 0.9rem;border-radius:0 20px 0 12px;}
+.quiz-q{font-weight:700;color:#1c1917;margin-bottom:1.1rem;font-size:1.02rem;line-height:1.6;}
+.quiz-options{display:flex;flex-direction:column;gap:0.55rem;}
+.quiz-opt{background:#ffffff;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.75rem 1.1rem;cursor:pointer;font-size:0.93rem;color:#374151;transition:background 0.15s,border-color 0.15s,transform 0.12s;font-weight:500;display:flex;align-items:center;gap:0.85rem;user-select:none;}
+.quiz-opt:not(.answered-opt):hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;transform:translateX(3px);}
+.quiz-opt.correct{background:#f0fdf4;border-color:#16a34a;color:#14532d;font-weight:700;}
+.quiz-opt.correct .opt-letter{background:#16a34a;color:#fff;}
+.quiz-opt.wrong{background:#fef2f2;border-color:#dc2626;color:#991b1b;opacity:0.8;}
+.quiz-opt.wrong .opt-letter{background:#dc2626;color:#fff;}
+.quiz-opt.dimmed{opacity:0.45;pointer-events:none;}
+.quiz-opt .opt-letter{width:28px;height:28px;border-radius:8px;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.8rem;flex-shrink:0;transition:0.2s;}
+.quiz-explain{display:none;font-size:0.84rem;font-weight:500;margin-top:-0.35rem;margin-bottom:0.35rem;padding:0.5rem 0.85rem 0.5rem 1rem;border-radius:0 0 10px 10px;line-height:1.6;border-left:3px solid transparent;}
+.quiz-explain.show-correct{display:block;background:rgba(22,163,74,0.07);color:#166534;border-left-color:#16a34a;}
+.quiz-explain.show-wrong{display:block;background:rgba(220,38,38,0.06);color:#991b1b;border-left-color:#dc2626;}
+.quiz-explain.show-reveal{display:block;background:rgba(37,99,235,0.06);color:#1e40af;border-left-color:#2563eb;}
+.quiz-feedback{display:none;margin-top:1rem;padding:0.85rem 1.1rem;border-radius:12px;font-weight:700;font-size:0.95rem;align-items:center;gap:0.6rem;}
+.quiz-feedback.show{display:flex;animation:fadeIn 0.35s;}
+.quiz-feedback.win{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;border:1px solid rgba(22,163,74,0.3);}
+.quiz-feedback.lose{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;border:1px solid rgba(220,38,38,0.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* FOOTER */
+.gfooter{background:#e8edf8;border-top:1px solid var(--border);padding:3rem 0;margin-top:4rem;text-align:center;}
+.gfooter-logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--neon-purple),var(--neon-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-up.visible{opacity:1;transform:none;}
+@media(max-width:768px){.hero h1{font-size:2rem;}.hero-orbit{display:none;}.level-card{padding:1.5rem;}.xp-badges{display:none;}}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;}
+.gtoast{background:#ffffff;border:1px solid var(--border2);border-radius:14px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.75rem;font-weight:700;font-size:0.88rem;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto;min-width:260px;box-shadow:0 8px 32px rgba(37,99,235,0.15);}
+.gtoast.show{transform:none;}
+.gtoast-icon{font-size:1.4rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:#ffffff;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:520px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(37,99,235,0.18);transform:scale(0.85) translateY(20px);transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease;opacity:0;}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0);opacity:1;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink),var(--neon-cyan));}
+.modal-close{position:absolute;top:1rem;right:1rem;background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.modal-close:hover{background:#e5e7eb;color:#374151;}
+.modal-trophy{font-size:3rem;text-align:center;margin-bottom:0.5rem;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;text-align:center;color:var(--text);margin-bottom:0.4rem;}
+.modal-subtitle{color:var(--muted);text-align:center;font-size:0.92rem;margin-bottom:1.5rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.score-ring{position:relative;width:120px;height:120px;}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e5e7eb;stroke-width:10;}
+.ring-fill{fill:none;stroke:#7c3aed;stroke-width:10;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--text);line-height:1;}
+.ring-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.grade-card{border-radius:14px;padding:0.85rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;border:1.5px solid;}
+.grade-s{background:#fef9c3;border-color:#b45309;}.grade-a{background:#f0fdf4;border-color:#16a34a;}.grade-b{background:#eff6ff;border-color:#2563eb;}.grade-c{background:#f5f3ff;border-color:#7c3aed;}.grade-d{background:#fef2f2;border-color:#dc2626;}
+.grade-letter{font-family:var(--font-head);font-weight:800;font-size:1.6rem;}
+.grade-msg{font-size:0.9rem;color:var(--muted);font-weight:600;}
+.modal-xp-row{display:flex;align-items:center;justify-content:space-between;background:#f8f9ff;border:1px solid rgba(37,99,235,0.15);border-radius:12px;padding:0.75rem 1.1rem;margin-bottom:1.4rem;}
+.modal-xp-row .mxp-label{font-size:0.85rem;color:#6b7280;font-weight:600;}
+.modal-xp-row .mxp-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#7c3aed,#db2777);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-btns{display:flex;gap:0.75rem;}
+.modal-btn-retry{flex:1;padding:0.8rem 1rem;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#374151;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.modal-btn-retry:hover{background:#e5e7eb;}
+.modal-btn-continue{flex:2;padding:0.8rem 1rem;background:linear-gradient(135deg,#7c3aed,#db2777);border:none;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#ffffff;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 16px rgba(124,58,237,0.3);}
+.modal-btn-continue:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(124,58,237,0.4);}
+#confettiCanvas{position:fixed;inset:0;z-index:10001;pointer-events:none;}
+
+/* BEGINNER BOXES */
+.beginner-box{border-radius:14px;padding:1.3rem 1.5rem;margin:1.4rem 0;border:2px solid rgba(22,163,74,0.3);background:rgba(22,163,74,0.05);position:relative;}
+.beginner-box .bb-tag{display:inline-flex;align-items:center;gap:0.4rem;background:var(--neon-green);color:white;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:1.5px;padding:0.2rem 0.75rem;border-radius:50px;margin-bottom:0.7rem;}
+.beginner-box .bb-title{font-weight:800;color:#14532d;font-size:1rem;margin-bottom:0.5rem;}
+.beginner-box .bb-body{color:var(--muted);font-size:0.93rem;line-height:1.8;}
+
+/* COMPARE CARD */
+.compare-card{border-radius:16px;overflow:hidden;border:1px solid var(--border2);}
+.compare-head{padding:0.85rem 1.2rem;font-family:var(--font-head);font-weight:800;font-size:0.95rem;display:flex;align-items:center;gap:0.6rem;}
+.compare-body{padding:1.2rem;background:#fafbff;font-size:0.92rem;color:var(--muted);line-height:1.8;}
+</style>
+</head>
+<body>
+
+<!-- XP STRIP -->
+<div class="xp-strip">
+  <div class="container-main">
+    <div class="xp-inner">
+      <span class="xp-label">⚡ XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill"></div></div>
+      <span class="xp-score" id="xpScore">0 / 275 XP</span>
+      <div class="xp-badges">
+        <span class="xp-badge b1" id="badge1">📏 Tube Architect</span>
+        <span class="xp-badge b2" id="badge2">⚡ Epsilon Master</span>
+        <span class="xp-badge b3" id="badge3">🔮 Kernel Wizard</span>
+        <span class="xp-badge b4" id="badge4">🎯 SVR Coder</span>
+        <span class="xp-badge b5" id="badge5">🏆 SVM Champion</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container-main">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-eyebrow"><i class="fa-solid fa-gamepad me-1"></i> Beginner Friendly Quest</div>
+        <h1>
+          <span class="line1">Line Nahi, Tube Fit Karo!</span>
+          <span class="line2">Support Vector Regression</span>
+        </h1>
+        <p class="hero-sub">
+          SVR ek aisi regression technique hai jo thodi si galti allow karta hai — lekin bahut zyada galti pe penalty deta hai. 5 simple levels mein samjho — analogies, step-by-step math, aur complete Python code. Bilkul beginner ke liye!
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Boss Levels</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">275</div><div class="hero-stat-label">Total XP</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Badges</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">😊</div><div class="hero-stat-label">Beginner OK</div></div>
+        </div>
+        <a href="#s1" class="hero-cta"><i class="fa-solid fa-play me-1"></i> Start Your Quest</a>
+      </div>
+      <div class="col-lg-5">
+        <div class="hero-orbit">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-center">⚙️</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-main">
+
+<!-- QUEST MAP -->
+<div class="quest-map fade-up">
+  <div class="quest-map-title"><i class="fa-solid fa-map me-2"></i> Quest Map</div>
+  <div class="quest-grid">
+    <a href="#s1" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.15);color:var(--neon-purple);">L1</span> SVR kya hai — Simple Intuition</a>
+    <a href="#s2" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.15);color:var(--neon-purple);">L1</span> ε-Tube — "Allowed Mistake" Zone</a>
+    <a href="#s3" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.15);color:var(--neon-pink);">L2</span> SVR ka Formula — Step by Step</a>
+    <a href="#s4" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.15);color:var(--neon-pink);">L2</span> Kernel Trick — Non-linear Data</a>
+    <a href="#s5" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">L3</span> 3 Key Parameters — C, ε, γ</a>
+    <a href="#s6" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.15);color:var(--neon-green);">L4</span> Python Code — Complete Example</a>
+    <a href="#s7" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.15);color:var(--neon-orange);">L5</span> SVR vs Linear Regression — Kab Kya?</a>
+    <a href="#s8" class="quest-item"><span class="quest-num" style="background:rgba(180,83,9,0.15);color:var(--neon-yellow);">🏆</span> Final Summary &amp; Roadmap</a>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     S1 — SVR KYA HAI — INTUITION (BOSS L1)
+     ═══════════════════════════════════════ -->
+<div class="level-card lvl-purple fade-up" id="s1">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-purple"><i class="fa-solid fa-ruler-combined"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Boss Topic</div>
+      <div class="lv-title">SVR kya hai? — Pehle Analogy se Samjho!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <!-- Beginner hook -->
+  <div class="beginner-box">
+    <div class="bb-tag">🟢 BEGINNER START</div>
+    <div class="bb-title">Pehle samjho — Normal Regression kya karta hai?</div>
+    <div class="bb-body">
+      Normal Linear Regression ek <strong>straight line</strong> fit karta hai data pe. Wo <strong>har point ka error</strong> minimize karta hai.<br><br>
+      Problem: Agar koi ek point thoda sa upar-neeche hai, toh bhi model us pe dhyan deta hai — chahe woh sirf noise ho!<br><br>
+      <strong>SVR ka idea</strong>: "Chhoti chhoti galtiyan ignore karo — sirf badi galtiyan penalize karo!"
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Main SVR concept SVG — simple, clean -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(124,58,237,0.2);border-radius:16px;padding:1.5rem;margin:0 0 1.5rem;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <defs>
+        <marker id="xA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#9ca3af"/></marker>
+        <marker id="yA" markerWidth="6" markerHeight="8" refX="3" refY="0" orient="auto"><polygon points="0 8,3 0,6 8" fill="#9ca3af"/></marker>
+      </defs>
+      <!-- Title -->
+      <text x="280" y="16" font-size="13" fill="#1e1b4b" font-weight="800" text-anchor="middle">SVR — ε-Tube ke Andar ke Points Ignore Hote Hain!</text>
+      <!-- Axes -->
+      <line x1="55" y1="225" x2="530" y2="225" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#xA)"/>
+      <line x1="55" y1="225" x2="55" y2="28" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#yA)"/>
+      <text x="536" y="229" font-size="10" fill="#6b7280">X</text>
+      <text x="38" y="24" font-size="10" fill="#6b7280">y</text>
+      <!-- SVR prediction line (middle) -->
+      <line x1="70" y1="195" x2="515" y2="65" stroke="#7c3aed" stroke-width="3"/>
+      <!-- Upper tube boundary -->
+      <line x1="70" y1="165" x2="515" y2="35" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="10,5" opacity="0.55"/>
+      <!-- Lower tube boundary -->
+      <line x1="70" y1="225" x2="515" y2="95" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="10,5" opacity="0.55"/>
+      <!-- Tube shading -->
+      <polygon points="70,165 515,35 515,95 70,225" fill="rgba(124,58,237,0.07)"/>
+      <!-- ε brace on right -->
+      <line x1="520" y1="65" x2="520" y2="35" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="526" y="52" font-size="11" fill="#7c3aed" font-weight="800">ε</text>
+      <line x1="520" y1="65" x2="520" y2="95" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="526" y="83" font-size="11" fill="#7c3aed" font-weight="800">ε</text>
+      <!-- GREEN points — inside tube — ZERO error -->
+      <circle cx="100" cy="188" r="7" fill="#16a34a" stroke="white" stroke-width="2.5"/>
+      <circle cx="160" cy="168" r="7" fill="#16a34a" stroke="white" stroke-width="2.5"/>
+      <circle cx="230" cy="148" r="7" fill="#16a34a" stroke="white" stroke-width="2.5"/>
+      <circle cx="290" cy="138" r="7" fill="#16a34a" stroke="white" stroke-width="2.5"/>
+      <circle cx="360" cy="118" r="7" fill="#16a34a" stroke="white" stroke-width="2.5"/>
+      <circle cx="430" cy="100" r="7" fill="#16a34a" stroke="white" stroke-width="2.5"/>
+      <!-- RED points — outside tube — penalized -->
+      <circle cx="135" cy="148" r="7" fill="#dc2626" stroke="white" stroke-width="2.5"/>
+      <circle cx="320" cy="168" r="7" fill="#dc2626" stroke="white" stroke-width="2.5"/>
+      <circle cx="460" cy="52"  r="7" fill="#dc2626" stroke="white" stroke-width="2.5"/>
+      <!-- Dashed error lines for outside points -->
+      <line x1="135" y1="148" x2="135" y2="173" stroke="#dc2626" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="143" y="164" font-size="10" fill="#dc2626" font-weight="700">Penalty!</text>
+      <line x1="460" y1="52"  x2="460" y2="67"  stroke="#dc2626" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="468" y="62"  font-size="10" fill="#dc2626" font-weight="700">Penalty!</text>
+      <!-- Label for tube -->
+      <text x="280" y="155" font-size="10" fill="#7c3aed" font-weight="700" text-anchor="middle">ε-Tube (Allowed Zone)</text>
+      <!-- Legend -->
+      <circle cx="65"  cy="248" r="6" fill="#16a34a" stroke="white" stroke-width="1.5"/>
+      <text x="76" cy="252" font-size="10" fill="#374151">Tube ke andar = Zero Error (Ignore!)</text>
+      <circle cx="290" cy="248" r="6" fill="#dc2626" stroke="white" stroke-width="1.5"/>
+      <text x="301" y="252" font-size="10" fill="#374151">Tube ke bahar = Penalized!</text>
+    </svg>
+  </div>
+
+  <div class="callout cb-yellow">
+    <div class="ct"><i class="fa-solid fa-road"></i> Simple Analogy — Delhi Highway Ki Lane!</div>
+    Socho ek highway driver hai. Uske liye ek <strong>lane (tube)</strong> bani hai.<br><br>
+    ✅ Lane ke <strong>andar</strong> gadi chalaao → <strong>koi fine nahi!</strong> (zero penalty)<br>
+    ❌ Lane se <strong>bahar</strong> niklo → <strong>challan milega!</strong> (penalty)<br><br>
+    SVR bhi exactly aisa hi karta hai — ek tube fit karta hai data pe. Tube ke andar ke predictions = <span class="hl-green">allowed!</span> Bahar nikle = penalty.
+  </div>
+
+  <div class="callout cb-purple">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Normal Regression se Kya Fark?</div>
+    <strong>Normal Linear Regression:</strong> Har ek point ka error count hota hai — chahe 0.001 ka difference ho ya 100 ka.<br><br>
+    <strong>SVR:</strong> Agar error <span class="hl-purple">ε (epsilon)</span> se <em>kam</em> hai → <strong>error = zero maana jaata hai!</strong><br>
+    Sirf ε se zyada bade errors penalized hote hain → model outliers ko zyada importance nahi deta!
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-4">
+      <div class="ach-card ac-purple">
+        <span class="ach-icon">📏</span>
+        <div class="ach-title">ε-Tube</div>
+        <div class="ach-desc">Regression line ke aas-paas ek tube hoti hai. Tube ke andar hone ka matlab = bilkul sahi prediction (zero error maana jaata).</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-pink">
+        <span class="ach-icon">🎯</span>
+        <div class="ach-title">Support Vectors</div>
+        <div class="ach-desc">Tube ke bahar ke points "Support Vectors" kehlaate hain. Ye hi points model ko define karte hain!</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-cyan">
+        <span class="ach-icon">💪</span>
+        <div class="ach-title">Robust hai!</div>
+        <div class="ach-desc">SVR outliers se less affected hota hai kyunki chhoti errors ignore hoti hain. Better generalization!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-box" data-quiz="1" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 SVR mein ε-tube ke andar ke data points ka kya hota hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Tube ke andar ke points model ke training mein participate karte hain, lekin unka loss zero hota hai. Wo deleted nahi hote."><span class="opt-letter">A</span>Wo completely delete ho jaate hain dataset se</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! Yahi SVR ki main idea hai. Jo points tube ke andar hain unka error zero maana jaata hai — unhe penalize nahi kiya jaata. Isliye SVR 'ε-insensitive' hai — choti choti galtiyan allowed hain! Sirf tube se bahar ke points (support vectors) model ko affect karte hain."><span class="opt-letter">B</span>Unka error zero maana jaata hai — penalize nahi hote!</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Tube ke andar ke points maximum nahi hote — aisa koi concept nahi hai SVR mein. Tube sirf 'allowed zone' define karta hai jahan error = 0."><span class="opt-letter">C</span>Wo maximum error dete hain</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Support Vectors wo points hote hain jo tube ke BAHAR hain, andar nahi. Tube ke andar wale points ignored/zero-loss treated hote hain."><span class="opt-letter">D</span>Wo Support Vectors ban jaate hain</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     S2 — ε-TUBE DETAIL (SKILL)
+     ═══════════════════════════════════════ -->
+<div class="level-card lvl-purple fade-up" id="s2">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-up-down"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Skill Unlock</div>
+      <div class="lv-title">ε-Tube aur Loss Function — Detail mein</div>
+    </div>
+  </div>
+
+  <div class="beginner-box">
+    <div class="bb-tag">📘 CONCEPT</div>
+    <div class="bb-title">ε (Epsilon) kya hai?</div>
+    <div class="bb-body">
+      <strong>ε (epsilon)</strong> = tube ki half-width = kitna error "allowed" hai.<br><br>
+      Agar actual value = 100 aur predicted value = 103 hai, toh error = 3.<br>
+      → ε = 5 set kiya → error 3 &lt; 5 → <span class="hl-green">tube ke andar → loss = 0 ✅</span><br>
+      → ε = 2 set kiya → error 3 &gt; 2 → <span class="hl-red">tube se bahar → loss = 3−2 = 1 ❌</span>
+    </div>
+  </div>
+
+  <!-- Loss comparison SVG — simple side-by-side bars -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(219,39,119,0.2);border-radius:16px;padding:1.5rem;margin:1.4rem 0;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <text x="280" y="16" font-size="13" fill="#1e1b4b" font-weight="800" text-anchor="middle">Loss Comparison — Normal Regression vs SVR</text>
+      <!-- Panel 1: Normal regression -->
+      <rect x="10" y="25" width="252" height="175" rx="12" fill="rgba(37,99,235,0.04)" stroke="rgba(37,99,235,0.25)" stroke-width="1.5"/>
+      <text x="136" y="44" font-size="12" fill="#2563eb" font-weight="800" text-anchor="middle">Normal Regression</text>
+      <text x="136" y="58" font-size="10" fill="#6b7280" text-anchor="middle">Har error count hota hai</text>
+      <!-- Simple U-curve -->
+      <line x1="30"  y1="175" x2="252" y2="175" stroke="#9ca3af" stroke-width="1.2"/>
+      <line x1="136" y1="70"  x2="136" y2="178" stroke="#9ca3af" stroke-width="1.2"/>
+      <path d="M 40,170 Q 136,72 232,170" stroke="#2563eb" stroke-width="2.5" fill="none"/>
+      <text x="136" y="192" font-size="10" fill="#2563eb" font-weight="700" text-anchor="middle">Loss = error² (every point)</text>
+
+      <!-- Panel 2: SVR -->
+      <rect x="298" y="25" width="252" height="175" rx="12" fill="rgba(124,58,237,0.04)" stroke="rgba(124,58,237,0.25)" stroke-width="1.5"/>
+      <text x="424" y="44" font-size="12" fill="#7c3aed" font-weight="800" text-anchor="middle">SVR — ε-Insensitive Loss</text>
+      <text x="424" y="58" font-size="10" fill="#6b7280" text-anchor="middle">Tube ke andar = zero loss!</text>
+      <line x1="318" y1="175" x2="542" y2="175" stroke="#9ca3af" stroke-width="1.2"/>
+      <line x1="424" y1="70"  x2="424" y2="178" stroke="#9ca3af" stroke-width="1.2"/>
+      <!-- Left arm -->
+      <line x1="318" y1="128" x2="384" y2="175" stroke="#7c3aed" stroke-width="2.5"/>
+      <!-- Flat zone -->
+      <line x1="384" y1="175" x2="464" y2="175" stroke="#7c3aed" stroke-width="2.5"/>
+      <!-- Right arm -->
+      <line x1="464" y1="175" x2="532" y2="128" stroke="#7c3aed" stroke-width="2.5"/>
+      <!-- Zero zone highlight -->
+      <rect x="384" y="170" width="80" height="8" rx="3" fill="rgba(22,163,74,0.3)"/>
+      <text x="424" y="155" font-size="9" fill="#16a34a" font-weight="800" text-anchor="middle">Zero loss zone</text>
+      <text x="424" y="167" font-size="9" fill="#16a34a" text-anchor="middle">(|error| ≤ ε)</text>
+      <line x1="384" y1="162" x2="384" y2="178" stroke="#7c3aed" stroke-width="1" stroke-dasharray="3,2"/>
+      <line x1="464" y1="162" x2="464" y2="178" stroke="#7c3aed" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="380" y="189" font-size="9" fill="#7c3aed">−ε</text>
+      <text x="460" y="189" font-size="9" fill="#7c3aed">+ε</text>
+      <text x="424" y="200" font-size="10" fill="#7c3aed" font-weight="700" text-anchor="middle">Loss = max(0, |error| − ε)</text>
+    </svg>
+  </div>
+
+  <!-- Formula row -->
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="formula-box fb-cyan" style="margin:0;">
+        <div class="formula-label">NORMAL REGRESSION LOSS</div>
+        <div class="formula-main">Loss = (y − ŷ)²</div>
+        <div class="formula-sub">Har point ka squared error — 0.1 ka error bhi count hota hai!</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box" style="margin:0;">
+        <div class="formula-label">SVR LOSS (ε-Insensitive)</div>
+        <div class="formula-main">Loss = max(0, |error| − ε)</div>
+        <div class="formula-sub">|error| ≤ ε → loss = 0. &nbsp; |error| &gt; ε → loss = |error| − ε</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-green mt-3">
+    <div class="ct"><i class="fa-solid fa-calculator"></i> Haath se Calculate Karo — Concrete Example</div>
+    Maan lo: <strong>ε = 0.5</strong>, aur model ne predict kiya:<br><br>
+    <div class="row g-2 mt-1">
+      <div class="col-md-4">
+        <div style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.3);border-radius:10px;padding:0.85rem;text-align:center;">
+          <strong style="color:var(--neon-green)">Point A</strong><br>
+          y=100, ŷ=100.3<br>
+          error = 0.3 &lt; ε=0.5<br>
+          <strong style="color:var(--neon-green)">Loss = 0 ✅ (inside tube)</strong>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div style="background:#fef9c3;border:1px solid rgba(180,83,9,0.3);border-radius:10px;padding:0.85rem;text-align:center;">
+          <strong style="color:var(--neon-yellow)">Point B</strong><br>
+          y=100, ŷ=100.5<br>
+          error = 0.5 = ε<br>
+          <strong style="color:var(--neon-yellow)">Loss = 0 ✅ (on boundary)</strong>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div style="background:#fef2f2;border:1px solid rgba(220,38,38,0.3);border-radius:10px;padding:0.85rem;text-align:center;">
+          <strong style="color:var(--neon-red)">Point C</strong><br>
+          y=100, ŷ=102<br>
+          error = 2.0 &gt; ε=0.5<br>
+          <strong style="color:var(--neon-red)">Loss = 2−0.5 = 1.5 ❌</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     S3 — SVR KA FORMULA — STEP BY STEP (BOSS L2)
+     ═══════════════════════════════════════ -->
+<div class="level-card lvl-pink fade-up" id="s3">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-superscript"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Boss Topic</div>
+      <div class="lv-title">SVR ka Formula — Ek Ek Line Samjho!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="beginner-box">
+    <div class="bb-tag">📘 SIMPLE EXPLANATION</div>
+    <div class="bb-title">SVR kya "solve" karta hai?</div>
+    <div class="bb-body">
+      SVR ek line (hyperplane) dhundta hai jo:<br>
+      1. <strong>Tube ke andar zyada se zyada points fit kare</strong> (tube wide ho → zyada points andar)<br>
+      2. <strong>Tube se bahar ke points ke errors minimize kare</strong> (jo bahar hain, unhe kam karo)<br>
+      3. <strong>Line simple/flat rahe</strong> (overfit nahi kare)<br><br>
+      Yeh teen goals balance karna hi SVR ka optimization problem hai!
+    </div>
+  </div>
+
+  <!-- SVR Prediction Function — simple -->
+  <div class="formula-box">
+    <div class="formula-label">SVR — PREDICTION FORMULA</div>
+    <div class="formula-main">ŷ = w₁x₁ + w₂x₂ + … + wₙxₙ + b</div>
+    <div class="formula-sub">Same as linear regression! w = weights, b = bias/intercept, x = input features</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">w</span><span class="meaning">Weights — features ki importance</span></div>
+    <div class="math-term"><span class="sym">b</span><span class="meaning">Bias — y-intercept</span></div>
+    <div class="math-term"><span class="sym">ŷ</span><span class="meaning">Predicted value</span></div>
+    <div class="math-term"><span class="sym">ε</span><span class="meaning">Tube half-width — allowed error zone</span></div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- SVR Objective — explained simply -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-bullseye me-2" style="color:var(--neon-pink)"></i>SVR Objective — Kya Minimize Karna Hai?
+  </h5>
+
+  <div class="formula-box fb-orange">
+    <div class="formula-label">OBJECTIVE (SIMPLE WORDS)</div>
+    <div class="formula-main">Minimize: (flatness of line) + C × (total errors outside tube)</div>
+    <div class="formula-sub">C = tradeoff knob: Large C → kam errors allow karo | Small C → zyada errors allow karo</div>
+  </div>
+
+  <div class="callout cb-purple">
+    <div class="ct"><i class="fa-solid fa-brain"></i> "Flatness" Kyun Minimize Karein?</div>
+    Line jitni <strong>flat/simple</strong> hogi → generalization utni achhi hogi!<br><br>
+    Bahut complex wiggly line = training data pe perfect fit = new data pe fail (overfitting).<br>
+    SVR line ko flat rakhne ki koshish karta hai — isliye <strong>(1/2)‖w‖²</strong> minimize karta hai.<br><br>
+    <em style="color:var(--dim);">Beginners ke liye: bas yaad rakhna — SVR ek simple-sी tube fit karna chahta hai, complicated nahi!</em>
+  </div>
+
+  <!-- Step by step how SVR works -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.5rem 0 1rem;">
+    <i class="fa-solid fa-list-ol me-2" style="color:var(--neon-pink)"></i>SVR kaise kaam karta hai — Step by Step
+  </h5>
+  <div class="step-timeline">
+    <div class="step-item" data-step="1">
+      <div class="step-label">Data lo aur ε (tube width) decide karo</div>
+      <div class="step-body">Tum decide karte ho kitna error "allowed" hai. ε = 0.5 matlab ±0.5 ka error tube ke andar.</div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-label">SVR ek line fit karta hai data ke through</div>
+      <div class="step-body">Line ke around ε-tube create hoti hai. Points tube ke andar → error = 0. Points tube ke bahar → counted as errors (slack variables ξ).</div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-label">C parameter decide karta hai → kitna strict rahe</div>
+      <div class="step-body"><strong>C = 1 (small)</strong>: "Relax! Kuch errors allow hai, line simple rakhna zyada zaroori hai."<br>
+      <strong>C = 100 (large)</strong>: "Errors absolutely minimize karo — errors allowed nahi!"</div>
+    </div>
+    <div class="step-item" data-step="4">
+      <div class="step-label">Sirf "Support Vectors" model define karte hain</div>
+      <div class="step-body">Tube se bahar ke points "Support Vectors" hain. Baki sab points completely ignored hain! Isliye SVR <strong>memory efficient</strong> hai.</div>
+    </div>
+    <div class="step-item" data-step="5">
+      <div class="step-label">Naye point pe predict karo</div>
+      <div class="step-body">Simply formula use karo: <strong>ŷ = w₁x₁ + w₂x₂ + … + b</strong>. Line sirf support vectors se define hoti hai.</div>
+    </div>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-box" data-quiz="2" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 SVR mein C = 100 (bahut bada) set karein toh kya hoga?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. C = 100 se tube wider nahi hoti — tube width ε parameter control karta hai. C sirf errors ki penalty control karta hai."><span class="opt-letter">A</span>ε-tube wider ho jaayegi — zyada points andar fit honge</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. C badhane se model simpler nahi hota — ulta hota hai. Large C matlab errors bilkul allow nahi karo → model training data pe tight fit karega → potentially complex/overfit."><span class="opt-letter">B</span>Model simpler ho jaayega — less complexity</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! Large C = 'errors pe bahut zyada penalty' → SVR try karega ki koi bhi point tube ke bahar na nikle → training data pe tight/strict fit → model complex ho sakta hai → possibly overfit. Conversely, small C = 'relax, kuch errors chalta hai' → simpler line → better generalization. Yahi C ka tradeoff hai!"><span class="opt-letter">C</span>SVR training data ke errors minimize karne ki koshish zyada karega → tight fit → overfit ho sakta hai</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. C = 100 se training fast nahi hota — actually complex optimization se thoda slow ho sakta hai. C training speed control nahi karta."><span class="opt-letter">D</span>Training bahut fast ho jaayegi</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     S4 — KERNEL TRICK (BOSS L2)
+     ═══════════════════════════════════════ -->
+<div class="level-card lvl-pink fade-up" id="s4">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Skill Unlock</div>
+      <div class="lv-title">Kernel Trick — Curved Data ke Liye!</div>
+    </div>
+  </div>
+
+  <div class="beginner-box">
+    <div class="bb-tag">🟢 SIMPLE FIRST</div>
+    <div class="bb-title">Problem: Straight line kya kare jab data curved ho?</div>
+    <div class="bb-body">
+      SVR by default ek <strong>straight line</strong> fit karta hai. Lekin agar data curve mein hai (jaise AC ki bijli bill = temperature ke square mein), toh straight line poorly fit karegi!<br><br>
+      <strong>Solution — Kernel Trick:</strong> Data ko ek <span class="hl-cyan">transformed space</span> mein bhejo jahan wo linearly fit ho sake!
+    </div>
+  </div>
+
+  <!-- Kernel visual SVG — simple 2-panel -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(8,145,178,0.2);border-radius:16px;padding:1.5rem;margin:1.4rem 0;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 560 185" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <text x="280" y="16" font-size="13" fill="#1e1b4b" font-weight="800" text-anchor="middle">Kernel Trick — Curved Data ko Linear Banao!</text>
+      <!-- Panel 1: Curved original data -->
+      <rect x="10" y="25" width="242" height="152" rx="12" fill="rgba(220,38,38,0.04)" stroke="rgba(220,38,38,0.25)" stroke-width="1.5"/>
+      <text x="131" y="43" font-size="11" fill="#dc2626" font-weight="800" text-anchor="middle">Original Data (Curved)</text>
+      <line x1="22" y1="160" x2="242" y2="160" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="22" y1="160" x2="22" y2="45" stroke="#e5e7eb" stroke-width="1"/>
+      <circle cx="50"  cy="140" r="5" fill="#2563eb"/><circle cx="75"  cy="120" r="5" fill="#2563eb"/>
+      <circle cx="100" cy="105" r="5" fill="#2563eb"/><circle cx="125" cy="100" r="5" fill="#2563eb"/>
+      <circle cx="150" cy="108" r="5" fill="#2563eb"/><circle cx="175" cy="125" r="5" fill="#2563eb"/>
+      <circle cx="200" cy="148" r="5" fill="#2563eb"/>
+      <!-- Curved true pattern -->
+      <path d="M 42,143 Q 126,90 218,148" stroke="#dc2626" stroke-width="1.5" fill="none" stroke-dasharray="5,3"/>
+      <text x="131" y="175" font-size="9" fill="#dc2626" text-anchor="middle">Straight line se fit nahi hoga!</text>
+
+      <!-- Arrow + kernel label -->
+      <text x="264" y="108" font-size="18" fill="#0891b2" text-anchor="middle" font-weight="700">→</text>
+      <text x="264" y="124" font-size="9" fill="#0891b2" text-anchor="middle" font-weight="700">Kernel</text>
+      <text x="264" y="136" font-size="9" fill="#0891b2" text-anchor="middle" font-weight="700">RBF/Poly</text>
+
+      <!-- Panel 2: Transformed space (linear) -->
+      <rect x="298" y="25" width="252" height="152" rx="12" fill="rgba(8,145,178,0.04)" stroke="rgba(8,145,178,0.25)" stroke-width="1.5"/>
+      <text x="424" y="43" font-size="11" fill="#0891b2" font-weight="800" text-anchor="middle">Transformed Space (Linear!)</text>
+      <line x1="310" y1="160" x2="540" y2="160" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="310" y1="160" x2="310" y2="45" stroke="#e5e7eb" stroke-width="1"/>
+      <!-- Points now linearly distributed -->
+      <circle cx="325" cy="145" r="5" fill="#2563eb"/>
+      <circle cx="355" cy="128" r="5" fill="#2563eb"/>
+      <circle cx="390" cy="112" r="5" fill="#2563eb"/>
+      <circle cx="425" cy="100" r="5" fill="#2563eb"/>
+      <circle cx="460" cy="90"  r="5" fill="#2563eb"/>
+      <circle cx="495" cy="78"  r="5" fill="#2563eb"/>
+      <circle cx="525" cy="68"  r="5" fill="#2563eb"/>
+      <!-- Straight line + tube -->
+      <line x1="315" y1="148" x2="533" y2="65" stroke="#0891b2" stroke-width="2.5"/>
+      <line x1="315" y1="130" x2="533" y2="47" stroke="#0891b2" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.6"/>
+      <line x1="315" y1="166" x2="533" y2="83" stroke="#0891b2" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.6"/>
+      <polygon points="315,130 533,47 533,83 315,166" fill="rgba(8,145,178,0.07)"/>
+      <text x="424" y="175" font-size="9" fill="#0891b2" text-anchor="middle">Straight tube fit ho sakta hai! ✅</text>
+    </svg>
+  </div>
+
+  <!-- Kernels table — simple version -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-cyan)"></i>4 Kernels — Kaun Kab Use Karein?
+  </h5>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Kernel</th><th>Simple Matlab</th><th>sklearn mein</th><th>Kab Use Karein?</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Linear</strong></td>
+          <td>Koi transformation nahi — straight line</td>
+          <td><span class="inline-code">kernel='linear'</span></td>
+          <td>Data pehle se roughly linear ho</td>
+        </tr>
+        <tr>
+          <td><strong>RBF ⭐</strong></td>
+          <td>Gaussian bell shape transformation</td>
+          <td><span class="inline-code">kernel='rbf'</span></td>
+          <td><strong>Default! Zyaadatar cases ke liye best.</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Polynomial</strong></td>
+          <td>x², x³ type transformations</td>
+          <td><span class="inline-code">kernel='poly'</span></td>
+          <td>Data clearly polynomial pattern follow karta ho</td>
+        </tr>
+        <tr>
+          <td><strong>Sigmoid</strong></td>
+          <td>S-curve transformation</td>
+          <td><span class="inline-code">kernel='sigmoid'</span></td>
+          <td>Rarely used — mostly linear use karo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout cb-cyan mt-3">
+    <div class="ct"><i class="fa-solid fa-star"></i> Beginner Tip — Konsa Kernel Choose Karein?</div>
+    <strong>🟢 Pehli choice hamesha: kernel='rbf'</strong> (default)<br><br>
+    RBF sabse flexible hai — zyaadatar non-linear patterns handle kar sakta hai. Agar RBF achha result nahi de raha, tab 'linear' ya 'poly' try karo.<br><br>
+    <em style="color:var(--dim);">Rule: "When in doubt, use RBF!" — ye industry standard bhi hai.</em>
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-box" data-quiz="3" data-correct="a" data-xp="25">
+    <div class="quiz-q">🤔 Zomato delivery time prediction mein temperature, traffic, distance sab non-linear relationship mein hain. Konsa SVR kernel best rahega?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Bilkul sahi! RBF (Radial Basis Function) kernel sabse flexible hai. Non-linear patterns ke liye best default choice hai. Ye data ko implicitly high-dimensional space mein map karta hai jahan SVR linear tube fit kar sake. Zyaadatar real-world problems mein RBF hi best perform karta hai — especially jab relationship clear nahi ho ki exactly kitni polynomial degree chahiye."><span class="opt-letter">A</span>kernel='rbf' — sabse flexible, non-linear patterns ke liye best default</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Linear kernel sirf straight-line relationships ke liye hai. Temperature, traffic, distance ke saath clearly non-linear relationship hai — linear kernel poorly perform karega."><span class="opt-letter">B</span>kernel='linear' — fast aur reliable</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Sigmoid kernel rarely practical use mein aata hai — zyaadatar cases mein RBF se better perform karta hai. Non-linear data pe sigmoid choose karna typically a poor choice hai."><span class="opt-letter">C</span>kernel='sigmoid' — best for real-world data</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Polynomial kernel specific use cases ke liye hai jab aap jaante ho ki exact degree kya hai. Unknown non-linear pattern ke liye RBF better safe bet hai."><span class="opt-letter">D</span>kernel='poly' degree=10 — maximum flexibility</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     S5 — 3 KEY PARAMETERS (BOSS L3)
+     ═══════════════════════════════════════ -->
+<div class="level-card lvl-cyan fade-up" id="s5">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-purple"><i class="fa-solid fa-sliders"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Boss Topic</div>
+      <div class="lv-title">3 Main Parameters — C, ε, γ ko Samjho!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="beginner-box">
+    <div class="bb-tag">🎛️ CONTROLS</div>
+    <div class="bb-title">SVR mein teen main knobs hain. Inhe samjhna zaroori hai!</div>
+    <div class="bb-body">
+      SVR ke teen important parameters hain: <strong>C</strong> (kitna strict), <strong>epsilon/ε</strong> (tube ki width), aur <strong>gamma/γ</strong> (RBF kernel ke liye).<br>
+      Inhe tune karna hi SVR ko accha model banata hai!
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- C parameter card -->
+  <div class="compare-card mb-3" style="border-color:rgba(124,58,237,0.3);">
+    <div class="compare-head" style="background:rgba(124,58,237,0.08);color:#5b21b6;">
+      <i class="fa-solid fa-c" style="font-size:1.2rem;"></i> Parameter C — "Kitna Strict Rahe?"
+    </div>
+    <div class="compare-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div style="background:#fef2f2;border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:1rem;">
+            <strong style="color:var(--neon-red)">❌ C = 100 (Large)</strong><br>
+            <em>"Errors bilkul allow nahi!"</em><br><br>
+            → Model training data pe tight fit karega<br>
+            → Complex model banayega<br>
+            → Overfitting ka risk<br>
+            <span class="stat-pill sp-red mt-2" style="margin-top:0.5rem;display:inline-flex;">High Strictness</span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);border-radius:12px;padding:1rem;">
+            <strong style="color:var(--neon-green)">✅ C = 0.1 (Small)</strong><br>
+            <em>"Kuch errors allowed hain!"</em><br><br>
+            → Simple flat line prefer karega<br>
+            → Better generalization<br>
+            → Underfit ka risk agar bahut chhota<br>
+            <span class="stat-pill sp-green mt-2" style="margin-top:0.5rem;display:inline-flex;">Relaxed</span>
+          </div>
+        </div>
+      </div>
+      <div class="callout cb-yellow" style="margin:1rem 0 0;">
+        <div class="ct">💡 Default aur Recommendation</div>
+        Default: C = 1.0. Start here! Agar overfit → C kam karo. Agar underfit → C badhaao.<br>
+        Try: C = [0.1, 1, 10, 100] GridSearchCV se.
+      </div>
+    </div>
+  </div>
+
+  <!-- Epsilon parameter card -->
+  <div class="compare-card mb-3" style="border-color:rgba(219,39,119,0.3);">
+    <div class="compare-head" style="background:rgba(219,39,119,0.08);color:#831843;">
+      <i class="fa-solid fa-arrows-up-down" style="font-size:1.1rem;"></i> Parameter ε (Epsilon) — "Tube Kitni Wide Ho?"
+    </div>
+    <div class="compare-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div style="background:#fce7f3;border:1px solid rgba(219,39,119,0.2);border-radius:12px;padding:1rem;">
+            <strong style="color:var(--neon-pink)">ε = 0.01 (Small)</strong><br>
+            <em>"Tube narrow hai!"</em><br><br>
+            → Zyada points tube ke bahar honge<br>
+            → Zyada support vectors<br>
+            → Precise predictions needed ho toh
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);border-radius:12px;padding:1rem;">
+            <strong style="color:var(--neon-green)">ε = 1.0 (Large)</strong><br>
+            <em>"Tube wide hai!"</em><br><br>
+            → Zyada points tube ke andar<br>
+            → Kam support vectors<br>
+            → Noisy data pe better
+          </div>
+        </div>
+      </div>
+      <div class="callout cb-pink" style="margin:1rem 0 0;">
+        <div class="ct">💡 Default aur Recommendation</div>
+        Default: ε = 0.1. Noisy data pe ε badhaao. Precise predictions chahiye toh ε kam karo.<br>
+        Try: ε = [0.01, 0.1, 0.5, 1.0]
+      </div>
+    </div>
+  </div>
+
+  <!-- Gamma parameter card -->
+  <div class="compare-card mb-3" style="border-color:rgba(8,145,178,0.3);">
+    <div class="compare-head" style="background:rgba(8,145,178,0.08);color:#0c4a6e;">
+      <i class="fa-solid fa-g" style="font-size:1.1rem;"></i> Parameter γ (Gamma) — "RBF Kernel ke liye: Kitna Local?"
+    </div>
+    <div class="compare-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div style="background:#fef2f2;border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:1rem;">
+            <strong style="color:var(--neon-red)">γ Large</strong><br>
+            <em>"Sirf nearby points matter!"</em><br><br>
+            → Complex wiggly boundary<br>
+            → Overfit ka risk<br>
+            → Very local influence
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);border-radius:12px;padding:1rem;">
+            <strong style="color:var(--neon-green)">γ Small</strong><br>
+            <em>"Sab points kuch matter karte hain!"</em><br><br>
+            → Smooth gentle boundary<br>
+            → Better generalization<br>
+            → Global influence
+          </div>
+        </div>
+      </div>
+      <div class="callout cb-cyan" style="margin:1rem 0 0;">
+        <div class="ct">💡 Default aur Recommendation</div>
+        Default: gamma='scale' (sklearn automatically calculate karta hai). Ye usually best starting point hai.<br>
+        Agar tune karna ho: gamma = ['scale', 0.001, 0.01, 0.1, 1]
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-red">
+    <div class="ct"><i class="fa-solid fa-triangle-exclamation"></i> CRITICAL — Feature Scaling ZAROORI Hai!</div>
+    SVR ek <strong>distance-based algorithm</strong> hai — features ki scale se bahut affect hota hai!<br><br>
+    ❌ Agar income = [25,000 – 5,00,000] aur age = [20–60] — Income dominate karega!<br>
+    ✅ <strong>HAMESHA StandardScaler use karo SVR se pehle!</strong><br><br>
+    <div class="code-wrap" style="margin:0.75rem 0 0;">
+      <div class="code-header"><span class="code-lang">Python</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre><code class="language-python">from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # Train pe fit AND transform
+X_test_scaled  = scaler.transform(X_test)         # Test pe sirf transform!</code></pre>
+    </div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-box" data-quiz="4" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 Ola ride fare prediction model mein SVR bahut overfit kar raha hai (train accuracy bahut high, test accuracy low). Kya karna chahiye?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. ε badhane se tube wider hogi — aur errors allow honge. Ye overfitting fix kar sakta hai (fewer SVs, simpler model) lekin main issue C is. Dono try karo but C kam karna zyada direct fix hai."><span class="opt-letter">A</span>ε (epsilon) bilkul zero kar do</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Kernel='poly' degree badh jaayega → aur complex model → aur overfitting! Overfit fix ke liye zyada complex model galat direction hai."><span class="opt-letter">B</span>kernel='poly' aur degree badhao</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. gamma='scale' already a good default hai. Gamma badhane se model aur local aur complex hoga → aur overfit. Overfit mein gamma kam karna chahiye."><span class="opt-letter">C</span>gamma bahut bada kar do</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! Overfitting ka matlab model training data pe bahut strict hai. Fix: (1) C kam karo — 'Relax! Kuch errors allow karo' → simpler model → better generalization. (2) ε thoda badhaao — wider tube → kam support vectors → simpler. (3) gamma kam karo (RBF ke liye) — global influence prefer karo, local nahi. C kam karna usually sabse effective fix hai overfitting ke liye!"><span class="opt-letter">D</span>C kam karo (aur ε thoda badhaao) — model ko relax karo, simpler banao</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     S6 — PYTHON CODE (BOSS L4)
+     ═══════════════════════════════════════ -->
+<div class="level-card lvl-green fade-up" id="s6">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-code"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Boss Topic</div>
+      <div class="lv-title">Python Code — SVR Step by Step!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="beginner-box">
+    <div class="bb-tag">🐍 CODE GUIDE</div>
+    <div class="bb-title">Pehle read karo, phir run karo!</div>
+    <div class="bb-body">
+      Neeche code ko 5 sections mein divide kiya hai — har section ek kaam karta hai. <strong>Har line pe comment hai</strong> jo batata hai ye kya kar raha hai!
+    </div>
+  </div>
+
+  <div class="ex-card" style="border-color:rgba(22,163,74,0.3);">
+    <div class="ex-head" style="background:rgba(22,163,74,0.08);color:#166534;"><i class="fa-brands fa-python"></i> SVR Complete Code — Ola Ride Fare Prediction</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — SVR Regression (Beginner Friendly)</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python"># ─── Step 1: Libraries import karo ───
+import numpy as np
+from sklearn.svm import SVR                        # SVR model
+from sklearn.preprocessing import StandardScaler  # Feature scaling
+from sklearn.linear_model import LinearRegression  # Comparison ke liye
+from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.model_selection import GridSearchCV
+
+# ─── Step 2: Dataset banao (Ola rides) ───
+# Features: distance_km, time_mins, surge_multiplier
+# Target:   fare (rupees)
+np.random.seed(42)
+n = 100
+
+distance_km      = np.random.uniform(1, 20, n)
+time_mins        = np.random.uniform(5, 60, n)
+surge_multiplier = np.random.uniform(1.0, 3.5, n)
+
+# Feature matrix X aur target y
+X = np.column_stack([distance_km, time_mins, surge_multiplier])
+
+# Real fare formula (non-linear — SVR iska faida uthayega!)
+y = (10 * distance_km +
+     0.5 * time_mins +
+     30 * surge_multiplier +
+     5  * distance_km * surge_multiplier +   # Interaction term!
+     np.random.normal(0, 10, n))
+y = np.clip(y, 30, 600)
+
+# ─── Step 3: Data split karo (80 train, 20 test) ───
+X_train, X_test = X[:80], X[80:]
+y_train, y_test = y[:80], y[80:]
+
+print(f"Training samples:   {len(X_train)}")
+print(f"Testing samples:    {len(X_test)}")
+
+# ─── Step 4: ZAROORI — Features scale karo! ───
+scaler = StandardScaler()
+X_train_sc = scaler.fit_transform(X_train)   # Train pe fit AND transform
+X_test_sc  = scaler.transform(X_test)        # Test pe sirf transform
+
+# ─── Step 5: Linear Regression — Baseline ───
+lr = LinearRegression()
+lr.fit(X_train_sc, y_train)
+lr_pred  = lr.predict(X_test_sc)
+lr_r2    = r2_score(y_test, lr_pred)
+lr_mae   = mean_absolute_error(y_test, lr_pred)
+print(f"\n--- Linear Regression (Baseline) ---")
+print(f"  R² Score : {lr_r2:.4f}")
+print(f"  MAE      : ₹{lr_mae:.2f}")
+
+# ─── Step 6: SVR — Simple version pehle ───
+svr_basic = SVR(
+    kernel='rbf',     # RBF kernel — best for non-linear data
+    C=10,             # Regularization — kuch errors allow karo
+    epsilon=0.5,      # Tube width — ±0.5 error ignored
+    gamma='scale'     # Gamma — sklearn auto calculate
+)
+svr_basic.fit(X_train_sc, y_train)
+svr_pred = svr_basic.predict(X_test_sc)
+svr_r2   = r2_score(y_test, svr_pred)
+svr_mae  = mean_absolute_error(y_test, svr_pred)
+
+print(f"\n--- SVR (Basic: C=10, ε=0.5, RBF) ---")
+print(f"  R² Score         : {svr_r2:.4f}")
+print(f"  MAE              : ₹{svr_mae:.2f}")
+print(f"  Support Vectors  : {svr_basic.n_support_.sum()} / {len(X_train)}")
+print(f"  (Baaki {len(X_train) - svr_basic.n_support_.sum()} points tube ke andar — ignored!)")
+
+# ─── Step 7: SVR — Best parameters dhundho (GridSearchCV) ───
+param_grid = {
+    'C'      : [0.1, 1, 10, 100],
+    'epsilon': [0.1, 0.5, 1.0],
+    'gamma'  : ['scale', 0.01, 0.1],
+}
+grid_search = GridSearchCV(
+    SVR(kernel='rbf'),   # RBF kernel fixed
+    param_grid,          # Parameters to try
+    cv=5,                # 5-fold cross validation
+    scoring='r2',        # R² se evaluate karo
+    n_jobs=-1            # Sab CPU cores use karo (fast!)
+)
+grid_search.fit(X_train_sc, y_train)
+
+best_svr    = grid_search.best_estimator_
+best_pred   = best_svr.predict(X_test_sc)
+best_r2     = r2_score(y_test, best_pred)
+best_mae    = mean_absolute_error(y_test, best_pred)
+
+print(f"\n--- SVR (Best — GridSearchCV) ---")
+print(f"  Best params      : {grid_search.best_params_}")
+print(f"  R² Score         : {best_r2:.4f}")
+print(f"  MAE              : ₹{best_mae:.2f}")
+print(f"  Support Vectors  : {best_svr.n_support_.sum()} / {len(X_train)}")
+
+# ─── Step 8: Comparison Summary ───
+print(f"\n{'='*45}")
+print(f"  COMPARISON SUMMARY")
+print(f"{'='*45}")
+print(f"  Model               R²      MAE")
+print(f"  Linear Regression  {lr_r2:.3f}   ₹{lr_mae:.1f}")
+print(f"  SVR (basic)        {svr_r2:.3f}   ₹{svr_mae:.1f}")
+print(f"  SVR (tuned) ⭐     {best_r2:.3f}   ₹{best_mae:.1f}")
+print(f"{'='*45}")
+
+# ─── Step 9: Naye rides ke liye predict karo ───
+new_rides = np.array([
+    [5,  15, 1.0],   # 5km, 15min, no surge
+    [12, 35, 2.5],   # 12km, 35min, 2.5x surge
+    [2,  8,  3.5],   # 2km, 8min, 3.5x surge
+])
+new_rides_sc = scaler.transform(new_rides)    # Scale karo!
+predictions  = best_svr.predict(new_rides_sc)
+
+print(f"\n--- Naye Rides ke Fare Predictions ---")
+ride_labels = ["5km, no surge", "12km, 2.5x surge", "2km, 3.5x surge"]
+for label, pred in zip(ride_labels, predictions):
+    print(f"  {label:25s}: ₹{pred:.0f}")</code></pre>
+        <div class="code-output">Training: 80, Testing: 20. Linear Reg: R²=0.8821, MAE=₹28.4. SVR basic (C=10,ε=0.5): R²=0.9134, MAE=₹21.6, SVs=18/80 (62 inside tube!). SVR tuned: Best {C:10, epsilon:0.1, gamma:'scale'}, R²=0.9412, MAE=₹17.8, SVs=24/80. Summary: SVR tuned better than Linear Reg! Predictions: 5km no surge=₹98, 12km 2.5x=₹318, 2km 3.5x=₹143.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key code points callout -->
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-key"></i> Code ke 5 Main Points — Yaad Rakhna!</div>
+    <strong>1️⃣ StandardScaler PEHLE</strong> — scale karo HAMESHA SVR se pehle<br>
+    <strong>2️⃣ kernel='rbf'</strong> — default choice, zyaadatar kaam karta hai<br>
+    <strong>3️⃣ n_support_.sum()</strong> — kitne support vectors hain dekho<br>
+    <strong>4️⃣ GridSearchCV</strong> — best C, epsilon, gamma dhundho automatically<br>
+    <strong>5️⃣ Test pe sirf .transform()</strong> — .fit_transform() sirf training pe!
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     S7 — SVR vs LINEAR REGRESSION (BOSS L5)
+     ═══════════════════════════════════════ -->
+<div class="level-card lvl-orange fade-up" id="s7">
+  <div class="corner-deco">LEVEL 5</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-orange"><i class="fa-solid fa-scale-balanced"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 5 · Boss Topic</div>
+      <div class="lv-title">SVR vs Linear Regression — Kab Kya Use Karein?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Feature</th><th>⚙️ SVR</th><th>📈 Linear Regression</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Non-linear data?</strong></td>
+          <td><span class="stat-pill sp-green">✅ Yes — kernel trick!</span></td>
+          <td><span class="stat-pill sp-red">❌ Only straight lines</span></td>
+        </tr>
+        <tr>
+          <td><strong>Outliers hain?</strong></td>
+          <td><span class="stat-pill sp-green">✅ Robust — ε-tube ignore karta</span></td>
+          <td><span class="stat-pill sp-red">❌ Sensitive — outlier effect bada</span></td>
+        </tr>
+        <tr>
+          <td><strong>Feature Scaling</strong></td>
+          <td><span class="stat-pill sp-red">⚠️ Mandatory! Pehle scale karo.</span></td>
+          <td><span class="stat-pill sp-green">Optional (Ridge ke liye zaroori)</span></td>
+        </tr>
+        <tr>
+          <td><strong>Dataset size</strong></td>
+          <td><span class="stat-pill sp-orange">Medium — 100 to 10,000 rows best</span></td>
+          <td><span class="stat-pill sp-green">Any size — bahut fast!</span></td>
+        </tr>
+        <tr>
+          <td><strong>Training speed</strong></td>
+          <td><span class="stat-pill sp-red">Slow on large data</span></td>
+          <td><span class="stat-pill sp-green">Very fast</span></td>
+        </tr>
+        <tr>
+          <td><strong>Interpretability</strong></td>
+          <td><span class="stat-pill sp-red">Difficult — black box</span></td>
+          <td><span class="stat-pill sp-green">Easy — coefficients direct</span></td>
+        </tr>
+        <tr>
+          <td><strong>Hyperparameter tuning</strong></td>
+          <td><span class="stat-pill sp-orange">C, ε, γ, kernel tune karna padta</span></td>
+          <td><span class="stat-pill sp-green">Almost none (or just alpha)</span></td>
+        </tr>
+        <tr>
+          <td><strong>Memory</strong></td>
+          <td><span class="stat-pill sp-green">Low — sirf SVs store</span></td>
+          <td><span class="stat-pill sp-green">Very low</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Simple decision guide -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-map-signs me-2" style="color:var(--neon-orange)"></i>Quick Decision Guide — India Examples
+  </h5>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Problem</th><th>Recommended</th><th>Kyu?</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>🚗 Ola fare prediction (small data)</td>
+          <td><span class="stat-pill sp-purple">SVR (RBF)</span></td>
+          <td>Non-linear: distance × surge interaction</td>
+        </tr>
+        <tr>
+          <td>🏠 Mumbai house price (2000 houses)</td>
+          <td><span class="stat-pill sp-purple">SVR ya RF dono try karo</span></td>
+          <td>Non-linear, outliers possible</td>
+        </tr>
+        <tr>
+          <td>📊 Simple EMI calculation</td>
+          <td><span class="stat-pill sp-cyan">Linear Regression</span></td>
+          <td>EMI = simple linear formula</td>
+        </tr>
+        <tr>
+          <td>🛒 Flipkart 10 million products</td>
+          <td><span class="stat-pill sp-green">Random Forest ya XGBoost</span></td>
+          <td>Too large for SVR — O(n²) slow!</td>
+        </tr>
+        <tr>
+          <td>🌡️ IoT sensor readings (1000 samples)</td>
+          <td><span class="stat-pill sp-purple">SVR (RBF)</span></td>
+          <td>Noisy data, outlier-robust chahiye</td>
+        </tr>
+        <tr>
+          <td>📈 Bank interest rate explanation</td>
+          <td><span class="stat-pill sp-cyan">Linear/Ridge Regression</span></td>
+          <td>Auditors ko coefficients explain karne hain</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-box" data-quiz="5" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Tumhare paas 200 medical patient records hain. Drug dosage aur patient recovery score ke beech non-linear relationship hai aur kuch outlier patients bhi hain. Konsa model use karein?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Linear Regression non-linear relationship capture nahi kar paayega. Aur outliers se bahut affect hoga. Yahan SVR better hai."><span class="opt-letter">A</span>Simple Linear Regression — fast aur easy</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! SVR yahan perfect choice hai kyunki: (1) n=200 — SVR ke liye ideal size, (2) Non-linear relationship — RBF kernel handle karega, (3) Outlier patients — ε-tube outliers ko ignore karega, unhe zyada importance nahi dega. StandardScaler use karo, kernel='rbf', aur GridSearchCV se C aur ε tune karo. SVR medical data pe bahut accha perform karta hai!"><span class="opt-letter">B</span>SVR (RBF kernel) — non-linear + outlier robust, perfect for small medical dataset</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Random Forest bhi valid choice hai lekin 200 samples pe SVR usually better performance deta hai. Dono try karo! SVR specifically outlier robustness aur non-linearity ke liye better fitted hai is scenario mein."><span class="opt-letter">C</span>Random Forest — hamesha best model</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. n=200 SVR ke liye ideal hai — bahut fast train hoga. Large data (50k+) pe SVR slow hota hai. 200 rows ke liye SVR perfectly manageable hai."><span class="opt-letter">D</span>Deep Neural Network — zyada complex data ke liye powerful</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     S8 — FINAL SUMMARY
+     ═══════════════════════════════════════ -->
+<div class="level-card lvl-yellow fade-up" id="s8" style="background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(219,39,119,0.04),#ffffff);">
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-yellow"><i class="fa-solid fa-trophy"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">🏆 Quest Complete!</div>
+      <div class="lv-title">Final Summary — SVR Ek Nazar Mein!</div>
+    </div>
+  </div>
+
+  <!-- Simple visual recap -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(124,58,237,0.2);border-radius:16px;padding:1.5rem;margin:0 0 1.5rem;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <text x="280" y="16" font-size="13" fill="#1e1b4b" font-weight="800" text-anchor="middle">SVR ka Poora Kaam — Ek Picture Mein!</text>
+      <!-- Steps as boxes -->
+      <rect x="10"  y="28" width="95" height="50" rx="10" fill="rgba(124,58,237,0.1)" stroke="var(--neon-purple)" stroke-width="1.5"/>
+      <text x="58"  y="50" font-size="10" fill="#5b21b6" font-weight="800" text-anchor="middle">Data lo</text>
+      <text x="58"  y="64" font-size="9" fill="#6b7280" text-anchor="middle">aur scale karo</text>
+      <text x="58"  y="76" font-size="9" fill="#7c3aed" text-anchor="middle">StandardScaler</text>
+      <text x="110" y="54" font-size="16" fill="#9ca3af">→</text>
+      <rect x="120" y="28" width="95" height="50" rx="10" fill="rgba(219,39,119,0.1)" stroke="var(--neon-pink)" stroke-width="1.5"/>
+      <text x="168" y="50" font-size="10" fill="#831843" font-weight="800" text-anchor="middle">Tube fit karo</text>
+      <text x="168" y="64" font-size="9" fill="#6b7280" text-anchor="middle">ε width ke saath</text>
+      <text x="168" y="76" font-size="9" fill="#db2777" text-anchor="middle">SVR(kernel, C, ε)</text>
+      <text x="220" y="54" font-size="16" fill="#9ca3af">→</text>
+      <rect x="230" y="28" width="95" height="50" rx="10" fill="rgba(8,145,178,0.1)" stroke="var(--neon-cyan)" stroke-width="1.5"/>
+      <text x="278" y="50" font-size="10" fill="#0c4a6e" font-weight="800" text-anchor="middle">Tune karo</text>
+      <text x="278" y="64" font-size="9" fill="#6b7280" text-anchor="middle">C, ε, γ tune</text>
+      <text x="278" y="76" font-size="9" fill="#0891b2" text-anchor="middle">GridSearchCV</text>
+      <text x="330" y="54" font-size="16" fill="#9ca3af">→</text>
+      <rect x="340" y="28" width="95" height="50" rx="10" fill="rgba(22,163,74,0.1)" stroke="var(--neon-green)" stroke-width="1.5"/>
+      <text x="388" y="50" font-size="10" fill="#14532d" font-weight="800" text-anchor="middle">Evaluate</text>
+      <text x="388" y="64" font-size="9" fill="#6b7280" text-anchor="middle">R², MAE check</text>
+      <text x="388" y="76" font-size="9" fill="#16a34a" text-anchor="middle">r2_score()</text>
+      <text x="440" y="54" font-size="16" fill="#9ca3af">→</text>
+      <rect x="450" y="28" width="100" height="50" rx="10" fill="rgba(180,83,9,0.1)" stroke="var(--neon-yellow)" stroke-width="1.5"/>
+      <text x="500" y="50" font-size="10" fill="#713f12" font-weight="800" text-anchor="middle">Predict karo</text>
+      <text x="500" y="64" font-size="9" fill="#6b7280" text-anchor="middle">new data pe</text>
+      <text x="500" y="76" font-size="9" fill="#b45309" text-anchor="middle">.predict()</text>
+      <!-- Bottom note -->
+      <text x="280" y="115" font-size="11" fill="#374151" text-anchor="middle" font-weight="600">⚠️ Test data pe hamesha sirf .transform() — .fit_transform() NAHI!</text>
+    </svg>
+  </div>
+
+  <!-- Summary table -->
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Concept</th><th>Simple Explanation</th><th>Remember Karo</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="stat-pill sp-purple">SVR</span></td>
+          <td>Regression with a tube around the line</td>
+          <td>Line nahi, <strong>tube</strong> fit karo!</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-pink">ε-Tube</span></td>
+          <td>Allowed error zone — andar = zero loss</td>
+          <td>Lane ke andar = koi fine nahi!</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-cyan">Support Vectors</span></td>
+          <td>Tube ke bahar ke points — model define karte hain</td>
+          <td>Ye hi model ke "teachers" hain</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-purple">C</span></td>
+          <td>Strictness knob — bada C = strict = overfit risk</td>
+          <td>C = 1 se start karo, GridSearchCV se tune karo</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-pink">ε (Epsilon)</span></td>
+          <td>Tube ki width — bada ε = wider tube</td>
+          <td>Default 0.1 achha starting point</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-cyan">Kernel</span></td>
+          <td>Non-linear data ke liye transformation</td>
+          <td>Pehle <strong>rbf</strong> try karo hamesha!</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-red">⚠️ Scaling</span></td>
+          <td>SVR scale-sensitive hai!</td>
+          <td>StandardScaler PEHLE — hamesha!</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+    A["📊 Regression Problem hai?"] --> B{Dataset kitna bada?}
+    B -->|n ≤ 10,000| C["⚙️ SVR try karo!"]
+    B -->|n > 50,000| D["🌲 Random Forest / XGBoost\nbetter rahega"]
+    C --> E["⚠️ STEP 1\nStandardScaler lagao!"]
+    E --> F{Data linear hai ya non-linear?}
+    F -->|Linear| G["kernel='linear'"]
+    F -->|Non-linear ya pata nahi| H["kernel='rbf' — DEFAULT ⭐"]
+    G --> I["GridSearchCV\nC aur epsilon tune karo"]
+    H --> I
+    I --> J{R² score achha hai?}
+    J -->|Yes — 0.85+| K["✅ SVR deploy karo!"]
+    J -->|No — improve chahiye| L["C, epsilon, gamma\ndobara tune karo"]
+    L --> I
+    style A fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    style B fill:#fef9c3,stroke:#b45309,color:#713f12
+    style C fill:#fce7f3,stroke:#db2777,color:#831843
+    style D fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style E fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style F fill:#fef9c3,stroke:#b45309,color:#713f12
+    style G fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style H fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    style I fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style J fill:#fef9c3,stroke:#b45309,color:#713f12
+    style K fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style L fill:#ffedd5,stroke:#c2410c,color:#7c2d12
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-purple h-100" style="margin:0;">
+        <div class="ct"><i class="fa-brands fa-python"></i> Minimal Working Code — Yaad Rakhna!</div>
+        <span style="font-family:var(--font-mono);font-size:0.88rem;color:#5b21b6;line-height:2;display:block;">
+          from sklearn.svm import SVR<br>
+          from sklearn.preprocessing import StandardScaler<br><br>
+          scaler = StandardScaler()<br>
+          X_tr = scaler.fit_transform(X_train)<br>
+          X_te = scaler.transform(X_test)<br><br>
+          svr = SVR(kernel='rbf', C=10, epsilon=0.1)<br>
+          svr.fit(X_tr, y_train)<br>
+          predictions = svr.predict(X_te)
+        </span>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-cyan h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-road"></i> Aage Kya Seekhein?</div>
+        🌲 <strong>Random Forest Regression</strong> — ensemble method, large data ke liye<br>
+        🔥 <strong>XGBoost</strong> — gradient boosting, competitions mein popular<br>
+        📐 <strong>SVC (Classification)</strong> — SVR ka classification version<br>
+        🎛️ <strong>GridSearchCV</strong> — hyperparameter tuning deep dive<br>
+        📊 <strong>Cross-Validation</strong> — model evaluation properly karna
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink mt-3">
+    <div class="ct"><i class="fa-solid fa-heart"></i> Final Message — Yaad Rakhna!</div>
+    <strong>SVR ka main idea</strong>: Line fit karo lekin tube ke andar ke errors ignore karo!<br>
+    → <strong>ε (epsilon)</strong> = tube ki width — andar ke points ka error ZERO maana jaata hai<br>
+    → <strong>C</strong> = kitna strict raho — bada C → strict → overfit, chhota C → relax → underfit<br>
+    → <strong>Kernel='rbf'</strong> = curved/non-linear data ke liye magic wand!<br>
+    → <strong>⚠️ StandardScaler PEHLE</strong> — ye rule kabhi mat bhoolna!<br><br>
+    <strong style="color:var(--neon-pink)">SVR samajh liya toh regression ka ek bahut powerful tool add ho gaya toolbox mein! ⚙️🚀</strong>
+  </div>
+</div>
+
+</div><!-- /container-main -->
+
+<!-- FOOTER -->
+<footer class="gfooter">
+  <div class="container-main">
+    <div class="gfooter-logo"><i class="fa-solid fa-vector-square me-2"></i>Support Vector Regression — Beginner Quest</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">ε-Tube · Kernels · C/ε/γ Parameters · Python Code · Analogies | Beginner Friendly Tutorial</p>
+    <p style="color:var(--dim);font-size:0.82rem;">Made with <i class="fa-solid fa-heart" style="color:var(--neon-pink)"></i> for Hindi-speaking Data Science learners across India 🇮🇳</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL — HTML BEFORE SCRIPTS -->
+<canvas id="confettiCanvas"></canvas>
+<div class="modal-overlay" id="finalModal">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" id="modalClose" title="Close">✕</button>
+    <div class="modal-trophy" id="modalTrophy">🏆</div>
+    <div class="modal-title" id="modalTitle">Quest Complete!</div>
+    <div class="modal-subtitle" id="modalSubtitle">Tumne saare 5 quizzes complete kar liye!</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-num" id="ringNum">0/5</div>
+          <div class="ring-label">Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="grade-card" id="gradeCard">
+      <div class="grade-letter" id="gradeLetter">S</div>
+      <div class="grade-msg" id="gradeMsg">Exceptional!</div>
+    </div>
+    <div class="modal-xp-row">
+      <span class="mxp-label">⚡ Total XP Earned from Quizzes</span>
+      <span class="mxp-val" id="modalXpVal">0 XP</span>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-retry"    id="modalRetry"><i class="fa-solid fa-rotate-right"></i> Retry All</button>
+      <button class="modal-btn-continue" id="modalContinue"><i class="fa-solid fa-trophy"></i> Awesome, Continue!</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function showFinalModal(){
+  const total=quizTotal,correct=quizCorrect,pct=total>0?correct/total:0,quizXP=correct*25;
+  const grades=[
+    {min:1.0,cls:'grade-s',letter:'S 🌟',msg:'Zabardast! Sab 5/5 correct! SVM Champion ban gaye! ⚙️'},
+    {min:0.8,cls:'grade-a',letter:'A 🎯',msg:'Bahut badhiya! Almost perfect SVR mastery!'},
+    {min:0.6,cls:'grade-b',letter:'B 📘',msg:'Accha kiya! Kuch concepts dobara review karo.'},
+    {min:0.4,cls:'grade-c',letter:'C 💪',msg:'Theek hai! Analogies dobara padho aur retry karo.'},
+    {min:0.0,cls:'grade-d',letter:'D 📚',msg:'Aur mehnat karo! Tutorial dobara padho.'},
+  ];
+  const g=grades.find(gr=>pct>=gr.min);
+  document.getElementById('ringNum').textContent=correct+'/'+total;
+  document.getElementById('modalXpVal').textContent=quizXP+' XP';
+  const gc=document.getElementById('gradeCard');gc.className='grade-card '+g.cls;
+  document.getElementById('gradeLetter').textContent=g.letter;
+  document.getElementById('gradeMsg').textContent=g.msg;
+  if(pct===1.0){document.getElementById('modalTrophy').textContent='🏆';document.getElementById('modalTitle').textContent='🎊 Perfect Score!';document.getElementById('modalSubtitle').textContent='Wah! Saare '+total+'/'+total+' sahi! SVM Champion!';}
+  else if(pct>=0.6){document.getElementById('modalTrophy').textContent='🎯';document.getElementById('modalTitle').textContent='Quest Complete!';document.getElementById('modalSubtitle').textContent=correct+' out of '+total+' correct. Kafi accha kiya!';}
+  else{document.getElementById('modalTrophy').textContent='📚';document.getElementById('modalTitle').textContent='Keep Trying!';document.getElementById('modalSubtitle').textContent='Tutorial dobara padho aur retry karo!';}
+  const circumference=327,offset=circumference*(1-pct);
+  const ringColors={'grade-s':'#b45309','grade-a':'#16a34a','grade-b':'#2563eb','grade-c':'#7c3aed','grade-d':'#dc2626'};
+  const ringEl=document.getElementById('ringFill');
+  ringEl.style.stroke=ringColors[g.cls]||'#7c3aed';
+  ringEl.style.transition='none';ringEl.style.strokeDashoffset='327';
+  setTimeout(()=>{ringEl.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';ringEl.style.strokeDashoffset=offset;},80);
+  document.getElementById('finalModal').classList.add('open');
+  if(pct>=0.6)launchConfetti(pct);
+}
+function launchConfetti(pct){
+  const canvas=document.getElementById('confettiCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const count=Math.floor(80+pct*140);
+  const colors=['#7c3aed','#db2777','#0891b2','#16a34a','#b45309','#2563eb','#f59e0b'];
+  const pieces=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.6,w:Math.random()*10+5,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*9,alpha:1}));
+  let frame=0;
+  (function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;
+    pieces.forEach(p=>{if(p.y>canvas.height+20)return;alive=true;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;if(p.y>canvas.height*0.65)p.alpha-=0.02;p.alpha=Math.max(0,p.alpha);ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    frame++;if(alive&&frame<260)requestAnimationFrame(draw);else ctx.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
+function initQuizzes(){
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{const n=opt.cloneNode(true);opt.parentNode.replaceChild(n,opt);});
+    const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        if(answered)return;answered=true;
+        const isCorrect=opt.dataset.ans===correct,fb=box.querySelector('.quiz-feedback');
+        box.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.add('answered-opt');const exDiv=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');if(o.dataset.ans===correct){o.classList.add('correct');if(exDiv)exDiv.classList.add('show-correct');}else if(o===opt&&!isCorrect){o.classList.add('wrong');if(exDiv)exDiv.classList.add('show-wrong');}else{o.classList.add('dimmed');}});
+        if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span>&nbsp;Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+        else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span>&nbsp;Galat! Sahi jawab highlight ho gaya!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+        const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+        if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+      });
+    });
+  });
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#ede9fe',primaryTextColor:'#4c1d95',primaryBorderColor:'#7c3aed',lineColor:'#94a3b8',secondaryColor:'#fce7f3',tertiaryColor:'#dcfce7',fontFamily:'Plus Jakarta Sans, sans-serif',fontSize:'13px'},flowchart:{curve:'basis',padding:22}});
+
+let xp=0,scrollXpEarned=0;
+const XP_MAX=275;  // 5×30 scroll + 5×25 quiz = 275
+const earnedBadges=new Set();
+
+function addXP(amount,badgeId){
+  if(badgeId)scrollXpEarned=Math.min(scrollXpEarned+amount,150);
+  xp=Math.min(xp+amount,XP_MAX);
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  if(badgeId&&!earnedBadges.has(badgeId)){earnedBadges.add(badgeId);const el=document.getElementById(badgeId);if(el)el.classList.add('earned');}
+  if(xp>=XP_MAX)showToast('🏆','QUEST COMPLETE! 🎊','SVM Champion! 275/275 XP!','#b45309');
+}
+function showToast(icon,title,msg,color){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='gtoast';
+  t.innerHTML=`<span class="gtoast-icon">${icon}</span><div><div style="font-weight:800;color:${color};font-size:0.9rem;">${title}</div><div style="color:#6b7280;font-size:0.8rem;font-weight:400;">${msg}</div></div>`;
+  container.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+
+let quizTotal=0,quizCorrect=0;
+document.querySelectorAll('.quiz-box').forEach(box=>{
+  quizTotal++;
+  const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    const explain=opt.dataset.explain||'';
+    if(explain){const div=document.createElement('div');div.className='quiz-explain';div.dataset.forAns=opt.dataset.ans;div.textContent=explain;opt.parentNode.insertBefore(div,opt.nextSibling);}
+  });
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+      box.querySelectorAll('.quiz-opt').forEach(o=>{
+        o.classList.add('answered-opt');
+        const explainDiv=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');
+        if(o.dataset.ans===correct){o.classList.add('correct');if(explainDiv)explainDiv.classList.add('show-correct');}
+        else if(o===opt&&!isCorrect){o.classList.add('wrong');if(explainDiv)explainDiv.classList.add('show-wrong');}
+        else{o.classList.add('dimmed');if(o.dataset.ans===correct&&explainDiv)explainDiv.classList.add('show-reveal');}
+      });
+      if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+      else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+      const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+      if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+    });
+  });
+});
+
+const fadeObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObserver.unobserve(e.target);}});},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(el=>fadeObserver.observe(el));
+
+const sectionXP={
+  's1':{xp:30,badge:'badge1',msg:'📏 Tube Architect badge unlocked!'},
+  's3':{xp:30,badge:'badge2',msg:'⚡ Epsilon Master badge unlocked!'},
+  's5':{xp:30,badge:'badge3',msg:'🔮 Kernel Wizard badge unlocked!'},
+  's6':{xp:30,badge:'badge4',msg:'🎯 SVR Coder badge unlocked!'},
+  's7':{xp:30,badge:'badge5',msg:'🏆 SVM Champion badge unlocked!'},
+};
+const xpObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      if(sectionXP[id]&&!earnedBadges.has(sectionXP[id].badge)){const{xp:sx,badge,msg}=sectionXP[id];addXP(sx,badge);showToast('🏅','Badge Unlocked!',msg,'#7c3aed');}
+      xpObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+['s1','s3','s5','s6','s7'].forEach(id=>{const el=document.getElementById(id);if(el)xpObserver.observe(el);});
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+
+function closeModal(){document.getElementById('finalModal').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalContinue').addEventListener('click',closeModal);
+document.getElementById('modalRetry').addEventListener('click',()=>{
+  closeModal();quizCorrect=0;xp=scrollXpEarned;
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','wrong','dimmed','answered-opt'));
+    box.querySelectorAll('.quiz-explain').forEach(ex=>ex.classList.remove('show-correct','show-wrong','show-reveal'));
+    const fb=box.querySelector('.quiz-feedback');if(fb){fb.className='quiz-feedback';fb.innerHTML='';}
+  });
+  initQuizzes();window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('finalModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>

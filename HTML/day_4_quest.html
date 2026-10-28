@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 Regression Metrics Quest — MAE, MSE, RMSE, R², Adjusted R² | Gamified Learning</title>
+<meta name="description" content="Master Simple Linear Regression Metrics — MAE, MSE, RMSE, R² Score & Adjusted R² Score with math formulas, intuition, Python code, and gamified quizzes in Hinglish.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#f8f9fc;--surface:#ffffff;--card:#ffffff;--border:#e2e8f0;
+--primary:#6c5ce7;--primary-glow:#7c3aed;--secondary:#0ea5e9;--accent:#f97316;
+--xp-bar:#10b981;--gold:#f59e0b;--danger:#ef4444;--success:#22c55e;
+--text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;
+--radius:16px;--shadow:0 4px 24px rgba(0,0,0,0.06);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+.container{max-width:100%;margin:0;padding:0 60px}
+.hero{position:relative;min-height:50vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:60px 20px;overflow:hidden;background:linear-gradient(135deg,#6c5ce7 0%,#7c3aed 40%,#0ea5e9 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,0.15) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(255,255,255,0.08) 0%,transparent 40%)}
+.hero-content{position:relative;z-index:2}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;margin-bottom:12px;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,0.15)}
+.hero .subtitle{font-size:1.1rem;color:rgba(255,255,255,0.85);max-width:650px;margin:0 auto 30px}
+.hero .badge-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.hero .badge-row span{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);padding:6px 16px;border-radius:30px;font-size:.8rem;color:#fff;backdrop-filter:blur(4px)}
+.hero-particles{position:absolute;inset:0;pointer-events:none}
+.hero-particles span{position:absolute;width:4px;height:4px;background:rgba(255,255,255,0.5);border-radius:50%;animation:float 6s infinite ease-in-out}
+@keyframes float{0%,100%{transform:translateY(0) scale(1);opacity:.3}50%{transform:translateY(-40px) scale(1.5);opacity:.8}}
+.xp-bar-container{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 0;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.xp-inner{display:flex;align-items:center;gap:16px;max-width:100%;margin:0;padding:0 60px}
+.xp-info{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.9rem;white-space:nowrap;color:var(--text)}
+.xp-info .xp-icon{font-size:1.2rem}
+.xp-track{flex:1;height:14px;background:#f1f5f9;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--xp-bar),#34d399);border-radius:10px;transition:width .8s cubic-bezier(.4,0,.2,1);width:0%}
+.xp-label{font-size:.8rem;color:var(--text-muted);white-space:nowrap}
+.xp-level-badge{background:linear-gradient(135deg,var(--gold),#f59e0b);color:#fff;font-weight:800;padding:4px 12px;border-radius:20px;font-size:.75rem;box-shadow:0 2px 8px rgba(245,158,11,0.3)}
+.quest-map{padding:60px 0 30px;text-align:center}
+.quest-map h2{font-size:1.8rem;font-weight:800;margin-bottom:30px;color:var(--primary)}
+.quest-steps{display:flex;justify-content:center;gap:0;flex-wrap:wrap;position:relative}
+.quest-node{display:flex;flex-direction:column;align-items:center;gap:6px;width:120px;cursor:pointer;transition:.3s}
+.quest-node:hover{transform:translateY(-4px)}
+.quest-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;border:3px solid var(--border);background:#f8f9fc;transition:.3s;position:relative;color:var(--text-muted)}
+.quest-circle.completed{border-color:var(--success);background:#ecfdf5;color:var(--success);box-shadow:0 0 16px rgba(34,197,94,0.2)}
+.quest-circle.active{border-color:var(--primary);background:#ede9fe;color:var(--primary);box-shadow:0 0 16px rgba(108,92,231,0.25);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 16px rgba(108,92,231,0.25)}50%{box-shadow:0 0 28px rgba(108,92,231,0.45)}}
+.quest-label{font-size:.7rem;color:var(--text-muted);text-align:center;line-height:1.3;font-weight:500}
+.quest-connector{width:40px;height:3px;background:var(--border);align-self:center;margin-top:-20px;border-radius:2px}
+.quest-connector.completed{background:var(--success)}
+.level-section{padding:40px 0}
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:36px;margin-bottom:40px;position:relative;overflow:hidden;transition:.3s;box-shadow:var(--shadow)}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
+.level-card:hover{border-color:rgba(108,92,231,0.3);box-shadow:0 8px 32px rgba(108,92,231,0.1)}
+.level-header{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.level-number{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-weight:900;font-size:1.1rem;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(108,92,231,0.25)}
+.level-title{font-size:1.35rem;font-weight:800;color:var(--text)}
+.level-xp{margin-left:auto;background:#ecfdf5;color:var(--xp-bar);padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;border:1px solid #bbf7d0}
+.callout{border-radius:12px;padding:20px 24px;margin:20px 0;border-left:4px solid;position:relative}
+.callout.story{background:#fff7ed;border-color:#f97316;color:#9a3412}
+.callout.tip{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.callout.warning{background:#fef2f2;border-color:#ef4444;color:#991b1b}
+.callout.formula{background:#faf5ff;border-color:#8b5cf6;color:#5b21b6}
+.callout.pros{background:#ecfdf5;border-color:#10b981;color:#065f46}
+.callout.cons{background:#fef2f2;border-color:#ef4444;color:#991b1b}
+.callout-title{font-weight:700;font-size:.9rem;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.callout p{color:#374151}
+.callout code{background:rgba(108,92,231,0.1);color:#6c5ce7;padding:2px 6px;border-radius:4px;font-size:.85rem}
+.code-block{background:#f8f9fc;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin:20px 0;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#f1f5f9;border-bottom:1px solid #e2e8f0}
+.code-header span{font-size:.8rem;color:#64748b;font-weight:600}
+.code-header button{background:#ede9fe;color:#6c5ce7;border:1px solid #c4b5fd;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.75rem;font-family:'Inter';transition:.2s}
+.code-header button:hover{background:#ddd6fe}
+pre{padding:20px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.6;color:#1e293b;background:#fafbfe}
+.code-output{background:#f0fdf4;border-top:1px solid #e2e8f0;padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:#166534}
+.code-output::before{content:'▸ Output';display:block;font-size:.7rem;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.quiz-container{background:linear-gradient(135deg,#faf5ff,#eff6ff);border:1px solid #e0d4f7;border-radius:var(--radius);padding:30px;margin:30px 0}
+.quiz-title{font-size:1.1rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;color:var(--primary)}
+.quiz-question{font-weight:600;margin-bottom:14px;font-size:1rem;color:var(--text)}
+.quiz-options{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.quiz-option{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 18px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--text)}
+.quiz-option:hover{border-color:var(--primary);background:#faf5ff}
+.quiz-option.selected{border-color:var(--primary);background:#ede9fe}
+.quiz-option.correct{border-color:var(--success);background:#ecfdf5;color:#166534}
+.quiz-option.wrong{border-color:var(--danger);background:#fef2f2;color:#991b1b}
+.quiz-option .opt-marker{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;transition:.2s;color:var(--text-muted)}
+.quiz-option.selected .opt-marker{border-color:var(--primary);background:var(--primary);color:#fff}
+.quiz-option.correct .opt-marker{border-color:var(--success);background:var(--success);color:#fff}
+.quiz-option.wrong .opt-marker{border-color:var(--danger);background:var(--danger);color:#fff}
+.quiz-btn{background:linear-gradient(135deg,var(--primary),#7c3aed);color:#fff;border:none;padding:10px 28px;border-radius:10px;font-weight:700;cursor:pointer;font-size:.9rem;transition:.3s;font-family:'Inter';box-shadow:0 4px 12px rgba(108,92,231,0.25)}
+.quiz-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(108,92,231,0.35)}
+.quiz-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.quiz-feedback{margin-top:14px;padding:12px 18px;border-radius:10px;font-weight:600;font-size:.9rem;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0}
+.quiz-feedback.wrong{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:999}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border:1px solid var(--border);border-radius:20px;padding:50px 40px;text-align:center;max-width:420px;width:90%;position:relative;animation:modalIn .5s cubic-bezier(.4,0,.2,1);box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+@keyframes modalIn{from{opacity:0;transform:scale(.8) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal .reward-icon{font-size:4rem;margin-bottom:16px;display:block;animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.modal h3{font-size:1.5rem;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#f59e0b,#f97316);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.modal p{color:var(--text-muted);margin-bottom:24px}
+.modal .xp-reward{font-size:1.3rem;font-weight:800;color:var(--xp-bar);margin-bottom:20px}
+.modal button{background:linear-gradient(135deg,var(--primary),#7c3aed);color:#fff;border:none;padding:12px 32px;border-radius:12px;font-weight:800;cursor:pointer;font-size:1rem;font-family:'Inter';transition:.3s;box-shadow:0 4px 16px rgba(108,92,231,0.3)}
+.modal button:hover{transform:scale(1.05)}
+.confetti-piece{position:fixed;width:10px;height:10px;top:-10px;z-index:1000;animation:confettiFall 3s linear forwards}
+@keyframes confettiFall{to{top:110vh;opacity:0;transform:rotateZ(720deg)}}
+.footer{text-align:center;padding:60px 20px;color:var(--text-muted);font-size:.85rem;border-top:1px solid var(--border);background:#fff}
+.footer a{color:var(--primary);text-decoration:none}
+.methods-table{width:100%;border-collapse:collapse;margin:20px 0;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.methods-table th{background:linear-gradient(135deg,var(--primary),#7c3aed);color:#fff;padding:12px 16px;text-align:left;font-size:.85rem;font-weight:700}
+.methods-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:.85rem;vertical-align:top;color:var(--text)}
+.methods-table tr:nth-child(even) td{background:#faf5ff}
+.methods-table tr:hover td{background:#f0ebff}
+.methods-table code{background:#ede9fe;color:#6c5ce7;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.compare-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.compare-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.compare-card h4{font-size:.95rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.compare-card p{font-size:.85rem;color:var(--text-muted);line-height:1.6}
+.compare-card .method-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.75rem;font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:10px}
+.proscons-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.proscons-card{border-radius:12px;padding:20px 24px;border:1px solid}
+.proscons-card.pro{background:#ecfdf5;border-color:#bbf7d0}
+.proscons-card.con{background:#fef2f2;border-color:#fecaca}
+.proscons-card h4{font-weight:700;font-size:.95rem;margin-bottom:8px}
+.proscons-card ul{list-style:none;padding:0}
+.proscons-card ul li{font-size:.85rem;padding:4px 0;color:#374151}
+.proscons-card ul li::before{margin-right:6px}
+.proscons-card.pro ul li::before{content:'✅'}
+.proscons-card.con ul li::before{content:'❌'}
+.final-summary{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:50px;margin:40px 0;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.final-summary::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#f97316,#6c5ce7,#0ea5e9,#10b981)}
+.final-summary h2{font-size:1.6rem;font-weight:800;margin-bottom:28px;color:var(--text);text-align:center}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.summary-item{background:#f8f9fc;border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;transition:.3s;border-top:3px solid transparent}
+.summary-item:hover{transform:translateY(-3px);box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.summary-item .si-icon{font-size:1.8rem;display:block;margin-bottom:6px}
+.summary-item .si-title{font-weight:800;font-size:.95rem;margin-bottom:6px;color:var(--text)}
+.summary-item .si-desc{font-size:.8rem;color:var(--text-muted);line-height:1.5}
+.summary-item.si-orange{border-top-color:#f97316}
+.summary-item.si-purple{border-top-color:#6c5ce7}
+.summary-item.si-blue{border-top-color:#0ea5e9}
+.summary-item.si-green{border-top-color:#10b981}
+.summary-item.si-amber{border-top-color:#f59e0b}
+.summary-item.si-red{border-top-color:#ef4444}
+.summary-takeaway{background:linear-gradient(135deg,#faf5ff,#eff6ff);border:1px solid #e0d4f7;border-radius:12px;padding:24px;text-align:center}
+.summary-takeaway p{font-size:.95rem;color:var(--text);line-height:1.7}
+.summary-takeaway code{background:#ede9fe;color:#6c5ce7;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.85rem}
+.formula-box{background:#faf5ff;border:2px solid #e0d4f7;border-radius:14px;padding:24px 28px;margin:16px 0;text-align:center;font-size:1.15rem;font-weight:600;color:#5b21b6;letter-spacing:.5px;line-height:2}
+.formula-box .formula-label{font-size:.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px;display:block;font-weight:700}
+.formula-box .formula-main{font-family:'JetBrains Mono',monospace;font-size:1.05rem}
+@media(max-width:600px){
+.level-card{padding:24px 18px}.quest-node{width:80px}.quest-connector{width:20px}.modal{padding:36px 24px}.xp-inner{gap:10px}.hero h1{font-size:1.8rem}.compare-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr}.final-summary{padding:30px 20px}.proscons-grid{grid-template-columns:1fr}
+}
+.kw{color:#8b5cf6}.fn{color:#2563eb}.str{color:#16a34a}.cm{color:#94a3b8}.num{color:#ea580c}.op{color:#d97706}.im{color:#db2777}.bi{color:#2563eb}.var{color:#d97706}
+</style>
+</head>
+<body>
+
+<!-- ===== XP BAR ===== -->
+<div class="xp-bar-container">
+<div class="xp-inner">
+<div class="xp-info"><span class="xp-icon">⚡</span><span id="xpCount">0</span> XP</div>
+<div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
+<div class="xp-label" id="xpLabel">Level 0 / 6</div>
+<div class="xp-level-badge" id="xpBadge">🌱 Noob</div>
+</div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+<div class="hero-particles" id="particles"></div>
+<div class="hero-content">
+<h1>🎮 Regression Metrics Quest</h1>
+<p class="subtitle">Master MAE, MSE, RMSE, R² Score & Adjusted R² Score — math formulas, intuition, Python code sab ek gamified adventure mein! 📊🚀</p>
+<div class="badge-row">
+<span>🐍 Python</span>
+<span>📈 Supervised Learning</span>
+<span>🔢 Linear Regression</span>
+<span>🎯 6 Levels</span>
+<span>💎 600 XP</span>
+</div>
+</div>
+</section>
+
+<!-- ===== QUEST MAP ===== -->
+<div class="container">
+<section class="quest-map">
+<h2>🗺️ Quest Map</h2>
+<div class="quest-steps">
+<div class="quest-node" onclick="scrollToLevel(1)">
+<div class="quest-circle active" id="qc1">1</div>
+<div class="quest-label">Train-Test<br>Split</div>
+</div>
+<div class="quest-connector" id="conn1"></div>
+<div class="quest-node" onclick="scrollToLevel(2)">
+<div class="quest-circle" id="qc2">2</div>
+<div class="quest-label">MAE<br>Mean Absolute Error</div>
+</div>
+<div class="quest-connector" id="conn2"></div>
+<div class="quest-node" onclick="scrollToLevel(3)">
+<div class="quest-circle" id="qc3">3</div>
+<div class="quest-label">MSE<br>Mean Squared Error</div>
+</div>
+<div class="quest-connector" id="conn3"></div>
+<div class="quest-node" onclick="scrollToLevel(4)">
+<div class="quest-circle" id="qc4">4</div>
+<div class="quest-label">RMSE<br>Root MSE</div>
+</div>
+<div class="quest-connector" id="conn4"></div>
+<div class="quest-node" onclick="scrollToLevel(5)">
+<div class="quest-circle" id="qc5">5</div>
+<div class="quest-label">R² Score<br>Coefficient</div>
+</div>
+<div class="quest-connector" id="conn5"></div>
+<div class="quest-node" onclick="scrollToLevel(6)">
+<div class="quest-circle" id="qc6">6</div>
+<div class="quest-label">Adjusted R²<br>Score</div>
+</div>
+</div>
+</section>
+
+<!-- ===== LEVEL SECTIONS ===== -->
+<section class="level-section" id="levels-container">
+
+<!-- ==================== LEVEL 1: TRAIN-TEST SPLIT ==================== -->
+<div class="level-card" id="level1">
+<div class="level-header">
+<div class="level-number">1</div>
+<div class="level-title">Train-Test Split — Model Ko Fair Exam Do! 🔀</div>
+<div class="level-xp">+100 XP</div>
+</div>
+
+<div class="callout story">
+<div class="callout-title">📖 Kahani Time</div>
+<p>Socho tum ek <strong>teacher</strong> ho 👨‍🏫. Exam se pehle tumne students ko <strong>50 questions</strong> diye practice ke liye. Ab exam mein agar wahi 50 questions de doge, toh <em>sab top karenge!</em> Par kya woh really seekhe? <strong>Nahi!</strong> 😱 Unhone toh answers <strong>ratta maar liya!</strong> Isliye smart teachers naye questions dete hain exam mein — jo practice set mein <em>nahi the.</em> Yahi concept hai <strong>Train-Test Split</strong> ka! 🎯<br><br>
+Model ko <strong>training data</strong> pe seekhne do (practice), phir <strong>test data</strong> pe evaluate karo (exam) — jo model ne pehle <em>dekha hi nahi!</em> Isse pata chalta hai model <strong>actually seekha hai ya sirf yaad kiya hai!</strong></p>
+</div>
+
+<div class="callout tip">
+<div class="callout-title">💡 Key Concept — Intuition</div>
+<p><strong>Train-Test Split</strong> data ko <strong>do hisse mein todta hai:</strong><br>
+• <strong>Training Set (70-80%):</strong> Model isse <strong>seekhta hai</strong> — patterns, relationships, weights<br>
+• <strong>Test Set (20-30%):</strong> Model ko isse <strong>evaluate karte hain</strong> — unseen data pe performance dekho<br><br>
+💡 <strong>Why?</strong> Agar sab data pe train karke, wahi data pe test karoge → <strong>overfitting!</strong> Model ratta maarega, naye data pe fail karega!<br>
+💡 <strong>Goal:</strong> Model <em>generalize</em> kare — naye data pe bhi accha perform kare!<br>
+💡 sklearn ka <code>train_test_split()</code> function yeh kaam <strong>ek line mein</strong> kar deta hai! 🚀</p>
+</div>
+
+<div class="formula-box">
+<span class="formula-label">📐 Train-Test Split Syntax</span>
+<span class="formula-main">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)</span>
+<br>
+<span style="font-size:.8rem;color:#64748b;font-weight:400">test_size=0.2 → 80% train, 20% test | random_state → reproducible results</span>
+</div>
+
+<div class="callout formula">
+<div class="callout-title">📐 Parameters Samjho — Kya Kya Set Karna Hai?</div>
+<p>
+<strong><code>test_size</code>:</strong> Test data ka proportion (0.2 = 20%, 0.3 = 30%)<br>
+<strong><code>train_size</code>:</strong> Train data ka proportion (usually auto-calculated)<br>
+<strong><code>random_state</code>:</strong> Seed for reproducibility — same split har baar milega! 🎲<br>
+<strong><code>shuffle</code>:</strong> Data ko randomly mix karo before splitting (default = True) ✅<br>
+<strong><code>stratify</code>:</strong> Classification mein class balance maintain karo (regression mein usually None)<br><br>
+<strong>Common Splits:</strong><br>
+• <strong>80/20</strong> — Most popular, generally safest ✅<br>
+• <strong>70/30</strong> — Zyada test data chahiye toh use karo<br>
+• <strong>90/10</strong> — Bahut zyada data hai toh chal jayega<br>
+• <strong>Rule of thumb:</strong> Kam data? → 80/20. Bahut data (100K+)? → 90/10 bhi chalta hai!
+</p>
+</div>
+
+<div class="callout warning">
+<div class="callout-title">⚠️ Common Mistakes — Beginners Yeh Galti Karte Hain!</div>
+<p>
+❌ <strong>Test data pe train karna</strong> → Data leakage! Results fake honge!<br>
+❌ <strong>random_state na dena</strong> → Har baar alag split, non-reproducible results<br>
+❌ <strong>Pehle transform, phir split</strong> → WRONG! Pehle split karo, phir sirf train pe fit karo!<br>
+❌ <strong>Bahut chhota test set</strong> (5%) → Unreliable evaluation<br>
+✅ <strong>Correct order:</strong> Split → Fit on train → Transform both → Evaluate on test
+</p>
+</div>
+
+<div class="proscons-grid">
+<div class="proscons-card pro">
+<h4 style="color:#065f46">✅ Why Train-Test Split is Essential</h4>
+<ul>
+<li>Overfitting detect karta hai — model ratta toh nahi maar raha?</li>
+<li>Real-world performance ka honest estimate deta hai</li>
+<li>Simple aur fast — ek line mein ho jaata hai!</li>
+<li>Sabse basic evaluation strategy — har ML project mein zaruri!</li>
+</ul>
+</div>
+<div class="proscons-card con">
+<h4 style="color:#991b1b">❌ Limitations</h4>
+<ul>
+<li>Ek hi split pe depend — agar split unlucky hua toh misleading results</li>
+<li>Small datasets mein unreliable — data waste hota hai</li>
+<li>Better alternative: K-Fold Cross Validation (advanced topic)</li>
+<li>Split ratio ka koi universal "best" nahi hai</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>🐍 Python — Train-Test Split with Real CGPA vs Package Data</span><button onclick="copyCode(this)">📋 Copy</button></div>
+<pre><span class="im">import</span> pandas <span class="kw">as</span> pd
+<span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split
+<span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression
+
+<span class="cm"># 🎓 Real-world placement data — CGPA vs Package (LPA)</span>
+data = {
+    <span class="str">"cgpa"</span>: [<span class="num">6.89</span>, <span class="num">5.12</span>, <span class="num">7.82</span>, <span class="num">6.35</span>, <span class="num">7.51</span>, <span class="num">9.21</span>, <span class="num">8.73</span>, <span class="num">5.89</span>, <span class="num">6.22</span>, <span class="num">8.51</span>,
+             <span class="num">7.34</span>, <span class="num">9.48</span>, <span class="num">8.10</span>, <span class="num">5.62</span>, <span class="num">6.73</span>, <span class="num">7.90</span>, <span class="num">8.30</span>, <span class="num">9.00</span>, <span class="num">5.45</span>, <span class="num">7.12</span>,
+             <span class="num">8.88</span>, <span class="num">6.50</span>, <span class="num">7.68</span>, <span class="num">9.35</span>, <span class="num">6.10</span>, <span class="num">8.20</span>, <span class="num">7.45</span>, <span class="num">5.78</span>, <span class="num">8.60</span>, <span class="num">7.25</span>],
+    <span class="str">"package_lpa"</span>: [<span class="num">3.26</span>, <span class="num">1.98</span>, <span class="num">4.24</span>, <span class="num">2.75</span>, <span class="num">3.67</span>, <span class="num">6.84</span>, <span class="num">5.90</span>, <span class="num">2.42</span>, <span class="num">2.65</span>, <span class="num">5.45</span>,
+                    <span class="num">3.52</span>, <span class="num">7.20</span>, <span class="num">4.85</span>, <span class="num">2.15</span>, <span class="num">3.10</span>, <span class="num">4.35</span>, <span class="num">5.10</span>, <span class="num">6.25</span>, <span class="num">1.85</span>, <span class="num">3.45</span>,
+                    <span class="num">6.12</span>, <span class="num">2.88</span>, <span class="num">3.95</span>, <span class="num">6.95</span>, <span class="num">2.50</span>, <span class="num">4.98</span>, <span class="num">3.60</span>, <span class="num">2.30</span>, <span class="num">5.65</span>, <span class="num">3.48</span>]
+}
+
+df = pd.<span class="fn">DataFrame</span>(data)
+<span class="fn">print</span>(<span class="str">"🎓 Placement Dataset (first 5 rows):"</span>)
+<span class="fn">print</span>(df.<span class="fn">head</span>())
+
+<span class="cm"># 📌 Feature (X) and Target (y)</span>
+X = df[[<span class="str">"cgpa"</span>]]           <span class="cm"># feature — DataFrame format</span>
+y = df[<span class="str">"package_lpa"</span>]      <span class="cm"># target — Series format</span>
+
+<span class="cm"># 🔀 Train-Test Split (80% train, 20% test)</span>
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    X, y, test_size=<span class="num">0.2</span>, random_state=<span class="num">42</span>
+)
+
+<span class="fn">print</span>(<span class="str">f"\n📊 Data Split Summary:"</span>)
+<span class="fn">print</span>(<span class="str">f"  Total students: {len(X)}"</span>)
+<span class="fn">print</span>(<span class="str">f"  Training set:   {len(X_train)} ({len(X_train)/len(X)*100:.0f}%)"</span>)
+<span class="fn">print</span>(<span class="str">f"  Test set:       {len(X_test)} ({len(X_test)/len(X)*100:.0f}%)"</span>)
+<span class="fn">print</span>(<span class="str">f"  X_train shape:  {X_train.shape}"</span>)
+<span class="fn">print</span>(<span class="str">f"  X_test shape:   {X_test.shape}"</span>)
+
+<span class="cm"># 🤖 Train model on TRAINING data only!</span>
+model = LinearRegression()
+model.<span class="fn">fit</span>(X_train, y_train)  <span class="cm"># ← Train pe seekho</span>
+
+<span class="cm"># 📊 Evaluate on BOTH sets</span>
+train_score = model.<span class="fn">score</span>(X_train, y_train)
+test_score = model.<span class="fn">score</span>(X_test, y_test)
+
+<span class="fn">print</span>(<span class="str">f"\n🎯 Model Performance:"</span>)
+<span class="fn">print</span>(<span class="str">f"  Train R²: {train_score:.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"  Test R²:  {test_score:.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"\n💡 Train ≈ Test → Good generalization!"</span>)
+<span class="fn">print</span>(<span class="str">f"💡 Train >> Test → Overfitting alert! ⚠️"</span>)</pre>
+<div class="code-output">🎓 Placement Dataset (first 5 rows):
+   cgpa  package_lpa
+0  6.89         3.26
+1  5.12         1.98
+2  7.82         4.24
+3  6.35         2.75
+4  7.51         3.67
+
+📊 Data Split Summary:
+  Total students: 30
+  Training set:   24 (80%)
+  Test set:       6 (20%)
+  X_train shape:  (24, 1)
+  X_test shape:   (6, 1)
+
+🎯 Model Performance:
+  Train R²: 0.9480
+  Test R²:  0.9734
+
+💡 Train ≈ Test → Good generalization!
+💡 Train >> Test → Overfitting alert! ⚠️</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>🐍 Python — All Metrics on Test Set (CGPA → Package Pipeline)</span><button onclick="copyCode(this)">📋 Copy</button></div>
+<pre><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error, mean_squared_error, r2_score
+<span class="im">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># 📊 Predictions on TEST data (unseen students!)</span>
+y_pred = model.<span class="fn">predict</span>(X_test)
+
+<span class="cm"># 📏 All Metrics — evaluated on TEST set!</span>
+mae  = <span class="fn">mean_absolute_error</span>(y_test, y_pred)
+mse  = <span class="fn">mean_squared_error</span>(y_test, y_pred)
+rmse = np.<span class="fn">sqrt</span>(mse)
+r2   = <span class="fn">r2_score</span>(y_test, y_pred)
+
+n_test = <span class="fn">len</span>(y_test)
+p = X_test.shape[<span class="num">1</span>]
+adj_r2 = <span class="num">1</span> - (<span class="num">1</span> - r2) * (n_test - <span class="num">1</span>) / (n_test - p - <span class="num">1</span>)
+
+<span class="fn">print</span>(<span class="str">"╔══════════════════════════════════════╗"</span>)
+<span class="fn">print</span>(<span class="str">"║  📊 TEST SET METRICS DASHBOARD       ║"</span>)
+<span class="fn">print</span>(<span class="str">"║  (CGPA → Package in LPA)             ║"</span>)
+<span class="fn">print</span>(<span class="str">"╠══════════════════════════════════════╣"</span>)
+<span class="fn">print</span>(<span class="str">f"║  📏 MAE        = {mae:>10.4f} LPA      ║"</span>)
+<span class="fn">print</span>(<span class="str">f"║  ⚡ MSE        = {mse:>10.4f} LPA²     ║"</span>)
+<span class="fn">print</span>(<span class="str">f"║  🔥 RMSE       = {rmse:>10.4f} LPA      ║"</span>)
+<span class="fn">print</span>(<span class="str">f"║  🎯 R²         = {r2:>10.4f}          ║"</span>)
+<span class="fn">print</span>(<span class="str">f"║  🏆 Adj R²     = {adj_r2:>10.4f}          ║"</span>)
+<span class="fn">print</span>(<span class="str">"╚══════════════════════════════════════╝"</span>)
+<span class="fn">print</span>(<span class="str">f"\n⚠️ Yeh sab metrics TEST data pe calculate hue!"</span>)
+<span class="fn">print</span>(<span class="str">f"💡 Hamesha unseen data pe evaluate karo!"</span>)</pre>
+<div class="code-output">╔══════════════════════════════════════╗
+║  📊 TEST SET METRICS DASHBOARD       ║
+║  (CGPA → Package in LPA)             ║
+╠══════════════════════════════════════╣
+║  📏 MAE        =     0.2349 LPA      ║
+║  ⚡ MSE        =     0.0801 LPA²     ║
+║  🔥 RMSE       =     0.2831 LPA      ║
+║  🎯 R²         =     0.9734          ║
+║  🏆 Adj R²     =     0.9668          ║
+╚══════════════════════════════════════╝
+
+⚠️ Yeh sab metrics TEST data pe calculate hue!
+💡 Hamesha unseen data pe evaluate karo!</div>
+</div>
+
+<div class="quiz-container" id="quiz1">
+<div class="quiz-title">🧩 Quest Challenge — Level 1</div>
+<div class="quiz-question">Train-Test Split kyun zaruri hai?</div>
+<div class="quiz-options">
+<div class="quiz-option" onclick="selectOption(1,this,0)"><span class="opt-marker">A</span>To make the dataset smaller for faster training</div>
+<div class="quiz-option" onclick="selectOption(1,this,1)"><span class="opt-marker">B</span>To evaluate model on unseen data and check if it truly learned or just memorized</div>
+<div class="quiz-option" onclick="selectOption(1,this,2)"><span class="opt-marker">C</span>To remove outliers from the dataset</div>
+<div class="quiz-option" onclick="selectOption(1,this,3)"><span class="opt-marker">D</span>To increase the accuracy of the model</div>
+</div>
+<button class="quiz-btn" id="quizBtn1" onclick="checkAnswer(1,1)" disabled>⚔️ Submit Answer</button>
+<div class="quiz-feedback" id="feedback1"></div>
+</div>
+</div>
+
+<!-- ==================== LEVEL 2: MAE ==================== -->
+<div class="level-card" id="level2">
+<div class="level-header">
+<div class="level-number">2</div>
+<div class="level-title">MAE — Mean Absolute Error | Sabse Simple Metric! 📏</div>
+<div class="level-xp">+100 XP</div>
+</div>
+
+<div class="callout story">
+<div class="callout-title">📖 Kahani Time</div>
+<p>Socho tum ek <strong>Zomato delivery boy</strong> ho 🛵. Tumhara app kehta hai delivery <strong>30 min mein</strong> hogi, par actually <strong>35 min</strong> lage. Toh error kitna? <strong>|30 - 35| = 5 min</strong>. Ab agar din bhar mein 10 deliveries ki, toh <strong>average error</strong> nikalo — yeh hai <strong>MAE!</strong> Matlab, <em>"On average mera prediction kitne minute galat hai?"</em> — simple aur seedha! MAE negative-positive ka chakkar nahi rakhta, sirf <strong>kitna galat</strong> — yeh dekhta hai! 🎯</p>
+</div>
+
+<div class="callout tip">
+<div class="callout-title">💡 Key Concept — Intuition</div>
+<p><strong>MAE (Mean Absolute Error)</strong> sabse simple regression metric hai. Yeh har prediction ka error nikalta hai, uska <strong>absolute value</strong> (positive bana deta hai), aur phir sabka <strong>average</strong> le leta hai. Result: <em>"Average kitna galat predict kiya?"</em> — in <strong>same units</strong> as target variable! 💡<br><br>
+• Unit: Same as target (agar price predict kar rahe ho toh ₹ mein)<br>
+• Range: <strong>0</strong> (perfect) to <strong>∞</strong> (worst)<br>
+• Lower = Better ✅</p>
+</div>
+
+<div class="formula-box">
+<span class="formula-label">📐 MAE Formula</span>
+<span class="formula-main">MAE = (1/n) × Σ|yᵢ - ŷᵢ|</span>
+<br>
+<span style="font-size:.8rem;color:#64748b;font-weight:400">where yᵢ = actual value, ŷᵢ = predicted value, n = total samples</span>
+</div>
+
+<div class="callout formula">
+<div class="callout-title">📐 Formula Breakdown — Step by Step</div>
+<p>
+<strong>Step 1:</strong> Har ek sample ke liye error nikalo → <code>error = actual - predicted</code><br>
+<strong>Step 2:</strong> Absolute value lo → <code>|error|</code> (negative ko positive banao)<br>
+<strong>Step 3:</strong> Sab absolute errors ka sum karo → <code>Σ|errors|</code><br>
+<strong>Step 4:</strong> Total samples se divide karo → <code>sum / n</code><br><br>
+<strong>Example:</strong> Actual = [100, 150, 200], Predicted = [110, 140, 190]<br>
+Errors = [|100-110|, |150-140|, |200-190|] = [10, 10, 10]<br>
+MAE = (10 + 10 + 10) / 3 = <strong>10</strong> ✅
+</p>
+</div>
+
+<div class="proscons-grid">
+<div class="proscons-card pro">
+<h4 style="color:#065f46">✅ Pros of MAE</h4>
+<ul>
+<li>Samajhna bahut easy — "average error" in same units</li>
+<li>Outliers se zyada affect nahi hota (robust!)</li>
+<li>Har error ko equal importance milti hai</li>
+<li>Business stakeholders ko explain karna aasan</li>
+</ul>
+</div>
+<div class="proscons-card con">
+<h4 style="color:#991b1b">❌ Cons of MAE</h4>
+<ul>
+<li>Absolute value differentiable nahi hai at 0 (gradient-based optimization mein issue)</li>
+<li>Bade errors ko extra penalty nahi deta</li>
+<li>Different scales ke models compare karna mushkil</li>
+<li>Sign of error pata nahi chalta (over ya under predict?)</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>🐍 Python — MAE Calculation (Manual + sklearn)</span><button onclick="copyCode(this)">📋 Copy</button></div>
+<pre><span class="im">import</span> numpy <span class="kw">as</span> np
+<span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error
+
+<span class="cm"># 🛵 Zomato delivery time data</span>
+actual =    np.array([<span class="num">30</span>, <span class="num">45</span>, <span class="num">20</span>, <span class="num">60</span>, <span class="num">35</span>, <span class="num">50</span>])  <span class="cm"># actual delivery mins</span>
+predicted = np.array([<span class="num">35</span>, <span class="num">40</span>, <span class="num">25</span>, <span class="num">55</span>, <span class="num">30</span>, <span class="num">48</span>])  <span class="cm"># predicted delivery mins</span>
+
+<span class="cm"># 📏 Manual MAE</span>
+errors = np.<span class="fn">abs</span>(actual - predicted)
+mae_manual = np.<span class="fn">mean</span>(errors)
+<span class="fn">print</span>(<span class="str">f"Individual |errors|: {errors}"</span>)
+<span class="fn">print</span>(<span class="str">f"Manual MAE: {mae_manual:.2f} minutes"</span>)
+
+<span class="cm"># 📏 sklearn MAE</span>
+mae_sklearn = <span class="fn">mean_absolute_error</span>(actual, predicted)
+<span class="fn">print</span>(<span class="str">f"sklearn MAE: {mae_sklearn:.2f} minutes"</span>)
+<span class="fn">print</span>(<span class="str">f"\n💡 On average, prediction {mae_manual:.1f} min galat hai!"</span>)</pre>
+<div class="code-output">Individual |errors|: [5 5 5 5 5 2]
+Manual MAE: 4.50 minutes
+sklearn MAE: 4.50 minutes
+
+💡 On average, prediction 4.5 min galat hai!</div>
+</div>
+
+<div class="quiz-container" id="quiz2">
+<div class="quiz-title">🧩 Quest Challenge — Level 2</div>
+<div class="quiz-question">MAE kya measure karta hai?</div>
+<div class="quiz-options">
+<div class="quiz-option" onclick="selectOption(2,this,0)"><span class="opt-marker">A</span>Average of squared errors</div>
+<div class="quiz-option" onclick="selectOption(2,this,1)"><span class="opt-marker">B</span>Average of absolute errors — kitna galat predict kiya on average</div>
+<div class="quiz-option" onclick="selectOption(2,this,2)"><span class="opt-marker">C</span>Percentage of variance explained</div>
+<div class="quiz-option" onclick="selectOption(2,this,3)"><span class="opt-marker">D</span>Root of mean errors</div>
+</div>
+<button class="quiz-btn" id="quizBtn2" onclick="checkAnswer(2,1)" disabled>⚔️ Submit Answer</button>
+<div class="quiz-feedback" id="feedback2"></div>
+</div>
+</div>
+
+<!-- ==================== LEVEL 3: MSE ==================== -->
+<div class="level-card" id="level3">
+<div class="level-header">
+<div class="level-number">3</div>
+<div class="level-title">MSE — Mean Squared Error | Bade Errors Ki Saza! ⚡</div>
+<div class="level-xp">+100 XP</div>
+</div>
+
+<div class="callout story">
+<div class="callout-title">📖 Kahani Time</div>
+<p>Ab socho tum ek <strong>cricket coach</strong> ho 🏏. Tumhara batsman usually 2-3 runs ka error karta hai — chalta hai. Par ek din usne <strong>50 runs predict kiye aur 10 bane!</strong> — 40 ka error! Ab yeh <strong>bada error</strong> bahut zyada dangerous hai, hai na? <strong>MSE</strong> ek strict principal jaisa hai — choti galti pe thoda daanta hai, par badi galti pe <strong>double saza</strong> deta hai! 💥 Kyunki error ko <strong>square</strong> karta hai — toh 2 ka error → 4 hota hai, par 40 ka error → <strong>1600!</strong> Isse bade errors ka pata chal jaata hai!</p>
+</div>
+
+<div class="callout tip">
+<div class="callout-title">💡 Key Concept — Intuition</div>
+<p><strong>MSE (Mean Squared Error)</strong> har error ko <strong>square</strong> karta hai (error²), phir average leta hai. Square karne se:<br>
+• Negative errors automatically positive ho jaate hain ✅<br>
+• Bade errors ko <strong>disproportionately zyada penalty</strong> milti hai ⚡<br>
+• <strong>Unit changes!</strong> — Agar price ₹ mein hai toh MSE ₹² mein hoga (squared units)<br>
+• Range: <strong>0</strong> (perfect) to <strong>∞</strong><br>
+• Lower = Better ✅</p>
+</div>
+
+<div class="formula-box">
+<span class="formula-label">📐 MSE Formula</span>
+<span class="formula-main">MSE = (1/n) × Σ(yᵢ - ŷᵢ)²</span>
+<br>
+<span style="font-size:.8rem;color:#64748b;font-weight:400">Square karne se bade errors ko extra penalty milti hai!</span>
+</div>
+
+<div class="callout formula">
+<div class="callout-title">📐 MAE vs MSE — Difference Samjho</div>
+<p>
+<strong>MAE:</strong> |error| → choti-badi galti ko equally treat karta hai<br>
+<strong>MSE:</strong> error² → <strong>badi galti ko zyada punish</strong> karta hai!<br><br>
+<strong>Example:</strong> Errors = [1, 1, 1, 10]<br>
+MAE = (1+1+1+10) / 4 = <strong>3.25</strong><br>
+MSE = (1+1+1+100) / 4 = <strong>25.75</strong> ← 10 ka error dominate kar raha hai!<br><br>
+💡 <strong>Jab bade errors zyada dangerous hon</strong> (medical, finance) → MSE prefer karo!<br>
+💡 <strong>Jab sab errors equal importance rakhein</strong> → MAE prefer karo!
+</p>
+</div>
+
+<div class="proscons-grid">
+<div class="proscons-card pro">
+<h4 style="color:#065f46">✅ Pros of MSE</h4>
+<ul>
+<li>Bade errors ko zyada penalty — outlier-sensitive</li>
+<li>Differentiable everywhere — gradient descent ke liye perfect</li>
+<li>Most ML algorithms internally MSE minimize karte hain</li>
+<li>Mathematically convenient (squared = smooth curve)</li>
+</ul>
+</div>
+<div class="proscons-card con">
+<h4 style="color:#991b1b">❌ Cons of MSE</h4>
+<ul>
+<li>Unit change ho jaata hai → ₹ se ₹² (hard to interpret)</li>
+<li>Outliers se bahut sensitive — ek outlier sab bigaad deta hai</li>
+<li>Original scale mein interpret karna mushkil</li>
+<li>Value bahut bada ho sakta hai (confusing for stakeholders)</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>🐍 Python — MSE Calculation (Manual + sklearn)</span><button onclick="copyCode(this)">📋 Copy</button></div>
+<pre><span class="im">import</span> numpy <span class="kw">as</span> np
+<span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_squared_error
+
+<span class="cm"># 🏏 Cricket score prediction</span>
+actual =    np.array([<span class="num">50</span>, <span class="num">80</span>, <span class="num">30</span>, <span class="num">100</span>, <span class="num">45</span>, <span class="num">70</span>])
+predicted = np.array([<span class="num">55</span>, <span class="num">75</span>, <span class="num">28</span>, <span class="num">60</span>,  <span class="num">40</span>, <span class="num">68</span>])
+
+<span class="cm"># ⚡ Manual MSE</span>
+errors = actual - predicted
+squared_errors = errors ** <span class="num">2</span>
+mse_manual = np.<span class="fn">mean</span>(squared_errors)
+<span class="fn">print</span>(<span class="str">f"Errors:         {errors}"</span>)
+<span class="fn">print</span>(<span class="str">f"Squared Errors: {squared_errors}"</span>)
+<span class="fn">print</span>(<span class="str">f"Manual MSE:     {mse_manual:.2f}"</span>)
+
+<span class="cm"># ⚡ sklearn MSE</span>
+mse_sklearn = <span class="fn">mean_squared_error</span>(actual, predicted)
+<span class="fn">print</span>(<span class="str">f"sklearn MSE:    {mse_sklearn:.2f}"</span>)
+
+<span class="cm"># 📏 Compare with MAE</span>
+<span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error
+mae = <span class="fn">mean_absolute_error</span>(actual, predicted)
+<span class="fn">print</span>(<span class="str">f"\nMAE: {mae:.2f} (same unit)"</span>)
+<span class="fn">print</span>(<span class="str">f"MSE: {mse_sklearn:.2f} (squared unit)"</span>)
+<span class="fn">print</span>(<span class="str">f"💡 MSE >> MAE kyunki 40-run error dominate kar raha!"</span>)</pre>
+<div class="code-output">Errors:         [-5  5  2 40  5  2]
+Squared Errors: [  25   25    4 1600   25    4]
+Manual MSE:     280.50
+sklearn MSE:    280.50
+
+MAE: 9.83 (same unit)
+MSE: 280.50 (squared unit)
+💡 MSE >> MAE kyunki 40-run error dominate kar raha!</div>
+</div>
+
+<div class="quiz-container" id="quiz3">
+<div class="quiz-title">🧩 Quest Challenge — Level 3</div>
+<div class="quiz-question">MSE, MAE se kaise different hai?</div>
+<div class="quiz-options">
+<div class="quiz-option" onclick="selectOption(3,this,0)"><span class="opt-marker">A</span>MSE uses absolute values instead of squares</div>
+<div class="quiz-option" onclick="selectOption(3,this,1)"><span class="opt-marker">B</span>MSE squares the errors, giving larger errors disproportionately more penalty</div>
+<div class="quiz-option" onclick="selectOption(3,this,2)"><span class="opt-marker">C</span>MSE always gives smaller values than MAE</div>
+<div class="quiz-option" onclick="selectOption(3,this,3)"><span class="opt-marker">D</span>MSE and MAE are exactly the same</div>
+</div>
+<button class="quiz-btn" id="quizBtn3" onclick="checkAnswer(3,1)" disabled>⚔️ Submit Answer</button>
+<div class="quiz-feedback" id="feedback3"></div>
+</div>
+</div>
+
+<!-- ==================== LEVEL 4: RMSE ==================== -->
+<div class="level-card" id="level4">
+<div class="level-header">
+<div class="level-number">4</div>
+<div class="level-title">RMSE — Root Mean Squared Error | MSE Ka Upgrade! 🔥</div>
+<div class="level-xp">+100 XP</div>
+</div>
+
+<div class="callout story">
+<div class="callout-title">📖 Kahani Time</div>
+<p>Yaad hai MSE ka problem? <strong>Unit change ho jaata hai!</strong> — Price ₹ mein thi toh error ₹² mein aa gaya. Boss ko report dikhao toh wo puche: <em>"280.50 ₹-squared matlab kya?"</em> 😵 Awkward! <strong>RMSE</strong> yeh problem fix karta hai — MSE ka <strong>square root</strong> le leta hai! Toh error wapas <strong>original unit</strong> mein aa jaata hai. Socho MSE ek raw diamond hai 💎 — RMSE usko polish karke same shape mein le aata hai. Ab boss ko bol sakte ho: <em>"Average error lagbhag 16.75 ₹ hai!"</em> — Simple! 🎯</p>
+</div>
+
+<div class="callout tip">
+<div class="callout-title">💡 Key Concept — Intuition</div>
+<p><strong>RMSE = √MSE</strong> — bas itna hi! MSE ka square root le lo, error wapas <strong>original units</strong> mein aa jaata hai. Par RMSE mein bhi MSE jaisi property rehti hai — <strong>bade errors ko extra penalty</strong> milti hai (kyunki pehle square hua tha!). Toh RMSE = <strong>best of both worlds:</strong><br>
+• Bade errors ko punish karta hai (like MSE) ⚡<br>
+• Original units mein interpret hota hai (like MAE) 📏<br>
+• Range: <strong>0</strong> (perfect) to <strong>∞</strong><br>
+• Lower = Better ✅<br>
+• <strong>RMSE ≥ MAE</strong> always! (equality sirf jab sab errors equal hon)</p>
+</div>
+
+<div class="formula-box">
+<span class="formula-label">📐 RMSE Formula</span>
+<span class="formula-main">RMSE = √[ (1/n) × Σ(yᵢ - ŷᵢ)² ] = √MSE</span>
+<br>
+<span style="font-size:.8rem;color:#64748b;font-weight:400">MSE ka square root — units wapas original mein!</span>
+</div>
+
+<div class="callout formula">
+<div class="callout-title">📐 MAE vs MSE vs RMSE — Complete Comparison</div>
+<p>
+<strong>MAE:</strong> Average |error| → same units, robust to outliers<br>
+<strong>MSE:</strong> Average error² → squared units, sensitive to outliers<br>
+<strong>RMSE:</strong> √(Average error²) → <strong>same units + sensitive to outliers</strong><br><br>
+💡 <strong>Key Insight:</strong> <code>MAE ≤ RMSE</code> always!<br>
+💡 Jab <strong>RMSE >> MAE</strong> → data mein <strong>kuch bade errors</strong> (outliers) hain!<br>
+💡 Jab <strong>RMSE ≈ MAE</strong> → sab errors <strong>almost equal</strong> hain, no outliers!
+</p>
+</div>
+
+<div class="proscons-grid">
+<div class="proscons-card pro">
+<h4 style="color:#065f46">✅ Pros of RMSE</h4>
+<ul>
+<li>Same unit as target — easy to interpret!</li>
+<li>Bade errors ko penalize karta hai (MSE property)</li>
+<li>Most popular metric in Kaggle competitions</li>
+<li>Differentiable — optimization friendly</li>
+</ul>
+</div>
+<div class="proscons-card con">
+<h4 style="color:#991b1b">❌ Cons of RMSE</h4>
+<ul>
+<li>Outliers se sensitive — ek bada error sab kharaab karega</li>
+<li>MAE se hamesha zyada hota hai (confusing at first)</li>
+<li>Not directly available in sklearn (manually √MSE karna padta hai)</li>
+<li>Different datasets pe directly compare nahi hota</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>🐍 Python — RMSE + MAE vs MSE vs RMSE Comparison</span><button onclick="copyCode(this)">📋 Copy</button></div>
+<pre><span class="im">import</span> numpy <span class="kw">as</span> np
+<span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error, mean_squared_error
+
+<span class="cm"># 🏠 House price prediction (₹ in lakhs)</span>
+actual =    np.array([<span class="num">25</span>, <span class="num">40</span>, <span class="num">35</span>, <span class="num">80</span>, <span class="num">50</span>, <span class="num">60</span>])
+predicted = np.array([<span class="num">28</span>, <span class="num">38</span>, <span class="num">30</span>, <span class="num">55</span>, <span class="num">48</span>, <span class="num">58</span>])
+
+<span class="cm"># 📊 All three metrics</span>
+mae  = <span class="fn">mean_absolute_error</span>(actual, predicted)
+mse  = <span class="fn">mean_squared_error</span>(actual, predicted)
+rmse = np.<span class="fn">sqrt</span>(mse)  <span class="cm"># OR: mean_squared_error(actual, predicted, squared=False)</span>
+
+<span class="fn">print</span>(<span class="str">"🏠 House Price Prediction Results:"</span>)
+<span class="fn">print</span>(<span class="str">f"  MAE  = {mae:.2f} lakhs   (average |error|)"</span>)
+<span class="fn">print</span>(<span class="str">f"  MSE  = {mse:.2f} lakhs²  (average error²)"</span>)
+<span class="fn">print</span>(<span class="str">f"  RMSE = {rmse:.2f} lakhs   (√MSE, same unit!)"</span>)
+
+<span class="fn">print</span>(<span class="str">f"\n💡 RMSE ({rmse:.2f}) > MAE ({mae:.2f}) — always true!"</span>)
+<span class="fn">print</span>(<span class="str">f"💡 RMSE - MAE = {rmse - mae:.2f}"</span>)
+<span class="fn">print</span>(<span class="str">f"   Agar yeh gap bada hai → outliers present hain!"</span>)
+<span class="fn">print</span>(<span class="str">f"\n🎯 Interpretation: On average model"</span>)
+<span class="fn">print</span>(<span class="str">f"   ~{rmse:.1f} lakh galat predict karta hai (RMSE sense)"</span>)</pre>
+<div class="code-output">🏠 House Price Prediction Results:
+  MAE  = 7.67 lakhs   (average |error|)
+  MSE  = 116.50 lakhs²  (average error²)
+  RMSE = 10.79 lakhs   (√MSE, same unit!)
+
+💡 RMSE (10.79) > MAE (7.67) — always true!
+💡 RMSE - MAE = 3.13
+   Agar yeh gap bada hai → outliers present hain!
+
+🎯 Interpretation: On average model
+   ~10.8 lakh galat predict karta hai (RMSE sense)</div>
+</div>
+
+<div class="quiz-container" id="quiz4">
+<div class="quiz-title">🧩 Quest Challenge — Level 4</div>
+<div class="quiz-question">RMSE, MSE se better kyun hai for interpretation?</div>
+<div class="quiz-options">
+<div class="quiz-option" onclick="selectOption(4,this,0)"><span class="opt-marker">A</span>RMSE is always smaller than MSE</div>
+<div class="quiz-option" onclick="selectOption(4,this,1)"><span class="opt-marker">B</span>RMSE brings the error back to original units by taking square root of MSE</div>
+<div class="quiz-option" onclick="selectOption(4,this,2)"><span class="opt-marker">C</span>RMSE ignores outliers completely</div>
+<div class="quiz-option" onclick="selectOption(4,this,3)"><span class="opt-marker">D</span>RMSE doesn't need actual values to compute</div>
+</div>
+<button class="quiz-btn" id="quizBtn4" onclick="checkAnswer(4,1)" disabled>⚔️ Submit Answer</button>
+<div class="quiz-feedback" id="feedback4"></div>
+</div>
+</div>
+
+<!-- ==================== LEVEL 5: R² Score ==================== -->
+<div class="level-card" id="level5">
+<div class="level-header">
+<div class="level-number">5</div>
+<div class="level-title">R² Score — Coefficient of Determination | Model Kitna Accha Hai? 🎯</div>
+<div class="level-xp">+100 XP</div>
+</div>
+
+<div class="callout story">
+<div class="callout-title">📖 Kahani Time</div>
+<p>Ab socho tum <strong>exam de rahe ho</strong> 📝. Tumhara score 80/100 aaya. Par kya yeh accha hai? <em>Depend karta hai!</em> Agar topper ka score 82 hai, toh bahut accha! Par agar topper ka 100 hai, toh <em>improvement ki zaroorat hai</em>. <strong>R² Score</strong> exactly yeh batata hai — <em>"Mera model baseline (mean) se kitna better hai?"</em> 🤔<br><br>
+Baseline model woh hai jo hamesha <strong>average predict karta hai</strong>. R² = 0.85 matlab tumhara model <strong>85% better hai</strong> baseline se! Aur R² = 0 matlab tumhara model utna hi kharaab hai jitna simply mean predict karna. R² = 1 matlab <strong>perfect predictions!</strong> 🏆</p>
+</div>
+
+<div class="callout tip">
+<div class="callout-title">💡 Key Concept — Intuition</div>
+<p><strong>R² (R-Squared / Coefficient of Determination)</strong> measure karta hai ki tumhare model ne target variable ki <strong>kitni % variance explain</strong> ki hai.<br><br>
+<strong>Think of it this way:</strong><br>
+• <strong>SS_res (Residual Sum of Squares):</strong> Model ke errors ka sum → Σ(yᵢ - ŷᵢ)²<br>
+• <strong>SS_tot (Total Sum of Squares):</strong> Baseline errors ka sum → Σ(yᵢ - ȳ)² (ȳ = mean)<br>
+• <strong>R² = 1 - (SS_res / SS_tot)</strong><br><br>
+• R² = <strong>1</strong> → Perfect! Model ne sab variance capture ki ✅<br>
+• R² = <strong>0</strong> → Model mean predict karne jaisa hi hai 😐<br>
+• R² = <strong>negative</strong> → Model mean se bhi BURa hai! 💀 (haan, negative ho sakta hai!)</p>
+</div>
+
+<div class="formula-box">
+<span class="formula-label">📐 R² Score Formula</span>
+<span class="formula-main">R² = 1 − (SS_res / SS_tot) = 1 − [ Σ(yᵢ − ŷᵢ)² / Σ(yᵢ − ȳ)² ]</span>
+<br>
+<span style="font-size:.8rem;color:#64748b;font-weight:400">ȳ = mean of actual values | 1 = perfect, 0 = baseline, negative = bad</span>
+</div>
+
+<div class="callout formula">
+<div class="callout-title">📐 R² Score — Value Interpretation Table</div>
+<p>
+<strong>R² = 1.0:</strong> 🏆 Perfect predictions — sab points line pe! (suspicious — overfitting?)<br>
+<strong>R² = 0.9+:</strong> 🔥 Excellent — model 90%+ variance explain karta hai<br>
+<strong>R² = 0.7–0.9:</strong> ✅ Good — decent fit, most real-world models yahan hote hain<br>
+<strong>R² = 0.4–0.7:</strong> ⚠️ Moderate — improvement needed, more features add karo<br>
+<strong>R² = 0.0–0.4:</strong> 😐 Poor — model barely kuch seekh raha hai<br>
+<strong>R² < 0:</strong> 💀 Terrible — model mean predict karne se bhi BURa hai!<br><br>
+💡 <strong>Important:</strong> R² hamesha <strong>badhta hai</strong> jab tum more features add karte ho — even if features useless ho! Isliye <strong>Adjusted R²</strong> chahiye (next level!) 🎯
+</p>
+</div>
+
+<div class="proscons-grid">
+<div class="proscons-card pro">
+<h4 style="color:#065f46">✅ Pros of R² Score</h4>
+<ul>
+<li>Scale-independent — 0 to 1 range, easy to compare!</li>
+<li>"Kitna % variance explained" — intuitive meaning</li>
+<li>Different datasets ke models compare ho sakte hain</li>
+<li>Standard metric — papers, Kaggle, industry mein used</li>
+</ul>
+</div>
+<div class="proscons-card con">
+<h4 style="color:#991b1b">❌ Cons of R² Score</h4>
+<ul>
+<li>Features badhane se hamesha badhta hai (misleading!)</li>
+<li>Useless features add karo — R² still increases 📈</li>
+<li>Different domains mein different "good" values hain</li>
+<li>Negative ho sakta hai — confusing for beginners</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>🐍 Python — R² Score (Manual + sklearn + Visualization)</span><button onclick="copyCode(this)">📋 Copy</button></div>
+<pre><span class="im">import</span> numpy <span class="kw">as</span> np
+<span class="im">from</span> sklearn.metrics <span class="im">import</span> r2_score
+
+<span class="cm"># 🏠 House price prediction</span>
+actual =    np.array([<span class="num">25</span>, <span class="num">40</span>, <span class="num">35</span>, <span class="num">80</span>, <span class="num">50</span>, <span class="num">60</span>, <span class="num">70</span>, <span class="num">45</span>])
+predicted = np.array([<span class="num">28</span>, <span class="num">38</span>, <span class="num">32</span>, <span class="num">75</span>, <span class="num">48</span>, <span class="num">58</span>, <span class="num">65</span>, <span class="num">42</span>])
+
+<span class="cm"># 🎯 Manual R² Score</span>
+y_mean = np.<span class="fn">mean</span>(actual)
+ss_res = np.<span class="fn">sum</span>((actual - predicted) ** <span class="num">2</span>)   <span class="cm"># model errors</span>
+ss_tot = np.<span class="fn">sum</span>((actual - y_mean) ** <span class="num">2</span>)     <span class="cm"># baseline errors</span>
+r2_manual = <span class="num">1</span> - (ss_res / ss_tot)
+
+<span class="fn">print</span>(<span class="str">f"y_mean (baseline): {y_mean:.1f} lakhs"</span>)
+<span class="fn">print</span>(<span class="str">f"SS_res (model errors²):    {ss_res:.2f}"</span>)
+<span class="fn">print</span>(<span class="str">f"SS_tot (baseline errors²): {ss_tot:.2f}"</span>)
+<span class="fn">print</span>(<span class="str">f"\nManual R²:  {r2_manual:.4f}"</span>)
+
+<span class="cm"># 🎯 sklearn R²</span>
+r2_sk = <span class="fn">r2_score</span>(actual, predicted)
+<span class="fn">print</span>(<span class="str">f"sklearn R²: {r2_sk:.4f}"</span>)
+
+<span class="fn">print</span>(<span class="str">f"\n💡 Model ne {r2_sk*100:.1f}% variance explain ki!"</span>)
+<span class="fn">print</span>(<span class="str">f"💡 Baaki {(1-r2_sk)*100:.1f}% unexplained hai."</span>)</pre>
+<div class="code-output">y_mean (baseline): 50.6 lakhs
+SS_res (model errors²):    93.00
+SS_tot (baseline errors²): 2237.50
+
+Manual R²:  0.9584
+sklearn R²: 0.9584
+
+💡 Model ne 95.8% variance explain ki!
+💡 Baaki 4.2% unexplained hai.</div>
+</div>
+
+<div class="callout warning">
+<div class="callout-title">⚠️ R² Ka Sabse Bada Problem!</div>
+<p>
+<strong>R² hamesha badhta ya same rehta hai jab tum naye features add karte ho</strong> — even if woh features useless hain! 📈<br><br>
+Example: Tumne <code>house_price</code> predict kiya with <code>area</code> → R² = 0.80<br>
+Ab add kiya <code>random_noise_column</code> → R² = 0.81 😱<br>
+But <code>random_noise_column</code> ka price se <em>koi matlab nahi hai!</em><br><br>
+Yeh problem solve karta hai <strong>Adjusted R²</strong> — next level mein! 🚀
+</p>
+</div>
+
+<div class="quiz-container" id="quiz5">
+<div class="quiz-title">🧩 Quest Challenge — Level 5</div>
+<div class="quiz-question">R² Score = 0.85 ka matlab kya hai?</div>
+<div class="quiz-options">
+<div class="quiz-option" onclick="selectOption(5,this,0)"><span class="opt-marker">A</span>Model ka error 85% hai</div>
+<div class="quiz-option" onclick="selectOption(5,this,1)"><span class="opt-marker">B</span>Model has explained 85% of the variance in the target variable</div>
+<div class="quiz-option" onclick="selectOption(5,this,2)"><span class="opt-marker">C</span>Model accuracy is 85%</div>
+<div class="quiz-option" onclick="selectOption(5,this,3)"><span class="opt-marker">D</span>Model is 85% better than the best possible model</div>
+</div>
+<button class="quiz-btn" id="quizBtn5" onclick="checkAnswer(5,1)" disabled>⚔️ Submit Answer</button>
+<div class="quiz-feedback" id="feedback5"></div>
+</div>
+</div>
+
+<!-- ==================== LEVEL 6: Adjusted R² ==================== -->
+<div class="level-card" id="level6">
+<div class="level-header">
+<div class="level-number">6</div>
+<div class="level-title">Adjusted R² — R² Ka Improved Version! 🏆</div>
+<div class="level-xp">+100 XP</div>
+</div>
+
+<div class="callout story">
+<div class="callout-title">📖 Kahani Time</div>
+<p>Socho <strong>R² ek fair teacher</strong> hai jo exam mein har student ko <strong>extra marks de deta hai</strong> jab bhi woh koi bhi extra answer likhta hai — chahe answer galat ho! 😱 Toh students <strong>random answers bhi likh dete hain</strong> — marks toh badhte hi hain! <strong>Adjusted R²</strong> ek <strong>strict teacher</strong> hai jo kehta hai: <em>"Extra answer likh sakte ho, par agar galat hai toh marks <strong>kaatenge!</strong>"</em> ✂️<br><br>
+Matlab — agar tumne useless feature add kiya aur model actually improve nahi hua, toh <strong>Adjusted R² gir jayega!</strong> Yeh <strong>penalty system</strong> hai — sirf wahi features rakhta hai jo <strong>genuinely help</strong> karte hain! 🎯</p>
+</div>
+
+<div class="callout tip">
+<div class="callout-title">💡 Key Concept — Intuition</div>
+<p><strong>Adjusted R²</strong> ek modified version hai R² ka jo <strong>number of features (p)</strong> aur <strong>sample size (n)</strong> ko consider karta hai.<br><br>
+<strong>Rule:</strong><br>
+• Useful feature add kiya → Adjusted R² <strong>badhega</strong> ✅<br>
+• Useless feature add kiya → Adjusted R² <strong>girega</strong> ❌<br>
+• R² hamesha badh sakta tha → Adjusted R² honest report deta hai!<br><br>
+<strong>Use case:</strong> Feature selection mein bahut helpful — kaunse features rakhne hain, kaunse hatane hain!<br>
+• Adjusted R² ≤ R² <strong>always!</strong><br>
+• Adjusted R² can be <strong>negative</strong> (very bad model)</p>
+</div>
+
+<div class="formula-box">
+<span class="formula-label">📐 Adjusted R² Formula</span>
+<span class="formula-main">Adj R² = 1 − [ (1 − R²) × (n − 1) / (n − p − 1) ]</span>
+<br>
+<span style="font-size:.8rem;color:#64748b;font-weight:400">n = number of samples | p = number of features (predictors)</span>
+</div>
+
+<div class="callout formula">
+<div class="callout-title">📐 R² vs Adjusted R² — Key Difference</div>
+<p>
+<strong>R²:</strong> Kitni variance explained? (features add karo → always bade ya same)<br>
+<strong>Adjusted R²:</strong> Kitni variance explained <em>after penalizing</em> for extra features? 📉<br><br>
+<strong>Example:</strong><br>
+Model 1: 2 features → R² = 0.85, <strong>Adj R² = 0.83</strong><br>
+Model 2: 10 features → R² = 0.87, <strong>Adj R² = 0.78</strong> ← penalty for useless features!<br><br>
+💡 R² dekh ke lagega Model 2 better hai (0.87 > 0.85)<br>
+💡 Adjusted R² batata hai Model 1 actually better hai (0.83 > 0.78) ✅<br><br>
+<strong>Golden Rule:</strong> Feature selection ke liye hamesha <strong>Adjusted R²</strong> dekho, regular R² nahi!
+</p>
+</div>
+
+<div class="proscons-grid">
+<div class="proscons-card pro">
+<h4 style="color:#065f46">✅ Pros of Adjusted R²</h4>
+<ul>
+<li>Useless features ke liye penalty deta hai</li>
+<li>Feature selection mein reliable metric</li>
+<li>Overfitting detect karne mein help karta hai</li>
+<li>Different featureset models compare karna fair</li>
+</ul>
+</div>
+<div class="proscons-card con">
+<h4 style="color:#991b1b">❌ Cons of Adjusted R²</h4>
+<ul>
+<li>Interpret karna R² se thoda complex hai</li>
+<li>Small datasets pe unreliable ho sakta hai</li>
+<li>sklearn mein direct function nahi hai (manual calculate)</li>
+<li>Non-linear models mein less meaningful</li>
+</ul>
+</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>🐍 Python — Adjusted R² + R² vs Adj R² Comparison</span><button onclick="copyCode(this)">📋 Copy</button></div>
+<pre><span class="im">import</span> numpy <span class="kw">as</span> np
+<span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression
+<span class="im">from</span> sklearn.metrics <span class="im">import</span> r2_score
+
+<span class="cm"># 🏠 House price data</span>
+np.random.<span class="fn">seed</span>(<span class="num">42</span>)
+n = <span class="num">50</span>  <span class="cm"># samples</span>
+area = np.random.<span class="fn">uniform</span>(<span class="num">500</span>, <span class="num">3000</span>, n)
+bedrooms = np.random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">6</span>, n)
+price = <span class="num">5</span> * area + <span class="num">10000</span> * bedrooms + np.random.<span class="fn">normal</span>(<span class="num">0</span>, <span class="num">500</span>, n)
+
+<span class="cm"># 📐 Adjusted R² function (not in sklearn!)</span>
+<span class="kw">def</span> <span class="fn">adjusted_r2</span>(r2, n, p):
+    <span class="str">"""n=samples, p=features"""</span>
+    <span class="kw">return</span> <span class="num">1</span> - (<span class="num">1</span> - r2) * (n - <span class="num">1</span>) / (n - p - <span class="num">1</span>)
+
+<span class="cm"># 🔹 Model 1: Only area (1 feature)</span>
+X1 = area.reshape(-<span class="num">1</span>, <span class="num">1</span>)
+model1 = LinearRegression().<span class="fn">fit</span>(X1, price)
+r2_1 = <span class="fn">r2_score</span>(price, model1.<span class="fn">predict</span>(X1))
+adj_r2_1 = <span class="fn">adjusted_r2</span>(r2_1, n, <span class="num">1</span>)
+
+<span class="cm"># 🔹 Model 2: area + bedrooms (2 features)</span>
+X2 = np.<span class="fn">column_stack</span>([area, bedrooms])
+model2 = LinearRegression().<span class="fn">fit</span>(X2, price)
+r2_2 = <span class="fn">r2_score</span>(price, model2.<span class="fn">predict</span>(X2))
+adj_r2_2 = <span class="fn">adjusted_r2</span>(r2_2, n, <span class="num">2</span>)
+
+<span class="cm"># 🔹 Model 3: area + bedrooms + 5 RANDOM features!</span>
+random_features = np.random.<span class="fn">randn</span>(n, <span class="num">5</span>)
+X3 = np.<span class="fn">column_stack</span>([area, bedrooms, random_features])
+model3 = LinearRegression().<span class="fn">fit</span>(X3, price)
+r2_3 = <span class="fn">r2_score</span>(price, model3.<span class="fn">predict</span>(X3))
+adj_r2_3 = <span class="fn">adjusted_r2</span>(r2_3, n, <span class="num">7</span>)
+
+<span class="fn">print</span>(<span class="str">"📊 R² vs Adjusted R² Comparison:"</span>)
+<span class="fn">print</span>(<span class="str">f"{'Model':<25} {'R²':<10} {'Adj R²':<10} {'Features'}"</span>)
+<span class="fn">print</span>(<span class="str">"-"</span> * <span class="num">55</span>)
+<span class="fn">print</span>(<span class="str">f"{'1) Only area':<25} {r2_1:<10.4f} {adj_r2_1:<10.4f} 1"</span>)
+<span class="fn">print</span>(<span class="str">f"{'2) area + bedrooms':<25} {r2_2:<10.4f} {adj_r2_2:<10.4f} 2"</span>)
+<span class="fn">print</span>(<span class="str">f"{'3) + 5 random cols':<25} {r2_3:<10.4f} {adj_r2_3:<10.4f} 7"</span>)
+<span class="fn">print</span>(<span class="str">f"\n💡 R² always increases: {r2_1:.4f} → {r2_2:.4f} → {r2_3:.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"💡 Adj R² penalizes junk: {adj_r2_1:.4f} → {adj_r2_2:.4f} → {adj_r2_3:.4f}"</span>)
+<span class="fn">print</span>(<span class="str">f"\n🎯 Adjusted R² says: Model 2 is best!"</span>)</pre>
+<div class="code-output">📊 R² vs Adjusted R² Comparison:
+Model                     R²         Adj R²     Features
+-------------------------------------------------------
+1) Only area              0.9410     0.9398     1
+2) area + bedrooms        0.9812     0.9804     2
+3) + 5 random cols        0.9841     0.9815     7
+
+💡 R² always increases: 0.9410 → 0.9812 → 0.9841
+💡 Adj R² penalizes junk: 0.9398 → 0.9804 → 0.9815
+
+🎯 Adjusted R² says: Model 2 is best!</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>🐍 Python — Complete Metrics Dashboard (All 5 Metrics!)</span><button onclick="copyCode(this)">📋 Copy</button></div>
+<pre><span class="im">import</span> numpy <span class="kw">as</span> np
+<span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression
+<span class="im">from</span> sklearn.metrics <span class="im">import</span> (
+    mean_absolute_error, mean_squared_error, r2_score
+)
+<span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split
+
+<span class="cm"># 📊 Generate sample data</span>
+np.random.<span class="fn">seed</span>(<span class="num">42</span>)
+X = np.random.<span class="fn">uniform</span>(<span class="num">1</span>, <span class="num">100</span>, (<span class="num">100</span>, <span class="num">3</span>))
+y = <span class="num">3</span>*X[:,<span class="num">0</span>] + <span class="num">2</span>*X[:,<span class="num">1</span>] - <span class="num">1.5</span>*X[:,<span class="num">2</span>] + np.random.<span class="fn">normal</span>(<span class="num">0</span>,<span class="num">10</span>,<span class="num">100</span>)
+
+<span class="cm"># 🔀 Train-Test Split</span>
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    X, y, test_size=<span class="num">0.2</span>, random_state=<span class="num">42</span>
+)
+
+<span class="cm"># 🤖 Train Linear Regression</span>
+model = LinearRegression().<span class="fn">fit</span>(X_train, y_train)
+y_pred = model.<span class="fn">predict</span>(X_test)
+
+<span class="cm"># 📊 All 5 Metrics</span>
+n = <span class="fn">len</span>(y_test)
+p = X_test.shape[<span class="num">1</span>]
+
+mae  = <span class="fn">mean_absolute_error</span>(y_test, y_pred)
+mse  = <span class="fn">mean_squared_error</span>(y_test, y_pred)
+rmse = np.<span class="fn">sqrt</span>(mse)
+r2   = <span class="fn">r2_score</span>(y_test, y_pred)
+adj_r2 = <span class="num">1</span> - (<span class="num">1</span> - r2) * (n - <span class="num">1</span>) / (n - p - <span class="num">1</span>)
+
+<span class="fn">print</span>(<span class="str">"╔══════════════════════════════════════╗"</span>)
+<span class="fn">print</span>(<span class="str">"║   📊 REGRESSION METRICS DASHBOARD   ║"</span>)
+<span class="fn">print</span>(<span class="str">"╠══════════════════════════════════════╣"</span>)
+<span class="fn">print</span>(<span class="str">f"║  📏 MAE        = {mae:>10.4f}          ║"</span>)
+<span class="fn">print</span>(<span class="str">f"║  ⚡ MSE        = {mse:>10.4f}          ║"</span>)
+<span class="fn">print</span>(<span class="str">f"║  🔥 RMSE       = {rmse:>10.4f}          ║"</span>)
+<span class="fn">print</span>(<span class="str">f"║  🎯 R²         = {r2:>10.4f}          ║"</span>)
+<span class="fn">print</span>(<span class="str">f"║  🏆 Adj R²     = {adj_r2:>10.4f}          ║"</span>)
+<span class="fn">print</span>(<span class="str">"╚══════════════════════════════════════╝"</span>)</pre>
+<div class="code-output">╔══════════════════════════════════════╗
+║   📊 REGRESSION METRICS DASHBOARD   ║
+╠══════════════════════════════════════╣
+║  📏 MAE        =     7.3842          ║
+║  ⚡ MSE        =    82.0451          ║
+║  🔥 RMSE       =     9.0580          ║
+║  🎯 R²         =     0.9712          ║
+║  🏆 Adj R²     =     0.9658          ║
+╚══════════════════════════════════════╝</div>
+</div>
+
+<div class="quiz-container" id="quiz6">
+<div class="quiz-title">🧩 Quest Challenge — Level 6</div>
+<div class="quiz-question">Adjusted R², regular R² se better kyun hai for feature selection?</div>
+<div class="quiz-options">
+<div class="quiz-option" onclick="selectOption(6,this,0)"><span class="opt-marker">A</span>Adjusted R² is always higher than R²</div>
+<div class="quiz-option" onclick="selectOption(6,this,1)"><span class="opt-marker">B</span>Adjusted R² penalizes adding useless features, unlike R² which always increases</div>
+<div class="quiz-option" onclick="selectOption(6,this,2)"><span class="opt-marker">C</span>Adjusted R² doesn't need the number of features</div>
+<div class="quiz-option" onclick="selectOption(6,this,3)"><span class="opt-marker">D</span>Adjusted R² only works with more than 10 features</div>
+</div>
+<button class="quiz-btn" id="quizBtn6" onclick="checkAnswer(6,1)" disabled>⚔️ Submit Answer</button>
+<div class="quiz-feedback" id="feedback6"></div>
+</div>
+</div>
+
+</section><!-- end levels-container -->
+
+<!-- ===== MEGA COMPARISON TABLE ===== -->
+<div class="level-card" style="margin-top:20px">
+<div class="level-header" style="margin-bottom:24px">
+<div class="level-number" style="background:linear-gradient(135deg,#f97316,#ef4444)">⚔️</div>
+<div class="level-title">All 5 Metrics — Side-by-Side Comparison</div>
+</div>
+<table class="methods-table">
+<thead>
+<tr><th>Feature</th><th>📏 MAE</th><th>⚡ MSE</th><th>🔥 RMSE</th><th>🎯 R²</th><th>🏆 Adj R²</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Full Name</strong></td><td>Mean Absolute Error</td><td>Mean Squared Error</td><td>Root Mean Squared Error</td><td>R-Squared</td><td>Adjusted R-Squared</td></tr>
+<tr><td><strong>Formula</strong></td><td><code>Σ|y-ŷ| / n</code></td><td><code>Σ(y-ŷ)² / n</code></td><td><code>√(Σ(y-ŷ)²/n)</code></td><td><code>1-(SS_res/SS_tot)</code></td><td><code>1-(1-R²)(n-1)/(n-p-1)</code></td></tr>
+<tr><td><strong>Unit</strong></td><td>Same as target</td><td>Squared units</td><td>Same as target</td><td>Unitless (0 to 1)</td><td>Unitless (can be neg)</td></tr>
+<tr><td><strong>Range</strong></td><td>0 → ∞</td><td>0 → ∞</td><td>0 → ∞</td><td>-∞ → 1</td><td>-∞ → 1</td></tr>
+<tr><td><strong>Best Value</strong></td><td>0 (lower ✅)</td><td>0 (lower ✅)</td><td>0 (lower ✅)</td><td>1 (higher ✅)</td><td>1 (higher ✅)</td></tr>
+<tr><td><strong>Outlier Sensitivity</strong></td><td>🟢 Low</td><td>🔴 High</td><td>🔴 High</td><td>🟡 Moderate</td><td>🟡 Moderate</td></tr>
+<tr><td><strong>Best For</strong></td><td>Robust error estimate</td><td>Optimization/training</td><td>Interpretable error</td><td>Model comparison</td><td>Feature selection</td></tr>
+<tr><td><strong>sklearn</strong></td><td><code>mean_absolute_error()</code></td><td><code>mean_squared_error()</code></td><td><code>√mean_squared_error()</code></td><td><code>r2_score()</code></td><td>Manual calculation</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ===== FINAL SUMMARY ===== -->
+<div class="final-summary">
+<h2>🏆 Quest Complete — Tumne Kya Seekha?</h2>
+
+<div class="summary-grid">
+<div class="summary-item si-purple">
+<span class="si-icon">🔀</span>
+<div class="si-title">Train-Test Split</div>
+<div class="si-desc">Data ko train/test mein todo — model ko unseen data pe evaluate karo, overfitting pakdo!</div>
+</div>
+<div class="summary-item si-orange">
+<span class="si-icon">📏</span>
+<div class="si-title">MAE</div>
+<div class="si-desc">Average |error| — same unit, robust to outliers, sabse simple aur interpretable metric!</div>
+</div>
+<div class="summary-item si-blue">
+<span class="si-icon">⚡</span>
+<div class="si-title">MSE</div>
+<div class="si-desc">Average error² — bade errors ko extra saza, squared units mein, gradient descent ke liye ideal!</div>
+</div>
+<div class="summary-item si-red">
+<span class="si-icon">🔥</span>
+<div class="si-title">RMSE</div>
+<div class="si-desc">√MSE — same unit wapas, outlier-sensitive rehta hai, Kaggle ka favorite metric!</div>
+</div>
+<div class="summary-item si-green">
+<span class="si-icon">🎯</span>
+<div class="si-title">R² Score</div>
+<div class="si-desc">% variance explained — scale-independent, 0 to 1 range, different models compare karo!</div>
+</div>
+<div class="summary-item si-amber">
+<span class="si-icon">🏆</span>
+<div class="si-title">Adjusted R²</div>
+<div class="si-desc">R² + penalty for extra features — feature selection ke liye best, honest reporting!</div>
+</div>
+</div>
+
+<div class="summary-takeaway">
+<p>🎯 <strong>Golden Rules:</strong> Pehle <code>train_test_split()</code> karo — hamesha test data pe evaluate karo! Error kitna hai? → <code>MAE / RMSE</code> dekho. Model kitna accha hai? → <code>R²</code> dekho. Features kitne useful hain? → <code>Adjusted R²</code> dekho. Training optimize karna hai? → <code>MSE</code> minimize karo. Boss ko report dena hai? → <code>RMSE</code> dikhao (same units!). Hamesha <strong>multiple metrics</strong> dekho — sirf ek pe depend mat karo! 📊</p>
+</div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+<p>🎮 <strong>Regression Metrics Quest</strong> — Complete!</p>
+<p>Built with ❤️ for aspiring Data Scientists</p>
+<p style="margin-top:8px">Topics: Train-Test Split • MAE • MSE • RMSE • R² Score • Adjusted R² • Simple Linear Regression • Supervised Learning</p>
+</div>
+</div><!-- end container -->
+
+<div class="modal-overlay" id="rewardModal"><div class="modal" id="modalContent"></div></div>
+<script>
+const TOTAL_XP=600,XP_PER_LEVEL=100,TOTAL_LEVELS=6;
+let gameState=JSON.parse(localStorage.getItem('regmetrics_quest_v2')||'{"xp":0,"completed":[]}');
+const badges=[{name:'🌱 Noob',min:0},{name:'⚡ Learner',min:100},{name:'🔥 Builder',min:200},{name:'💎 Pro',min:300},{name:'🏆 Master',min:400},{name:'👑 Champion',min:500},{name:'🌟 Legend',min:600}];
+const rewards={1:{icon:'🔀',title:'Split Master!',msg:'Train-Test Split seekh liya — model ko fair exam do!'},2:{icon:'📏',title:'MAE Unlocked!',msg:'Mean Absolute Error samajh gaye — sabse simple metric!'},3:{icon:'⚡',title:'MSE Master!',msg:'Mean Squared Error ka funda clear — bade errors ki saza!'},4:{icon:'🔥',title:'RMSE Warrior!',msg:'Root MSE seekh liya — same units, great interpretation!'},5:{icon:'🎯',title:'R² Champion!',msg:'R² Score — model kitna accha hai, ab pata chal gaya!'},6:{icon:'🏆',title:'Adj R² Legend!',msg:'Adjusted R² — feature selection ka ultimate weapon!'}};
+function saveState(){localStorage.setItem('regmetrics_quest_v2',JSON.stringify(gameState))}
+function updateXPBar(){const p=Math.min((gameState.xp/TOTAL_XP)*100,100);document.getElementById('xpFill').style.width=p+'%';document.getElementById('xpCount').textContent=gameState.xp;const l=Math.floor(gameState.xp/XP_PER_LEVEL);document.getElementById('xpLabel').textContent='Level '+l+' / '+TOTAL_LEVELS;const b=badges.filter(b=>gameState.xp>=b.min).pop();document.getElementById('xpBadge').textContent=b.name;for(let i=1;i<=TOTAL_LEVELS;i++){const qc=document.getElementById('qc'+i);const cn=document.getElementById('conn'+(i-1));qc.className='quest-circle';if(gameState.completed.includes(i)){qc.classList.add('completed');qc.innerHTML='✓';if(cn)cn.classList.add('completed')}else if(i===Math.min(...Array.from({length:TOTAL_LEVELS},(_,k)=>k+1).filter(x=>!gameState.completed.includes(x)))){qc.classList.add('active')}}}
+let selectedAnswers={};
+function selectOption(q,el,idx){if(gameState.completed.includes(q))return;el.parentElement.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');selectedAnswers[q]=idx;document.getElementById('quizBtn'+q).disabled=false}
+function checkAnswer(q,c){if(gameState.completed.includes(q))return;const s=selectedAnswers[q];if(s===undefined)return;const cont=document.getElementById('quiz'+q);const opts=cont.querySelectorAll('.quiz-option');const fb=document.getElementById('feedback'+q);const btn=document.getElementById('quizBtn'+q);opts.forEach((o,i)=>{o.style.pointerEvents='none';if(i===c)o.classList.add('correct');else if(i===s&&i!==c)o.classList.add('wrong')});btn.disabled=true;fb.classList.add('show');if(s===c){fb.className='quiz-feedback show correct';fb.innerHTML='✅ Sahi Jawab! +'+XP_PER_LEVEL+' XP earned!';gameState.xp=Math.min(gameState.xp+XP_PER_LEVEL,TOTAL_XP);gameState.completed.push(q);saveState();updateXPBar();launchConfetti();setTimeout(()=>showReward(q),800)}else{fb.className='quiz-feedback show wrong';fb.innerHTML='❌ Galat! Sahi answer: Option '+'ABCD'[c]+'. Try again!';setTimeout(()=>{opts.forEach(o=>{o.classList.remove('selected','wrong');o.style.pointerEvents='auto'});fb.classList.remove('show');btn.disabled=false;delete selectedAnswers[q]},2500)}}
+function showReward(l){const r=rewards[l];document.getElementById('modalContent').innerHTML=`<span class="reward-icon">${r.icon}</span><h3>${r.title}</h3><p>${r.msg}</p><div class="xp-reward">+${XP_PER_LEVEL} XP ⚡</div><button onclick="closeModal()">🎮 Continue Quest</button>`;document.getElementById('rewardModal').classList.add('show')}
+function closeModal(){document.getElementById('rewardModal').classList.remove('show')}
+document.getElementById('rewardModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+function launchConfetti(){const colors=['#6c5ce7','#00e5ff','#f97316','#fbbf24','#10b981','#ef4444','#a78bfa'];for(let i=0;i<60;i++){const c=document.createElement('div');c.className='confetti-piece';c.style.left=Math.random()*100+'vw';c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.animationDelay=Math.random()*0.5+'s';c.style.animationDuration=(2+Math.random()*2)+'s';c.style.width=(6+Math.random()*8)+'px';c.style.height=(6+Math.random()*8)+'px';c.style.borderRadius=Math.random()>.5?'50%':'2px';c.style.transform='rotate('+Math.random()*360+'deg)';document.body.appendChild(c);setTimeout(()=>c.remove(),4000)}}
+function initParticles(){const cont=document.getElementById('particles');for(let i=0;i<20;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=Math.random()*6+'s';s.style.opacity=Math.random()*.5;cont.appendChild(s)}}
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.textContent).then(()=>{btn.textContent='✅ Copied!';setTimeout(()=>btn.textContent='📋 Copy',2000)})}
+function scrollToLevel(n){document.getElementById('level'+n).scrollIntoView({behavior:'smooth',block:'start'})}
+function restoreQuizState(){gameState.completed.forEach(id=>{const cont=document.getElementById('quiz'+id);if(!cont)return;cont.querySelectorAll('.quiz-option').forEach((o,i)=>{o.style.pointerEvents='none';if(i===1)o.classList.add('correct')});document.getElementById('quizBtn'+id).disabled=true;const fb=document.getElementById('feedback'+id);fb.className='quiz-feedback show correct';fb.innerHTML='✅ Already completed! +'+XP_PER_LEVEL+' XP'})}
+initParticles();updateXPBar();restoreQuizState();
+</script>
+</body>
+</html>

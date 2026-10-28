@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Learning Quest — Introduction to ML!</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3ff;--bg2:#ede9fe;--bg3:#ddd6fe;--card:#ffffff;--card2:#faf5ff;
+  --border:rgba(109,40,217,0.12);--border2:rgba(109,40,217,0.25);
+  --neon-blue:#2563eb;--neon-cyan:#0891b2;--neon-purple:#7c3aed;
+  --neon-pink:#db2777;--neon-green:#16a34a;--neon-yellow:#b45309;
+  --neon-orange:#c2410c;--neon-red:#dc2626;
+  --neon-indigo:#4f46e5;--neon-violet:#7c3aed;
+  --text:#1e1b4b;--muted:#4b5563;--dim:#9ca3af;
+  --font-head:'Syne',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --glow-indigo:0 4px 16px rgba(79,70,229,0.22),0 1px 4px rgba(79,70,229,0.12);
+  --glow-violet:0 4px 16px rgba(124,58,237,0.22),0 1px 4px rgba(124,58,237,0.12);
+  --glow-blue:0 4px 16px rgba(37,99,235,0.18),0 1px 4px rgba(37,99,235,0.10);
+  --glow-pink:0 4px 16px rgba(219,39,119,0.18),0 1px 4px rgba(219,39,119,0.10);
+  --glow-cyan:0 4px 16px rgba(8,145,178,0.18),0 1px 4px rgba(8,145,178,0.10);
+  --glow-green:0 4px 16px rgba(22,163,74,0.18),0 1px 4px rgba(22,163,74,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.8;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--neon-indigo);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(79,70,229,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(79,70,229,0.05) 1px,transparent 1px);background-size:50px 50px;}
+.container-main{max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1;}
+
+/* XP BAR */
+.xp-strip{position:sticky;top:0;z-index:1000;background:rgba(245,243,255,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);box-shadow:0 2px 12px rgba(79,70,229,0.10);padding:0.65rem 0;}
+.xp-inner{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.xp-label{font-family:var(--font-head);font-weight:800;font-size:0.8rem;color:var(--neon-indigo);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.xp-bar-wrap{flex:1;min-width:120px;background:rgba(79,70,229,0.10);border-radius:50px;height:10px;border:1px solid rgba(79,70,229,0.25);overflow:hidden;}
+.xp-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-indigo),var(--neon-violet),var(--neon-pink));border-radius:50px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(79,70,229,0.4);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+.xp-score{font-family:var(--font-head);font-weight:800;font-size:0.9rem;color:var(--neon-indigo);white-space:nowrap;}
+.xp-badges{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.xp-badge{font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:50px;border:1px solid;white-space:nowrap;transition:0.3s;opacity:0.35;}
+.xp-badge.earned{opacity:1;animation:badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes badgePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.xp-badge.b1{border-color:var(--neon-indigo);color:var(--neon-indigo);}
+.xp-badge.b2{border-color:var(--neon-violet);color:var(--neon-violet);}
+.xp-badge.b3{border-color:var(--neon-pink);color:var(--neon-pink);}
+.xp-badge.b4{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.xp-badge.b5{border-color:var(--neon-green);color:var(--neon-green);}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:6rem 0 5rem;
+  background:radial-gradient(ellipse at 20% 50%,rgba(79,70,229,0.14) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(124,58,237,0.10) 0%,transparent 55%),
+             radial-gradient(ellipse at 60% 80%,rgba(219,39,119,0.06) 0%,transparent 50%),var(--bg);}
+.hero-orbit{position:absolute;top:50%;right:8%;transform:translateY(-50%);width:420px;height:420px;pointer-events:none;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(79,70,229,0.25);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-ring:nth-child(1){width:150px;height:150px;animation:spin 12s linear infinite;}
+.orbit-ring:nth-child(2){width:250px;height:250px;animation:spin 20s linear infinite reverse;border-color:rgba(124,58,237,0.2);}
+.orbit-ring:nth-child(3){width:350px;height:350px;animation:spin 30s linear infinite;border-color:rgba(219,39,119,0.12);}
+.orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;transform:translateX(-50%);}
+.orbit-ring:nth-child(1) .orbit-dot{background:var(--neon-indigo);box-shadow:var(--glow-indigo);}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--neon-violet);box-shadow:var(--glow-violet);}
+.orbit-ring:nth-child(3) .orbit-dot{background:var(--neon-pink);box-shadow:var(--glow-pink);}
+.orbit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;animation:float 4s ease-in-out infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(79,70,229,0.12);border:1px solid rgba(79,70,229,0.3);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--neon-indigo);margin-bottom:1.5rem;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-indigo);box-shadow:var(--glow-indigo);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-family:var(--font-head);font-weight:800;font-size:clamp(2.4rem,5vw,4rem);line-height:1.1;letter-spacing:-1.5px;margin-bottom:1.5rem;}
+.hero h1 .line1{display:block;color:#1e1b4b;}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--neon-indigo) 0%,var(--neon-violet) 50%,var(--neon-pink) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:560px;margin-bottom:2rem;line-height:1.75;}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:var(--font-head);font-weight:800;font-size:1.8rem;line-height:1;background:linear-gradient(135deg,var(--neon-indigo),var(--neon-violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-label{font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem;}
+.hero-cta{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--neon-indigo),var(--neon-violet));color:white;font-weight:700;font-size:0.95rem;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(79,70,229,0.35);transition:0.3s;animation:pulse-btn 2s infinite;}
+@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(79,70,229,0.3);}50%{box-shadow:0 4px 32px rgba(79,70,229,0.5);}}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);color:white;}
+
+/* QUEST MAP */
+.quest-map{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2rem;margin:3rem 0;position:relative;box-shadow:0 4px 24px rgba(79,70,229,0.08);}
+.quest-map::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(79,70,229,0.03),rgba(124,58,237,0.03));pointer-events:none;}
+.quest-map-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--neon-indigo);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.quest-map-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(79,70,229,0.4),transparent);}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;}
+.quest-item{display:flex;align-items:center;gap:0.75rem;background:#faf5ff;border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;text-decoration:none;color:var(--muted);font-weight:600;font-size:0.88rem;transition:0.25s;}
+.quest-item:hover{background:rgba(79,70,229,0.06);border-color:rgba(79,70,229,0.3);color:var(--neon-indigo);transform:translateX(4px);}
+.quest-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;flex-shrink:0;}
+
+/* LEVEL CARD */
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:24px 24px 0 0;}
+.level-card.lvl-indigo::before{background:linear-gradient(90deg,var(--neon-indigo),var(--neon-violet));}
+.level-card.lvl-violet::before{background:linear-gradient(90deg,var(--neon-violet),var(--neon-pink));}
+.level-card.lvl-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-violet));}
+.level-card.lvl-cyan::before{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-blue));}
+.level-card.lvl-blue::before{background:linear-gradient(90deg,var(--neon-blue),var(--neon-cyan));}
+.level-card.lvl-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));}
+.level-card.lvl-yellow::before{background:linear-gradient(90deg,var(--neon-yellow),var(--neon-orange));}
+.level-card:hover{box-shadow:0 8px 32px rgba(79,70,229,0.12);}
+.level-card .corner-deco{position:absolute;top:1.2rem;right:1.5rem;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;opacity:0.25;}
+.lv-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.8rem;}
+.lv-icon-wrap{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;}
+.lv-icon-wrap::after{content:'';position:absolute;inset:-3px;border-radius:18px;border:1px solid;opacity:0.4;}
+.ico-indigo{background:rgba(79,70,229,0.12);color:var(--neon-indigo);}.ico-indigo::after{border-color:var(--neon-indigo);}
+.ico-violet{background:rgba(124,58,237,0.12);color:var(--neon-violet);}.ico-violet::after{border-color:var(--neon-violet);}
+.ico-pink{background:rgba(219,39,119,0.12);color:var(--neon-pink);}.ico-pink::after{border-color:var(--neon-pink);}
+.ico-cyan{background:rgba(8,145,178,0.12);color:var(--neon-cyan);}.ico-cyan::after{border-color:var(--neon-cyan);}
+.ico-blue{background:rgba(37,99,235,0.12);color:var(--neon-blue);}.ico-blue::after{border-color:var(--neon-blue);}
+.ico-green{background:rgba(22,163,74,0.12);color:var(--neon-green);}.ico-green::after{border-color:var(--neon-green);}
+.ico-yellow{background:rgba(180,83,9,0.12);color:var(--neon-yellow);}.ico-yellow::after{border-color:var(--neon-yellow);}
+.ico-orange{background:rgba(194,65,12,0.12);color:var(--neon-orange);}.ico-orange::after{border-color:var(--neon-orange);}
+.lv-meta{flex:1;}
+.lv-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.35rem;}
+.lv-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;line-height:1.2;color:var(--text);}
+.lv-xp{margin-top:0.4rem;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.25);border-radius:50px;padding:0.2rem 0.75rem;font-size:0.75rem;font-weight:700;color:var(--neon-indigo);}
+
+/* CALLOUT */
+.callout{border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;border:1px solid;position:relative;overflow:hidden;}
+.callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.callout .ct{font-weight:800;font-size:0.95rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;}
+.cb-indigo{background:rgba(79,70,229,0.06);border-color:rgba(79,70,229,0.22);}.cb-indigo::before{background:var(--neon-indigo);}.cb-indigo .ct{color:var(--neon-indigo);}
+.cb-violet{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2);}.cb-violet::before{background:var(--neon-violet);}.cb-violet .ct{color:var(--neon-violet);}
+.cb-pink{background:rgba(219,39,119,0.06);border-color:rgba(219,39,119,0.2);}.cb-pink::before{background:var(--neon-pink);}.cb-pink .ct{color:var(--neon-pink);}
+.cb-cyan{background:rgba(8,145,178,0.06);border-color:rgba(8,145,178,0.2);}.cb-cyan::before{background:var(--neon-cyan);}.cb-cyan .ct{color:var(--neon-cyan);}
+.cb-blue{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);}.cb-blue::before{background:var(--neon-blue);}.cb-blue .ct{color:var(--neon-blue);}
+.cb-green{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.2);}.cb-green::before{background:var(--neon-green);}.cb-green .ct{color:var(--neon-green);}
+.cb-yellow{background:rgba(180,83,9,0.06);border-color:rgba(180,83,9,0.2);}.cb-yellow::before{background:var(--neon-yellow);}.cb-yellow .ct{color:var(--neon-yellow);}
+.cb-orange{background:rgba(194,65,12,0.06);border-color:rgba(194,65,12,0.2);}.cb-orange::before{background:var(--neon-orange);}.cb-orange .ct{color:var(--neon-orange);}
+.cb-red{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.2);}.cb-red::before{background:var(--neon-red);}.cb-red .ct{color:var(--neon-red);}
+
+/* STEP TIMELINE */
+.step-timeline{position:relative;padding-left:2.8rem;}
+.step-timeline::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon-indigo),var(--neon-violet),var(--neon-pink));opacity:0.45;border-radius:2px;}
+.step-item{position:relative;margin-bottom:1.3rem;background:#faf5ff;border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 2px 8px rgba(79,70,229,0.05);transition:0.25s;}
+.step-item:hover{border-color:var(--border2);background:#f5f0fe;}
+.step-item::before{content:attr(data-step);position:absolute;left:-2.8rem;top:1rem;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--neon-indigo);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;color:var(--neon-indigo);box-shadow:0 2px 8px rgba(79,70,229,0.2);}
+.step-label{font-weight:700;color:var(--text);font-size:0.98rem;margin-bottom:0.35rem;}
+.step-body{color:var(--muted);font-size:0.92rem;line-height:1.7;}
+
+/* ACH CARD */
+.ach-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;text-align:center;position:relative;overflow:hidden;}
+.ach-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s;}
+.ach-card:hover{transform:translateY(-6px);border-color:var(--border2);}
+.ach-card:hover::after{opacity:1;}
+.ach-card.ac-indigo::after{background:var(--neon-indigo);}.ach-card.ac-indigo:hover{box-shadow:0 16px 48px rgba(79,70,229,0.2);}
+.ach-card.ac-violet::after{background:var(--neon-violet);}.ach-card.ac-violet:hover{box-shadow:0 10px 28px rgba(124,58,237,0.15);}
+.ach-card.ac-pink::after{background:var(--neon-pink);}.ach-card.ac-pink:hover{box-shadow:0 16px 48px rgba(219,39,119,0.2);}
+.ach-card.ac-cyan::after{background:var(--neon-cyan);}.ach-card.ac-cyan:hover{box-shadow:0 16px 48px rgba(8,145,178,0.2);}
+.ach-card.ac-blue::after{background:var(--neon-blue);}.ach-card.ac-blue:hover{box-shadow:0 16px 48px rgba(37,99,235,0.2);}
+.ach-card.ac-green::after{background:var(--neon-green);}.ach-card.ac-green:hover{box-shadow:0 16px 48px rgba(22,163,74,0.2);}
+.ach-card.ac-yellow::after{background:var(--neon-yellow);}.ach-card.ac-yellow:hover{box-shadow:0 10px 28px rgba(180,83,9,0.15);}
+.ach-card.ac-orange::after{background:var(--neon-orange);}.ach-card.ac-orange:hover{box-shadow:0 10px 28px rgba(194,65,12,0.15);}
+.ach-icon{font-size:2.2rem;margin-bottom:0.75rem;display:block;}
+.ach-title{font-family:var(--font-head);font-weight:800;font-size:1rem;margin-bottom:0.5rem;}
+.ach-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+
+/* TABLE */
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.gtbl thead th{background:rgba(79,70,229,0.08);color:var(--neon-indigo);font-family:var(--font-head);font-weight:700;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid rgba(79,70,229,0.15);font-size:0.85rem;letter-spacing:0.5px;}
+.gtbl tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.92rem;vertical-align:top;}
+.gtbl tbody tr:last-child td{border-bottom:none;}
+.gtbl tbody tr:hover td{background:rgba(79,70,229,0.03);color:var(--text);}
+.gtbl tbody td strong{color:var(--text);}
+
+/* DIM CARD */
+.dim-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;position:relative;overflow:hidden;}
+.dim-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(79,70,229,0.12);}
+.dim-rank{font-family:var(--font-head);font-weight:800;font-size:2.5rem;line-height:1;margin-bottom:0.25rem;}
+.dim-name{font-weight:700;font-size:1rem;margin-bottom:0.8rem;}
+.dim-code{background:#f5f3ff;border-radius:10px;padding:0.65rem 0.9rem;font-family:var(--font-mono);font-size:0.82rem;border:1px solid rgba(79,70,229,0.15);margin-bottom:0.8rem;}
+.dim-desc{font-size:0.88rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;}
+.dim-example{font-size:0.82rem;padding:0.5rem 0.75rem;border-radius:8px;border:1px solid;}
+
+/* STAT PILLS */
+.stat-pill{display:inline-flex;align-items:center;gap:0.4rem;border-radius:50px;padding:0.3rem 0.9rem;font-weight:700;font-size:0.8rem;border:1px solid;}
+.sp-indigo{background:rgba(79,70,229,0.08);border-color:rgba(79,70,229,0.3);color:var(--neon-indigo);}
+.sp-violet{background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.3);color:var(--neon-violet);}
+.sp-pink{background:rgba(219,39,119,0.08);border-color:rgba(219,39,119,0.3);color:var(--neon-pink);}
+.sp-cyan{background:rgba(8,145,178,0.08);border-color:rgba(8,145,178,0.3);color:var(--neon-cyan);}
+.sp-blue{background:rgba(37,99,235,0.08);border-color:rgba(37,99,235,0.3);color:var(--neon-blue);}
+.sp-green{background:rgba(22,163,74,0.08);border-color:rgba(22,163,74,0.3);color:var(--neon-green);}
+.sp-yellow{background:rgba(180,83,9,0.08);border-color:rgba(180,83,9,0.3);color:var(--neon-yellow);}
+.sp-orange{background:rgba(194,65,12,0.08);border-color:rgba(194,65,12,0.3);color:var(--neon-orange);}
+.sp-red{background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.3);color:var(--neon-red);}
+
+/* INLINE CODE */
+.inline-code{background:rgba(79,70,229,0.08);color:#3730a3;padding:0.1rem 0.45rem;border-radius:6px;font-family:var(--font-mono);font-size:0.88em;border:1px solid rgba(79,70,229,0.25);}
+
+/* HIGHLIGHT */
+.hl{background:rgba(180,83,9,0.1);color:#92400e;padding:0 5px;border-radius:4px;}
+.hl-indigo{background:rgba(79,70,229,0.1);color:var(--neon-indigo);padding:0 5px;border-radius:4px;}
+.hl-violet{background:rgba(124,58,237,0.1);color:var(--neon-violet);padding:0 5px;border-radius:4px;}
+.hl-pink{background:rgba(219,39,119,0.1);color:var(--neon-pink);padding:0 5px;border-radius:4px;}
+.hl-green{background:rgba(22,163,74,0.1);color:var(--neon-green);padding:0 5px;border-radius:4px;}
+.hl-blue{background:rgba(37,99,235,0.1);color:var(--neon-blue);padding:0 5px;border-radius:4px;}
+.hl-red{background:rgba(220,38,38,0.1);color:var(--neon-red);padding:0 5px;border-radius:4px;}
+
+/* GLOW DIVIDER */
+.glow-div{height:2px;border-radius:2px;margin:2rem 0;opacity:0.4;background:linear-gradient(90deg,transparent,var(--neon-indigo),var(--neon-violet),var(--neon-pink),transparent);}
+
+/* MERMAID */
+.mermaid-wrap{background:#faf5ff;border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto;box-shadow:0 2px 12px rgba(79,70,229,0.06);}
+
+/* NESTED BOX — AI > ML > DL visual */
+.nest-box{border-radius:20px;padding:1.5rem;text-align:center;position:relative;}
+.nest-ai{background:linear-gradient(135deg,rgba(79,70,229,0.08),rgba(79,70,229,0.04));border:2px solid rgba(79,70,229,0.3);}
+.nest-ml{background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(124,58,237,0.05));border:2px dashed rgba(124,58,237,0.4);margin:0.75rem;}
+.nest-dl{background:linear-gradient(135deg,rgba(219,39,119,0.1),rgba(219,39,119,0.05));border:2px dotted rgba(219,39,119,0.5);margin:0.75rem;}
+.nest-label{font-family:var(--font-head);font-weight:800;font-size:0.9rem;letter-spacing:1px;}
+
+/* JOB ROLE CARD */
+.job-card{background:#ffffff;border-radius:20px;padding:1.6rem;border:1px solid var(--border);transition:0.3s;position:relative;overflow:hidden;height:100%;}
+.job-card:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(79,70,229,0.14);}
+.job-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:20px 20px 0 0;}
+.job-card.jc-indigo::before{background:linear-gradient(90deg,var(--neon-indigo),var(--neon-violet));}
+.job-card.jc-cyan::before{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-blue));}
+.job-card.jc-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));}
+.job-card.jc-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-violet));}
+.job-emoji{font-size:2.4rem;margin-bottom:0.6rem;display:block;}
+.job-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;margin-bottom:0.4rem;}
+.job-salary{font-size:0.8rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:50px;border:1px solid;display:inline-block;margin-bottom:0.8rem;}
+.job-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;margin-bottom:0.8rem;}
+.job-skill{font-size:0.78rem;font-weight:700;padding:0.15rem 0.55rem;border-radius:6px;background:rgba(79,70,229,0.07);color:var(--neon-indigo);border:1px solid rgba(79,70,229,0.18);display:inline-block;margin:0.15rem;}
+
+/* MLDLC TIMELINE CUSTOM */
+.mldlc-step{display:flex;gap:1.2rem;margin-bottom:1.2rem;align-items:flex-start;}
+.mldlc-num{width:44px;height:44px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:1rem;color:#fff;}
+.mldlc-body{flex:1;background:#faf5ff;border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;}
+.mldlc-title{font-weight:800;font-size:0.98rem;color:var(--text);margin-bottom:0.3rem;}
+.mldlc-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+
+/* QUIZ */
+.quiz-box{background:#faf5ff;border:1px solid rgba(79,70,229,0.22);border-radius:20px;padding:1.6rem;margin:1.8rem 0;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(79,70,229,0.08);}
+.quiz-box::before{content:'⚡ QUICK CHALLENGE';position:absolute;top:0;right:0;background:linear-gradient(135deg,var(--neon-indigo),var(--neon-violet));color:#fff;font-family:var(--font-head);font-weight:800;font-size:0.62rem;letter-spacing:2px;padding:0.32rem 0.9rem;border-radius:0 20px 0 12px;}
+.quiz-q{font-weight:700;color:#1c1917;margin-bottom:1.1rem;font-size:1.02rem;line-height:1.55;}
+.quiz-options{display:flex;flex-direction:column;gap:0.55rem;}
+.quiz-opt{background:#ffffff;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.75rem 1.1rem;cursor:pointer;font-size:0.93rem;color:#374151;transition:background 0.15s,border-color 0.15s,transform 0.12s;font-weight:500;display:flex;align-items:center;gap:0.85rem;user-select:none;}
+.quiz-opt:not(.answered-opt):hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;transform:translateX(3px);}
+.quiz-opt.correct{background:#f0fdf4;border-color:#16a34a;color:#14532d;font-weight:700;}
+.quiz-opt.correct .opt-letter{background:#16a34a;color:#fff;}
+.quiz-opt.wrong{background:#fef2f2;border-color:#dc2626;color:#991b1b;opacity:0.8;}
+.quiz-opt.wrong .opt-letter{background:#dc2626;color:#fff;}
+.quiz-opt.dimmed{opacity:0.45;pointer-events:none;}
+.quiz-opt .opt-letter{width:28px;height:28px;border-radius:8px;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.8rem;flex-shrink:0;transition:background 0.2s,color 0.2s;}
+.quiz-explain{display:none;font-size:0.84rem;font-weight:500;margin-top:-0.35rem;margin-bottom:0.35rem;padding:0.5rem 0.85rem 0.5rem 1rem;border-radius:0 0 10px 10px;line-height:1.55;border-left:3px solid transparent;}
+.quiz-explain.show-correct{display:block;background:rgba(22,163,74,0.07);color:#166534;border-left-color:#16a34a;}
+.quiz-explain.show-wrong{display:block;background:rgba(220,38,38,0.06);color:#991b1b;border-left-color:#dc2626;}
+.quiz-explain.show-reveal{display:block;background:rgba(37,99,235,0.06);color:#1e40af;border-left-color:#2563eb;}
+.quiz-feedback{display:none;margin-top:1rem;padding:0.85rem 1.1rem;border-radius:12px;font-weight:700;font-size:0.95rem;align-items:center;gap:0.6rem;}
+.quiz-feedback.show{display:flex;animation:fadeIn 0.35s;}
+.quiz-feedback.win{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;border:1px solid rgba(22,163,74,0.3);}
+.quiz-feedback.lose{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;border:1px solid rgba(220,38,38,0.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* FOOTER */
+.gfooter{background:#ede9fe;border-top:1px solid var(--border);padding:3rem 0;margin-top:4rem;text-align:center;}
+.gfooter-logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--neon-indigo),var(--neon-violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-up.visible{opacity:1;transform:none;}
+@media(max-width:768px){.hero h1{font-size:2rem;}.hero-orbit{display:none;}.level-card{padding:1.5rem;}.xp-badges{display:none;}}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;}
+.gtoast{background:#ffffff;border:1px solid var(--border2);border-radius:14px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.75rem;backdrop-filter:blur(12px);font-weight:700;font-size:0.88rem;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto;min-width:260px;box-shadow:0 8px 32px rgba(79,70,229,0.15);}
+.gtoast.show{transform:none;}
+.gtoast-icon{font-size:1.4rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:#ffffff;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:520px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(79,70,229,0.18),0 4px 20px rgba(0,0,0,0.1);transform:scale(0.85) translateY(20px);transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease;opacity:0;}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0);opacity:1;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--neon-indigo),var(--neon-violet),var(--neon-pink));}
+.modal-close{position:absolute;top:1rem;right:1rem;background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.modal-close:hover{background:#e5e7eb;color:#374151;}
+.modal-trophy{font-size:3rem;text-align:center;margin-bottom:0.5rem;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;text-align:center;color:var(--text);margin-bottom:0.4rem;}
+.modal-subtitle{color:var(--muted);text-align:center;font-size:0.92rem;margin-bottom:1.5rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.score-ring{position:relative;width:120px;height:120px;}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e5e7eb;stroke-width:10;}
+.ring-fill{fill:none;stroke:#4f46e5;stroke-width:10;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--text);line-height:1;}
+.ring-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.grade-card{border-radius:14px;padding:0.85rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;border:1.5px solid;}
+.grade-s{background:#f5f3ff;border-color:#4f46e5;}.grade-a{background:#f0fdf4;border-color:#16a34a;}.grade-b{background:#eff6ff;border-color:#2563eb;}.grade-c{background:#fdf4ff;border-color:#7c3aed;}.grade-d{background:#fef2f2;border-color:#dc2626;}
+.grade-letter{font-family:var(--font-head);font-weight:800;font-size:1.6rem;}
+.grade-msg{font-size:0.9rem;color:var(--muted);font-weight:600;}
+.modal-xp-row{display:flex;align-items:center;justify-content:space-between;background:#f5f3ff;border:1px solid rgba(79,70,229,0.2);border-radius:12px;padding:0.75rem 1.1rem;margin-bottom:1.4rem;}
+.modal-xp-row .mxp-label{font-size:0.85rem;color:#6b7280;font-weight:600;}
+.modal-xp-row .mxp-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-btns{display:flex;gap:0.75rem;}
+.modal-btn-retry{flex:1;padding:0.8rem 1rem;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#374151;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.modal-btn-retry:hover{background:#e5e7eb;color:#111827;}
+.modal-btn-continue{flex:2;padding:0.8rem 1rem;background:linear-gradient(135deg,#4f46e5,#7c3aed);border:none;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#ffffff;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 16px rgba(79,70,229,0.3);}
+.modal-btn-continue:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(79,70,229,0.45);}
+#confettiCanvas{position:fixed;inset:0;z-index:10001;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- XP STRIP -->
+<div class="xp-strip">
+  <div class="container-main">
+    <div class="xp-inner">
+      <span class="xp-label">⚡ XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill"></div></div>
+      <span class="xp-score" id="xpScore">0 / 275 XP</span>
+      <div class="xp-badges">
+        <span class="xp-badge b1" id="badge1">🤖 ML Initiate</span>
+        <span class="xp-badge b2" id="badge2">🧠 AI Thinker</span>
+        <span class="xp-badge b3" id="badge3">🌍 App Explorer</span>
+        <span class="xp-badge b4" id="badge4">🔀 Types Master</span>
+        <span class="xp-badge b5" id="badge5">🏆 Data Pro</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container-main">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-eyebrow"><i class="fa-solid fa-gamepad me-1"></i> Gamified Learning Quest</div>
+        <h1>
+          <span class="line1">Machine Learning ki</span>
+          <span class="line2">Complete Introduction!</span>
+        </h1>
+        <p class="hero-sub">
+          6 boss levels. ML kya hai se lekar Job Roles tak. Real India examples ke saath. <strong style="color:var(--text)">Earn XP</strong>, unlock badges, aur Data Science ki duniya mein apna pehla qadam rakho!
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat-item"><div class="hero-stat-num">6</div><div class="hero-stat-label">Boss Topics</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">275</div><div class="hero-stat-label">Total XP</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Badges</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">∞</div><div class="hero-stat-label">Career Growth</div></div>
+        </div>
+        <a href="#s1" class="hero-cta"><i class="fa-solid fa-play me-1"></i> Start Your Quest</a>
+      </div>
+      <div class="col-lg-5">
+        <div class="hero-orbit">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-center">🤖</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-main">
+
+<!-- QUEST MAP -->
+<div class="quest-map fade-up">
+  <div class="quest-map-title"><i class="fa-solid fa-map me-2"></i> Quest Map</div>
+  <div class="quest-grid">
+    <a href="#s1" class="quest-item"><span class="quest-num" style="background:rgba(79,70,229,0.15);color:var(--neon-indigo);">L1</span> Machine Learning Kya Hai?</a>
+    <a href="#s2" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.15);color:var(--neon-violet);">L2</span> AI vs ML vs Deep Learning</a>
+    <a href="#s3" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.15);color:var(--neon-pink);">L3</span> Real-Life ML Applications</a>
+    <a href="#s4" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">L4</span> Types of Machine Learning</a>
+    <a href="#s5" class="quest-item"><span class="quest-num" style="background:rgba(37,99,235,0.15);color:var(--neon-blue);">L5</span> MLDLC — ML Development Life Cycle</a>
+    <a href="#s6" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.15);color:var(--neon-green);">L6</span> Data Science Job Roles</a>
+    <a href="#s7" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.15);color:var(--neon-pink);">🏆</span> Final Summary &amp; Roadmap</a>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 1 : MACHINE LEARNING KYA HAI?
+█████████████████████████████████████ -->
+<div class="level-card lvl-indigo fade-up" id="s1">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-indigo"><i class="fa-solid fa-robot"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Boss Topic</div>
+      <div class="lv-title">Machine Learning Kya Hai?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-indigo">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Definition — Arthur Samuel (1959)</div>
+    <strong>Machine Learning</strong> = Computer ko <span class="hl-indigo">explicitly program kiye bina seekhne ki ability dena</span> — experience se improve karna.<br><br>
+    Aur modern definition: Tom Mitchell (1998) — "A computer program is said to learn from <strong>Experience E</strong> with respect to <strong>Task T</strong> and <strong>Performance P</strong> — if P on T improves with E."
+  </div>
+
+  <div class="callout cb-yellow mt-2">
+    <div class="ct"><i class="fa-solid fa-india"></i> Simple Hindi Analogy — Baccha kaise seekhta hai?</div>
+    Ek bacche ko pehli baar <strong>cat</strong> dikhao → batao "yeh cat hai". Doosri cat dikhao → phir batao. Teesri baar — woh khud pehchaan leta hai!<br><br>
+    ML bhi wahi karta hai — <strong>examples (data) se patterns seekhta hai</strong>, aur naye examples pe apply karta hai. Koi explicit rules likhne ki zaroorat nahi!
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1.2rem;">
+    <i class="fa-solid fa-code-compare me-2" style="color:var(--neon-indigo)"></i>Traditional Programming vs Machine Learning
+  </h5>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="callout cb-orange h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-code"></i> Traditional Programming</div>
+        <strong>Input:</strong> Data + Rules (manually written)<br>
+        <strong>Output:</strong> Answers<br><br>
+        👨‍💻 Programmer har rule likhta hai:<br>
+        <span class="inline-code">if price &gt; 50L → premium</span><br>
+        <span class="inline-code">if age &lt; 30 → young</span><br><br>
+        <em style="color:var(--muted);">Problem: Rules lakhon ho sakti hain — sab likhna impossible!</em>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-indigo h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-robot"></i> Machine Learning</div>
+        <strong>Input:</strong> Data + Answers (examples)<br>
+        <strong>Output:</strong> Rules (learned automatically!)<br><br>
+        🤖 ML model khud rules discover karta hai:<br>
+        "High price + large area + good location = premium"<br><br>
+        <em style="color:var(--muted);">Advantage: Millions of patterns automatically learn hoti hain!</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-green mt-4">
+    <div class="ct"><i class="fa-solid fa-india"></i> Real India Examples — ML Hamare Aaspaas</div>
+    <div class="row g-2">
+      <div class="col-md-6">
+        📧 <strong>Gmail Spam Filter:</strong> Kaunsa email spam hai — khud seekhta hai<br>
+        🎵 <strong>Spotify/JioSaavn:</strong> Tumhare mood ke hisaab se songs recommend karta hai<br>
+        🛒 <strong>Amazon/Flipkart:</strong> "Log jo ye dekhte hain woh ye bhi khareedtey hain"
+      </div>
+      <div class="col-md-6">
+        🏦 <strong>HDFC/ICICI:</strong> Fraud transactions automatically detect karta hai<br>
+        🚗 <strong>Ola/Uber:</strong> Surge pricing — demand predict karke price set karta hai<br>
+        🏥 <strong>Apollo/Practo:</strong> Disease prediction from symptoms aur tests
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-box" data-quiz="1" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Machine Learning aur Traditional Programming mein sabse fundamental farak kya hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. ML bhi computers pe hi run karta hai — Java, Python, C++ sab programming languages mein likh sakte ho. Fark languages ka nahi, approach ka hai."><span class="opt-letter">A</span>ML sirf special computers pe run karta hai, traditional programming normal computers pe</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! Ye sabse fundamental farak hai. Traditional programming mein aap rules manually likhte ho aur data daalte ho — answers milte hain. ML mein aap data aur answers (examples) daalte ho — model rules khud discover karta hai. Is inversion ki wajah se ML aise tasks solve kar sakta hai jahan rules likhna practically impossible ho!"><span class="opt-letter">B</span>Traditional programming mein rules manually likhte hain; ML mein model data se rules khud seekhta hai</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Galat. ML bhi programming hi hai — Python, R, Java sab use ho sakti hain. ML mein bhi code likhna padta hai — bas approach alag hoti hai."><span class="opt-letter">C</span>ML mein koi programming nahi hoti — sab automatically hota hai bina code ke</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Traditional programming bhi fast ho sakta hai. Aur ML algorithms alag alag speeds pe kaam karte hain. Speed primary distinction nahi hai."><span class="opt-letter">D</span>ML traditional programming se hamesha zyada fast hota hai execution mein</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 2 : AI vs ML vs DL
+█████████████████████████████████████ -->
+<div class="level-card lvl-violet fade-up" id="s2">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-violet"><i class="fa-solid fa-brain"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Boss Topic</div>
+      <div class="lv-title">AI vs Machine Learning vs Deep Learning</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-violet">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Ek Line Mein Fark</div>
+    <span class="hl-indigo">AI</span> = sabse bada umbrella — machine ko "intelligent" banana, chahe koi bhi technique use karo.<br>
+    <span class="hl-violet">ML</span> = AI ka subset — machines ko <em>data se</em> sikhao.<br>
+    <span class="hl-pink">Deep Learning</span> = ML ka subset — neural networks use karke, especially unstructured data (images, audio, text) ke liye.
+  </div>
+
+  <!-- Nested visual: AI > ML > DL -->
+  <div class="nest-box nest-ai mt-4">
+    <div class="nest-label mb-2" style="color:var(--neon-indigo);">🤖 ARTIFICIAL INTELLIGENCE</div>
+    <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.8rem;">"Machines ko intelligent banana" — Rule-based systems, Expert Systems, Search algorithms bhi AI hain</div>
+    <div class="nest-box nest-ml">
+      <div class="nest-label mb-2" style="color:var(--neon-violet);">📊 MACHINE LEARNING</div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.8rem;">Data se patterns seekhna — Regression, Classification, Clustering, etc.</div>
+      <div class="nest-box nest-dl">
+        <div class="nest-label" style="color:var(--neon-pink);">🧠 DEEP LEARNING</div>
+        <div style="font-size:0.82rem;color:var(--muted);">Multi-layer Neural Networks — Images, Audio, Text, Video processing</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(79,70,229,0.3);">
+        <div class="dim-rank" style="color:var(--neon-indigo);">🤖</div>
+        <div class="dim-name" style="color:var(--neon-indigo);">Artificial Intelligence</div>
+        <div class="dim-desc">Human intelligence simulate karna — reasoning, problem-solving, perception, language understanding. Sabse broad field.</div>
+        <div class="dim-example" style="border-color:rgba(79,70,229,0.2);color:var(--muted);">
+          <strong>Includes:</strong> Chess engines, Expert Systems, Robotics, Natural Language Processing
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(124,58,237,0.3);">
+        <div class="dim-rank" style="color:var(--neon-violet);">📊</div>
+        <div class="dim-name" style="color:var(--neon-violet);">Machine Learning</div>
+        <div class="dim-desc">Data se patterns seekhna aur predictions banana — structured data pe best. Feature engineering important hai.</div>
+        <div class="dim-example" style="border-color:rgba(124,58,237,0.2);color:var(--muted);">
+          <strong>Includes:</strong> Linear Regression, Random Forest, SVM, K-Means, XGBoost
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(219,39,119,0.3);">
+        <div class="dim-rank" style="color:var(--neon-pink);">🧠</div>
+        <div class="dim-name" style="color:var(--neon-pink);">Deep Learning</div>
+        <div class="dim-desc">Multi-layer Neural Networks — features automatically extract karta hai. Unstructured data (images/text/audio) mein superhuman performance.</div>
+        <div class="dim-example" style="border-color:rgba(219,39,119,0.2);color:var(--muted);">
+          <strong>Includes:</strong> CNN (images), RNN (sequences), Transformers (ChatGPT), GANs
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive mt-4">
+    <table class="gtbl">
+      <thead><tr><th>Feature</th><th>AI</th><th>Machine Learning</th><th>Deep Learning</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Data needed</strong></td><td>Rules ya data — dono</td><td>Structured data — thousands rows</td><td>Huge data — millions of examples</td></tr>
+        <tr><td><strong>Feature engineering</strong></td><td>Manual rules</td><td><span class="stat-pill sp-yellow">Manual features banaane padte</span></td><td><span class="stat-pill sp-green">Automatic — self-learns features</span></td></tr>
+        <tr><td><strong>Compute power</strong></td><td>Low–Medium</td><td>Medium</td><td><span class="stat-pill sp-red">Very High — GPUs zaroori</span></td></tr>
+        <tr><td><strong>Interpretability</strong></td><td>High</td><td>Medium</td><td><span class="stat-pill sp-red">Low — "Black Box"</span></td></tr>
+        <tr><td><strong>India example</strong></td><td>IRCTC search engine</td><td>CIBIL credit scoring</td><td>Google Lens, Zomato food detection</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-box" data-quiz="2" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 Relationship correctly identify karo: AI, ML, aur Deep Learning mein kya sambandh hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Galat. Ye teeno alag separate fields nahi hain — inke beech subset relationship hai. Deep Learning bhi AI aur ML ka part hai."><span class="opt-letter">A</span>AI, ML aur Deep Learning teeno completely alag separate fields hain — koi overlap nahi</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi — bilkul ulta hai! Deep Learning sabse narrow/specific field hai (neural networks), ML broader hai, aur AI sabse broad umbrella hai. Is description mein hierarchy ulti hai."><span class="opt-letter">B</span>Deep Learning sabse broad field hai, ML uska subset hai, AI ML ka subset hai</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! AI sabse broad concept hai — 'machines ko intelligent banana'. ML AI ka subset hai — specifically 'data se seekhne' ka approach. Deep Learning ML ka subset hai — specifically 'multi-layer neural networks' ka use. Ye nested circles hain: DL ⊂ ML ⊂ AI."><span class="opt-letter">C</span>AI sabse broad hai, ML uska subset hai, Deep Learning ML ka subset hai — nested circles</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. ML aur Deep Learning dono AI ke andar aate hain — sibling nahi, parent-child relationship hai. Aur Deep Learning ML ka subset hai, sibling nahi."><span class="opt-letter">D</span>ML aur Deep Learning AI ke siblings hain — dono equally AI ke parts hain</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 3 : REAL-LIFE APPLICATIONS
+█████████████████████████████████████ -->
+<div class="level-card lvl-pink fade-up" id="s3">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-globe"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Boss Topic</div>
+      <div class="lv-title">Real-Life Machine Learning Applications</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> ML Hamare Rozaana Ki Zindagi Mein</div>
+    Subah uthne se raat sone tak — tum ML use kar rahe ho! Phone unlock karna, news feed dekhna, shopping karna, food order karna — sab mein ML chhupa hai.
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-4 col-sm-6">
+      <div class="ach-card ac-indigo">
+        <span class="ach-icon">🏥</span>
+        <div class="ach-title">Healthcare</div>
+        <div class="ach-desc">
+          <strong>Disease diagnosis</strong> — X-ray, MRI se cancer detect<br>
+          <strong>Drug discovery</strong> — new medicines faster<br>
+          <strong>Patient risk prediction</strong><br>
+          <em style="font-size:0.78rem;">India: Apollo, AIIMS, Practo</em>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="ach-card ac-violet">
+        <span class="ach-icon">💰</span>
+        <div class="ach-title">Finance &amp; Banking</div>
+        <div class="ach-desc">
+          <strong>Fraud detection</strong> — UPI/credit card<br>
+          <strong>Credit scoring</strong> — loan approval<br>
+          <strong>Algorithmic trading</strong><br>
+          <em style="font-size:0.78rem;">India: CIBIL, HDFC, Paytm, Zerodha</em>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="ach-card ac-pink">
+        <span class="ach-icon">🛒</span>
+        <div class="ach-title">E-Commerce</div>
+        <div class="ach-desc">
+          <strong>Product recommendations</strong><br>
+          <strong>Dynamic pricing</strong><br>
+          <strong>Demand forecasting</strong><br>
+          <em style="font-size:0.78rem;">India: Flipkart, Amazon.in, Meesho</em>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="ach-card ac-cyan">
+        <span class="ach-icon">🚗</span>
+        <div class="ach-title">Transportation</div>
+        <div class="ach-desc">
+          <strong>Route optimization</strong> — traffic prediction<br>
+          <strong>Surge pricing</strong><br>
+          <strong>Self-driving cars</strong><br>
+          <em style="font-size:0.78rem;">India: Ola, Rapido, NHAI</em>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="ach-card ac-blue">
+        <span class="ach-icon">📱</span>
+        <div class="ach-title">Social Media &amp; Entertainment</div>
+        <div class="ach-desc">
+          <strong>Content recommendation</strong><br>
+          <strong>Face recognition</strong><br>
+          <strong>Sentiment analysis</strong><br>
+          <em style="font-size:0.78rem;">India: ShareChat, Moj, JioCinema</em>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="ach-card ac-green">
+        <span class="ach-icon">🌾</span>
+        <div class="ach-title">Agriculture</div>
+        <div class="ach-desc">
+          <strong>Crop disease detection</strong> — images se<br>
+          <strong>Yield prediction</strong><br>
+          <strong>Soil analysis</strong><br>
+          <em style="font-size:0.78rem;">India: AgroStar, Fasal, DeHaat</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue mt-4">
+    <div class="ct"><i class="fa-solid fa-star"></i> Most Impactful India ML Moments</div>
+    🏏 <strong>BCCI/Dream11:</strong> Player performance prediction — fantasy sports mein ML<br>
+    🗣️ <strong>Google Translate:</strong> Hindi aur regional languages — 22+ Indian languages support<br>
+    📊 <strong>GST Portal:</strong> Tax fraud detection — ML models billions of transactions screen karte hain<br>
+    🌾 <strong>PM-Kisan:</strong> Farmer benefit eligibility — ML se faster processing
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-box" data-quiz="3" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 Zomato apke purane orders dekh ke "You might also like Biryani" suggest karta hai. Ye ML ka kaunsa application hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Fraud detection mein ML suspicious transactions ya activities ko identify karta hai — jaise unusual login location ya sudden large transactions. Recommendation alag application hai."><span class="opt-letter">A</span>Fraud Detection — suspicious activity identify karna</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Demand forecasting mein ML predict karta hai ki kal ya agle week kitne orders aayenge — restaurant supplies manage karne ke liye. Aapko suggest karna alag hai."><span class="opt-letter">B</span>Demand Forecasting — kitne orders aayenge predict karna</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Price optimization mein ML surge pricing ya discount decide karta hai. Recommendation system ka isse seedha sambandh nahi hai."><span class="opt-letter">C</span>Price Optimization — best price set karna</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! Ye Recommendation System hai — Collaborative Filtering ya Content-Based Filtering algorithm use hota hai. Aapke past orders, ratings, aur similar users ki preferences dekh ke personalized suggestions deta hai. Amazon, Netflix, Spotify, Zomato — sabhi recommendation systems pe heavily depend karte hain!"><span class="opt-letter">D</span>Recommendation System — past behavior dekhke personalized suggestions dena</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 4 : TYPES OF ML
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s4">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-sitemap"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Boss Topic</div>
+      <div class="lv-title">Types of Machine Learning — Teeno Flavours!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-cyan">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Teen Main Categories</div>
+    ML algorithms ko <span class="hl-blue">training data ke type aur feedback</span> ke basis pe classify karte hain — Supervised, Unsupervised, aur Reinforcement Learning. Ek chautha bhi hai: Semi-Supervised!
+  </div>
+
+  <div class="row g-3 mt-2">
+    <!-- Supervised -->
+    <div class="col-12">
+      <div class="dim-card" style="border-color:rgba(79,70,229,0.3);">
+        <div class="row align-items-start g-2">
+          <div class="col-md-3" style="text-align:center;">
+            <div class="dim-rank" style="color:var(--neon-indigo);">👨‍🏫</div>
+            <div class="dim-name" style="color:var(--neon-indigo);">Supervised Learning</div>
+            <div class="dim-code">Labeled Data chahiye</div>
+          </div>
+          <div class="col-md-9">
+            <div class="dim-desc"><strong>Teacher ki tarah!</strong> Model ko labeled examples dete hain — input aur correct answer dono. Model seekhta hai ki input se answer kaise predict karein.<br><br>
+            <strong>Subtypes:</strong>
+            <span class="stat-pill sp-indigo" style="margin:0.2rem;">Classification</span> — Category predict karo (Spam/Not Spam, Fraud/Legit)
+            <span class="stat-pill sp-violet" style="margin:0.2rem;">Regression</span> — Number predict karo (House price, Salary)
+            </div>
+            <div class="dim-example" style="border-color:rgba(79,70,229,0.2);color:var(--muted);">
+              🇮🇳 <strong>India Examples:</strong> CIBIL loan approval (classification) · Sensex prediction (regression) · Email spam filter · Disease diagnosis
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unsupervised -->
+    <div class="col-12">
+      <div class="dim-card" style="border-color:rgba(8,145,178,0.3);">
+        <div class="row align-items-start g-2">
+          <div class="col-md-3" style="text-align:center;">
+            <div class="dim-rank" style="color:var(--neon-cyan);">🔍</div>
+            <div class="dim-name" style="color:var(--neon-cyan);">Unsupervised Learning</div>
+            <div class="dim-code">Unlabeled Data — khud patterns dhundho</div>
+          </div>
+          <div class="col-md-9">
+            <div class="dim-desc"><strong>Explorer ki tarah!</strong> Koi labels nahi diye — model khud data mein hidden patterns aur structures dhundha karta hai. Koi "correct answer" nahi hota!<br><br>
+            <strong>Subtypes:</strong>
+            <span class="stat-pill sp-cyan" style="margin:0.2rem;">Clustering</span> — Similar groups dhundho (K-Means)
+            <span class="stat-pill sp-blue" style="margin:0.2rem;">Dimensionality Reduction</span> — Features compress karo (PCA)
+            </div>
+            <div class="dim-example" style="border-color:rgba(8,145,178,0.2);color:var(--muted);">
+              🇮🇳 <strong>India Examples:</strong> Customer segmentation (BigBasket) · Market basket analysis (Reliance Retail) · Anomaly detection in transactions
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reinforcement -->
+    <div class="col-12">
+      <div class="dim-card" style="border-color:rgba(22,163,74,0.3);">
+        <div class="row align-items-start g-2">
+          <div class="col-md-3" style="text-align:center;">
+            <div class="dim-rank" style="color:var(--neon-green);">🎮</div>
+            <div class="dim-name" style="color:var(--neon-green);">Reinforcement Learning</div>
+            <div class="dim-code">Trial & Error — Reward/Penalty</div>
+          </div>
+          <div class="col-md-9">
+            <div class="dim-desc"><strong>Game player ki tarah!</strong> Agent environment ke saath interact karta hai — actions lete hain, rewards ya penalties milti hain. Goal: maximum reward earn karna!<br><br>
+            <span class="stat-pill sp-green" style="margin:0.2rem;">Agent</span>
+            <span class="stat-pill sp-green" style="margin:0.2rem;">Environment</span>
+            <span class="stat-pill sp-green" style="margin:0.2rem;">State</span>
+            <span class="stat-pill sp-green" style="margin:0.2rem;">Action</span>
+            <span class="stat-pill sp-green" style="margin:0.2rem;">Reward</span>
+            </div>
+            <div class="dim-example" style="border-color:rgba(22,163,74,0.2);color:var(--muted);">
+              🇮🇳 <strong>Examples:</strong> AlphaGo (Chess/Go) · Robot arms (manufacturing) · Autonomous vehicles · Trading bots
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Semi-supervised -->
+    <div class="col-12">
+      <div class="dim-card" style="border-color:rgba(180,83,9,0.3);">
+        <div class="row align-items-start g-2">
+          <div class="col-md-3" style="text-align:center;">
+            <div class="dim-rank" style="color:var(--neon-yellow);">🔀</div>
+            <div class="dim-name" style="color:var(--neon-yellow);">Semi-Supervised Learning</div>
+            <div class="dim-code">Thoda labeled + Bahut unlabeled</div>
+          </div>
+          <div class="col-md-9">
+            <div class="dim-desc"><strong>Dono worlds ka best!</strong> Thoda labeled data (expensive) aur bahut saara unlabeled data (cheap/free) — dono ka use karke train karo. Real-world mein most common situation!<br><br>
+            Labeling is expensive — ek doctor X-ray label karne mein time lagata hai. Unlabeled X-rays bahut hain. Semi-supervised best balance deta hai.
+            </div>
+            <div class="dim-example" style="border-color:rgba(180,83,9,0.2);color:var(--muted);">
+              🇮🇳 <strong>Examples:</strong> Medical imaging (AIIMS — few labeled, many unlabeled scans) · Web content classification
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-box" data-quiz="4" data-correct="a" data-xp="25">
+    <div class="quiz-q">🤔 BigBasket apne 50 lakh customers ko automatically "Budget Shopper", "Premium Buyer", "Organic Lover" jaise groups mein divide karna chahta hai — kisi ne ye groups pehle se define nahi kiye. Kaunsa ML type best hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Bilkul sahi! Ye Unsupervised Learning — specifically Clustering ka perfect use case hai. Labels nahi hain (Budget/Premium/Organic groups pre-defined nahi hain), koi 'correct answer' nahi hai, aur model data ke natural patterns (purchase behavior, spend amount, category preferences) se khud groups dhundh lega. K-Means ya DBSCAN jaisa algorithm use hoga!"><span class="opt-letter">A</span>Unsupervised Learning (Clustering) — koi pre-defined labels nahi, model khud groups dhundhe</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Supervised Learning ke liye labeled data chahiye — har customer ke liye pehle se 'Budget/Premium/Organic' label hona chahiye. Lekin problem statement mein kaha gaya hai ki ye groups pehle se define nahi hain — supervised nahi hoga."><span class="opt-letter">B</span>Supervised Learning (Classification) — customers ko categories mein classify karo</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Reinforcement Learning game/environment interactions ke liye hota hai — rewards aur penalties ke through seekhna. Customer segmentation mein koi 'agent' ya 'reward' nahi hai."><span class="opt-letter">C</span>Reinforcement Learning — rewards se customers ke behavior ko optimize karo</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Regression se continuous numbers predict hote hain — jaise 'ye customer kitna spend karega'. Customer groups dhundh na alag problem hai."><span class="opt-letter">D</span>Supervised Learning (Regression) — har customer ka spend predict karo</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 5 : MLDLC
+█████████████████████████████████████ -->
+<div class="level-card lvl-blue fade-up" id="s5">
+  <div class="corner-deco">LEVEL 5</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-solid fa-arrows-spin"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 5 · Boss Topic</div>
+      <div class="lv-title">MLDLC — Machine Learning Development Life Cycle</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> MLDLC kya hai?</div>
+    <strong>MLDLC</strong> = ek ML project start se end tak kaise build hota hai — har step ka ek defined order hai. Ek <span class="hl-blue">iterative process</span> hai — sirf ek baar nahi, baar baar loop karte hain jab tak results satisfactory na ho jaayein!
+  </div>
+
+  <div class="mt-3">
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);">1</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">🎯 Problem Definition</div>
+        <div class="mldlc-desc">Business problem ko ML problem mein convert karo. Kya predict karna hai? Classification ya Regression? Success metric kya hogi?<br>
+        <em style="color:var(--dim);">Example: "Loan approve karun ya nahi?" → Binary Classification. Metric: Accuracy, F1-score.</em></div>
+      </div>
+    </div>
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#0891b2,#2563eb);">2</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">📦 Data Collection</div>
+        <div class="mldlc-desc">Raw data gather karo — databases, APIs, web scraping, surveys, sensors. Quality aur quantity dono important hain!<br>
+        <em style="color:var(--dim);">Example: HDFC bank se 5 saal ke loan applications data — 2 lakh rows, 25 features.</em></div>
+      </div>
+    </div>
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#db2777,#7c3aed);">3</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">🔍 Exploratory Data Analysis (EDA)</div>
+        <div class="mldlc-desc">Data samjho — distributions, correlations, outliers, missing values. Visualize karo — patterns dhundho.<br>
+        <em style="color:var(--dim);">Tools: pandas, matplotlib, seaborn. "High income → lower default rate" pattern discover ho sakta hai.</em></div>
+      </div>
+    </div>
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#16a34a,#0891b2);">4</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">🧹 Data Preprocessing &amp; Feature Engineering</div>
+        <div class="mldlc-desc">Missing values handle karo, outliers treat karo, encode karo, scale karo. Nayi useful features banao.<br>
+        <em style="color:var(--dim);">EMI_ratio = loan_amount / income — ye calculated feature direct income/loan se zyada useful ho sakti hai.</em></div>
+      </div>
+    </div>
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#b45309,#c2410c);">5</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">🤖 Model Selection &amp; Training</div>
+        <div class="mldlc-desc">Suitable algorithm choose karo — Logistic Regression, Random Forest, XGBoost, etc. Train/test split karo. Model train karo.<br>
+        <em style="color:var(--dim);">80% data training ke liye, 20% testing ke liye. Pehle simple model, phir complex models try karo.</em></div>
+      </div>
+    </div>
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">6</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">📊 Model Evaluation</div>
+        <div class="mldlc-desc">Test data pe performance check karo — Accuracy, Precision, Recall, F1, AUC-ROC. Cross-validation karo.<br>
+        <em style="color:var(--dim);">Fraud detection mein Recall zyada important hai — galti se fraud miss nahi karna chahte.</em></div>
+      </div>
+    </div>
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#0891b2,#16a34a);">7</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">⚙️ Hyperparameter Tuning</div>
+        <div class="mldlc-desc">Model ke settings (hyperparameters) optimize karo — Grid Search, Random Search, Bayesian Optimization use karo.<br>
+        <em style="color:var(--dim);">Random Forest ka n_estimators=100 vs 500? max_depth=5 vs 10? Best combination dhundho.</em></div>
+      </div>
+    </div>
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#db2777,#b45309);">8</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">🚀 Deployment</div>
+        <div class="mldlc-desc">Model ko production mein le jao — REST API banao, Flask/FastAPI use karo, cloud pe deploy karo (AWS, GCP, Azure).<br>
+        <em style="color:var(--dim);">HDFC ka loan model → API → branch ke software mein integrate → real-time decisions!</em></div>
+      </div>
+    </div>
+    <div class="mldlc-step">
+      <div class="mldlc-num" style="background:linear-gradient(135deg,#4f46e5,#16a34a);">9</div>
+      <div class="mldlc-body">
+        <div class="mldlc-title">🔄 Monitoring &amp; Maintenance</div>
+        <div class="mldlc-desc">Production mein model ki performance track karo. Data drift detect karo. Zaroorat pe retrain karo.<br>
+        <em style="color:var(--dim);">COVID ke baad loan default patterns change ho gaye — model retraining zaroori tha!</em></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-yellow mt-3">
+    <div class="ct"><i class="fa-solid fa-triangle-exclamation"></i> Sabse Important Insight — 80% Time EDA &amp; Preprocessing!</div>
+    Real world mein <strong>80% time data collection, EDA, aur preprocessing</strong> mein jaata hai — sirf 20% actual modeling mein!<br><br>
+    "Garbage in, Garbage out" — agar data clean aur well-prepared nahi hai toh best model bhi fail karega. Data scientist ka asli kaam data ko model-ready banana hai!
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-box" data-quiz="5" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 MLDLC mein ek ML engineer ne model deploy kiya. 3 mahine baad model ki accuracy 92% se 78% pe aa gayi. Ye kya problem hai aur solution kya hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Server slow hone se inference time badh sakta hai lekin accuracy affect nahi hoti. Accuracy metrics ka server speed se koi sambandh nahi hai."><span class="opt-letter">A</span>Server slow ho gaya — hardware upgrade karo</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Python version se model logic nahi badalta. Aur accuracy suddenly drop nahi hogi sirf version change se."><span class="opt-letter">B</span>Python version change ho gaya — rollback karo</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! Ye Data Drift hai — real world data ka distribution change ho gaya training data se. Model ne purane patterns seekhe the, naye patterns nahi seekhe. Solution: Fresh data collect karo, model retrain karo, phir redeploy karo. MLDLC ka Monitoring & Maintenance step yahi detect karta hai!"><span class="opt-letter">C</span>Data Drift — real-world data ka pattern change ho gaya; fresh data se model retrain karo</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Model code change nahi hua — woh wahi hai. Problem real world data mein hai jo model ke training distribution se alag ho gaya hai. Ye data drift ka classic example hai."><span class="opt-letter">D</span>Model code mein koi bug aa gaya — code review karo</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 6 : DATA SCIENCE JOB ROLES
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s6">
+  <div class="corner-deco">LEVEL 6</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-users"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 6 · Boss Topic</div>
+      <div class="lv-title">Data Science Job Roles — Apna Career Path Choose Karo!</div>
+    </div>
+  </div>
+
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Ek Hi Field Mein Itne Roles Kyun?</div>
+    Data Science ek broad field hai — ek ML project mein <strong>data laana, clean karna, analyze karna, model banana, aur deploy karna</strong> — ye sab alag alag expertise maangta hai. Isliye alag alag roles hain!
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="job-card jc-indigo">
+        <span class="job-emoji">🏗️</span>
+        <div class="job-title">Data Engineer</div>
+
+        <div class="job-desc">
+          <strong>Data ka plumber!</strong> Data pipelines banata hai — data sources se data warehouse tak efficiently data flow karta hai. ETL (Extract, Transform, Load) processes design karta hai.
+        </div>
+        <div>
+          <span class="job-skill">Apache Spark</span>
+          <span class="job-skill">Hadoop</span>
+          <span class="job-skill">Kafka</span>
+          <span class="job-skill">Airflow</span>
+          <span class="job-skill">SQL</span>
+          <span class="job-skill">AWS/GCP</span>
+        </div>
+        <div class="callout cb-indigo mt-2" style="margin:0;padding:0.7rem 0.9rem;">
+          <div class="ct" style="font-size:0.8rem;margin-bottom:0.2rem;"><i class="fa-solid fa-bullseye"></i> Daily Tasks</div>
+          <div style="font-size:0.8rem;color:var(--muted);">Data pipelines build/maintain · Database optimize · Data quality ensure · Infrastructure manage</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="job-card jc-cyan">
+        <span class="job-emoji">📊</span>
+        <div class="job-title">Data Analyst</div>
+
+        <div class="job-desc">
+          <strong>Business ka storyteller!</strong> Data se insights nikalta hai, dashboards banata hai, aur business decisions ko data-driven answers deta hai. Past aur present mein kya hua — ye batata hai.
+        </div>
+        <div>
+          <span class="job-skill">SQL</span>
+          <span class="job-skill">Python / R</span>
+          <span class="job-skill">Tableau</span>
+          <span class="job-skill">Power BI</span>
+          <span class="job-skill">Excel</span>
+          <span class="job-skill">Statistics</span>
+        </div>
+        <div class="callout cb-cyan mt-2" style="margin:0;padding:0.7rem 0.9rem;">
+          <div class="ct" style="font-size:0.8rem;margin-bottom:0.2rem;"><i class="fa-solid fa-bullseye"></i> Daily Tasks</div>
+          <div style="font-size:0.8rem;color:var(--muted);">Reports/dashboards banao · A/B test results analyze karo · Business metrics track karo · Stakeholders ko present karo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="job-card jc-green">
+        <span class="job-emoji">🔬</span>
+        <div class="job-title">Data Scientist</div>
+
+        <div class="job-desc">
+          <strong>ML model ka creator!</strong> Complex problems ke liye predictive models banata hai. Future kya hoga — ye predict karta hai. Statistics, ML, aur domain knowledge ka combination!
+        </div>
+        <div>
+          <span class="job-skill">Python</span>
+          <span class="job-skill">sklearn</span>
+          <span class="job-skill">Statistics</span>
+          <span class="job-skill">SQL</span>
+          <span class="job-skill">Feature Eng.</span>
+          <span class="job-skill">ML Algorithms</span>
+        </div>
+        <div class="callout cb-green mt-2" style="margin:0;padding:0.7rem 0.9rem;">
+          <div class="ct" style="font-size:0.8rem;margin-bottom:0.2rem;"><i class="fa-solid fa-bullseye"></i> Daily Tasks</div>
+          <div style="font-size:0.8rem;color:var(--muted);">ML models build/tune karo · Experiments design karo · Results business team ko explain karo · Hypothesis test karo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="job-card jc-pink">
+        <span class="job-emoji">⚙️</span>
+        <div class="job-title">ML Engineer</div>
+
+        <div class="job-desc">
+          <strong>Model ka production specialist!</strong> Data Scientist ke models ko real-world production mein deploy karta hai — APIs banata hai, scale karta hai, monitor karta hai. Software Engineering + ML = ML Engineer!
+        </div>
+        <div>
+          <span class="job-skill">Python</span>
+          <span class="job-skill">MLflow</span>
+          <span class="job-skill">Docker</span>
+          <span class="job-skill">Kubernetes</span>
+          <span class="job-skill">FastAPI</span>
+          <span class="job-skill">MLOps</span>
+        </div>
+        <div class="callout cb-pink mt-2" style="margin:0;padding:0.7rem 0.9rem;">
+          <div class="ct" style="font-size:0.8rem;margin-bottom:0.2rem;"><i class="fa-solid fa-bullseye"></i> Daily Tasks</div>
+          <div style="font-size:0.8rem;color:var(--muted);">Models deploy karo · Inference APIs banao · Model performance monitor karo · CI/CD pipeline banao</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-route me-2" style="color:var(--neon-green)"></i>Data Flow — Ek ML Project Mein Kaun Kya Karta Hai
+  </h5>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>MLDLC Step</th><th>Data Engineer</th><th>Data Analyst</th><th>Data Scientist</th><th>ML Engineer</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Data Collection</strong></td><td><span class="stat-pill sp-indigo">Primary</span></td><td><span class="stat-pill sp-cyan">Supports</span></td><td>—</td><td>—</td></tr>
+        <tr><td><strong>EDA &amp; Analysis</strong></td><td>—</td><td><span class="stat-pill sp-cyan">Primary</span></td><td><span class="stat-pill sp-green">Primary</span></td><td>—</td></tr>
+        <tr><td><strong>Preprocessing</strong></td><td><span class="stat-pill sp-indigo">Supports</span></td><td>—</td><td><span class="stat-pill sp-green">Primary</span></td><td>—</td></tr>
+        <tr><td><strong>Model Building</strong></td><td>—</td><td>—</td><td><span class="stat-pill sp-green">Primary</span></td><td><span class="stat-pill sp-pink">Supports</span></td></tr>
+        <tr><td><strong>Deployment</strong></td><td>—</td><td>—</td><td>—</td><td><span class="stat-pill sp-pink">Primary</span></td></tr>
+        <tr><td><strong>Monitoring</strong></td><td><span class="stat-pill sp-indigo">Supports</span></td><td><span class="stat-pill sp-cyan">Supports</span></td><td>—</td><td><span class="stat-pill sp-pink">Primary</span></td></tr>
+        <tr><td><strong>Reporting</strong></td><td>—</td><td><span class="stat-pill sp-cyan">Primary</span></td><td><span class="stat-pill sp-green">Supports</span></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout cb-yellow mt-4">
+    <div class="ct"><i class="fa-solid fa-road"></i> Beginner ke Liye Career Path Advice</div>
+    <div class="row g-2">
+      <div class="col-md-6">
+        🎯 <strong>Analysis mein interested ho?</strong> → Data Analyst se shuru karo — SQL + Excel + Tableau<br>
+        💻 <strong>Coding strong hai?</strong> → Data Engineer path lo — Python + SQL + Cloud<br>
+      </div>
+      <div class="col-md-6">
+        🔬 <strong>Math/Stats strong hai?</strong> → Data Scientist bano — Python + ML + Statistics<br>
+        🚀 <strong>Software + ML dono?</strong> → ML Engineer — highest paying, most in-demand!
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     FINAL SUMMARY
+█████████████████████████████████████ -->
+<div class="level-card lvl-violet fade-up" id="s7" style="background:linear-gradient(135deg,rgba(79,70,229,0.04),rgba(124,58,237,0.04),#ffffff);">
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-trophy"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">🏆 Quest Complete!</div>
+      <div class="lv-title">Final Summary &amp; ML Learning Roadmap</div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Topic</th><th>Core Idea</th><th>Key Takeaway</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="stat-pill sp-indigo">L1</span> <strong>What is ML?</strong></td>
+          <td>Data se rules khud seekhna</td>
+          <td>Traditional: Rules → Data → Output. ML: Data + Output → Rules learned automatically</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-violet">L2</span> <strong>AI vs ML vs DL</strong></td>
+          <td>DL ⊂ ML ⊂ AI — nested circles</td>
+          <td>AI broadest, ML uses data, DL uses neural networks. Subset relationship!</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-pink">L3</span> <strong>Applications</strong></td>
+          <td>Har industry mein ML present hai</td>
+          <td>Healthcare, Finance, E-commerce, Agriculture — ML ek universal tool hai</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-cyan">L4</span> <strong>Types of ML</strong></td>
+          <td>Supervised (labeled), Unsupervised (unlabeled), RL (reward)</td>
+          <td>Data labels hain → Supervised. Labels nahi → Unsupervised. Game-like → RL</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-blue">L5</span> <strong>MLDLC</strong></td>
+          <td>9-step iterative process</td>
+          <td>Problem → Data → EDA → Preprocessing → Model → Evaluate → Tune → Deploy → Monitor</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-green">L6</span> <strong>Job Roles</strong></td>
+          <td>4 main roles, alag alag focus</td>
+          <td>Engineer=pipelines, Analyst=insights, Scientist=models, ML Engineer=deployment</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+    A["🤖 Machine Learning\nKya Hai?"] --> B["AI ⊃ ML ⊃ Deep Learning\nNested Subsets"]
+    B --> C["Applications\nHar Industry Mein"]
+    C --> D{Types of ML}
+    D --> E["👨‍🏫 Supervised\nLabeled data — Classification/Regression"]
+    D --> F["🔍 Unsupervised\nNo labels — Clustering/Dimensionality"]
+    D --> G["🎮 Reinforcement\nReward-based — Agents/Environments"]
+    E --> H["📋 MLDLC\n9-Step Life Cycle"]
+    F --> H
+    G --> H
+    H --> I["👥 Job Roles\nEngineer · Analyst · Scientist · ML Eng"]
+    style A fill:#f5f3ff,stroke:#4f46e5,color:#1e1b4b,rx:12
+    style B fill:#fdf4ff,stroke:#7c3aed,color:#4c1d95,rx:10
+    style C fill:#fce7f3,stroke:#db2777,color:#831843,rx:10
+    style D fill:#ecfeff,stroke:#0891b2,color:#164e63,rx:10
+    style E fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,rx:10
+    style F fill:#cffafe,stroke:#0891b2,color:#164e63,rx:10
+    style G fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:10
+    style H fill:#fef9c3,stroke:#b45309,color:#713f12,rx:10
+    style I fill:#f0fdf4,stroke:#16a34a,color:#14532d,rx:12
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-indigo h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-graduation-cap"></i> Aage Kya Seekhein? — Learning Roadmap</div>
+        📌 <strong>Python Basics</strong> — Variables, loops, functions, OOP<br>
+        📊 <strong>Data Libraries</strong> — NumPy, pandas, matplotlib, seaborn<br>
+        🔍 <strong>Statistics</strong> — Mean, median, correlation, distributions<br>
+        🧹 <strong>Data Preprocessing</strong> — Cleaning, encoding, scaling<br>
+        🤖 <strong>ML Algorithms</strong> — sklearn se shuru karo<br>
+        🚀 <strong>Projects</strong> — Kaggle, real datasets pe practice<br>
+        ☁️ <strong>Deployment</strong> — Flask/FastAPI, cloud platforms
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-fire"></i> ML Ke Liye Zaroori Prerequisites</div>
+        🐍 <strong>Python</strong> — Primary language of ML<br>
+        ➕ <strong>Linear Algebra</strong> — Matrices, vectors (basic)<br>
+        📈 <strong>Statistics &amp; Probability</strong> — Foundation of ML<br>
+        🗃️ <strong>SQL</strong> — Data access aur manipulation<br>
+        📊 <strong>Data Visualization</strong> — Patterns communicate karna<br>
+        🧠 <strong>Problem Solving Mindset</strong> — Curiosity + Patience!<br><br>
+        <em style="font-size:0.85rem;color:var(--dim);">Sab ek saath nahi chahiye — ek step ek time!</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink mt-3">
+    <div class="ct"><i class="fa-solid fa-heart"></i> Final Message</div>
+    <strong>ML</strong> = Data se rules seekhna — explicitly program mat karo, examples do!<br>
+    → <strong>AI &gt; ML &gt; DL</strong> — nested circles, har ek dusre ka subset<br>
+    → <strong>Applications</strong> = tumhare phone se le ke hospital tak — ML har jagah hai!<br>
+    → <strong>Types</strong> = Labels hain? Supervised. Nahi? Unsupervised. Reward chahiye? Reinforcement!<br>
+    → <strong>MLDLC</strong> = 9 steps, iterative — 80% time data preparation mein jaata hai!<br>
+    → <strong>Career</strong> = Engineer (pipelines) → Analyst (insights) → Scientist (models) → ML Engineer (deployment)<br><br>
+    <strong style="color:var(--neon-pink)">ML ki duniya mein welcome! Ye sirf shuruwat hai — Data Science ki infinite possibilities tumhara intezaar kar rahi hain. Pehla qadam rakh diya tumne — ab rukna nahi! 🤖🚀</strong>
+  </div>
+</div>
+
+</div><!-- /container-main -->
+
+<!-- FOOTER -->
+<footer class="gfooter">
+  <div class="container-main">
+    <div class="gfooter-logo"><i class="fa-solid fa-robot me-2"></i>Machine Learning Introduction Quest</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">What is ML · AI vs ML vs DL · Applications · Types · MLDLC · Job Roles | Gamified Tutorial</p>
+    <p style="color:var(--dim);font-size:0.82rem;">Made with <i class="fa-solid fa-heart" style="color:var(--neon-pink)"></i> for Hindi-speaking Data Science learners across India 🇮🇳</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL -->
+<canvas id="confettiCanvas"></canvas>
+<div class="modal-overlay" id="finalModal">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" id="modalClose" title="Close">✕</button>
+    <div class="modal-trophy" id="modalTrophy">🏆</div>
+    <div class="modal-title" id="modalTitle">Quest Complete!</div>
+    <div class="modal-subtitle" id="modalSubtitle">Tumne saare 5 quizzes complete kar liye!</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-num" id="ringNum">0/5</div>
+          <div class="ring-label">Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="grade-card" id="gradeCard">
+      <div class="grade-letter" id="gradeLetter">S</div>
+      <div class="grade-msg" id="gradeMsg">Exceptional!</div>
+    </div>
+    <div class="modal-xp-row">
+      <span class="mxp-label">⚡ Total XP Earned from Quizzes</span>
+      <span class="mxp-val" id="modalXpVal">0 XP</span>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-retry" id="modalRetry"><i class="fa-solid fa-rotate-right"></i> Retry All</button>
+      <button class="modal-btn-continue" id="modalContinue"><i class="fa-solid fa-trophy"></i> Awesome, Continue!</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function showFinalModal(){
+  const total=quizTotal,correct=quizCorrect,pct=total>0?correct/total:0,quizXP=correct*25;
+  const grades=[
+    {min:1.0,cls:'grade-s',letter:'S 🌟',msg:'Zabardast! Sab 5/5 correct! ML Grandmaster! 🤖'},
+    {min:0.8,cls:'grade-a',letter:'A 🎯',msg:'Bahut badhiya! Almost perfect!'},
+    {min:0.6,cls:'grade-b',letter:'B 📘',msg:'Accha kiya! Kuch topics dobara review karo.'},
+    {min:0.4,cls:'grade-c',letter:'C 💪',msg:'Theek hai! Concepts ko aur practice karo.'},
+    {min:0.0,cls:'grade-d',letter:'D 📚',msg:'Aur mehnat karo! Tutorial dobara padho.'},
+  ];
+  const g=grades.find(gr=>pct>=gr.min);
+  document.getElementById('ringNum').textContent=correct+'/'+total;
+  document.getElementById('modalXpVal').textContent=quizXP+' XP';
+  const gc=document.getElementById('gradeCard');gc.className='grade-card '+g.cls;
+  document.getElementById('gradeLetter').textContent=g.letter;
+  document.getElementById('gradeMsg').textContent=g.msg;
+  if(pct===1.0){
+    document.getElementById('modalTrophy').textContent='🏆';
+    document.getElementById('modalTitle').textContent='🎊 Perfect Score!';
+    document.getElementById('modalSubtitle').textContent='Wah! Saare '+total+'/'+total+' sahi! ML Grandmaster!';
+  }else if(pct>=0.6){
+    document.getElementById('modalTrophy').textContent='🎯';
+    document.getElementById('modalTitle').textContent='Quest Complete!';
+    document.getElementById('modalSubtitle').textContent=correct+' out of '+total+' correct. Kafi accha kiya!';
+  }else{
+    document.getElementById('modalTrophy').textContent='📚';
+    document.getElementById('modalTitle').textContent='Keep Trying!';
+    document.getElementById('modalSubtitle').textContent='Tutorial dobara padho aur retry karo!';
+  }
+  const circumference=327,offset=circumference*(1-pct);
+  const ringColors={'grade-s':'#4f46e5','grade-a':'#16a34a','grade-b':'#2563eb','grade-c':'#7c3aed','grade-d':'#dc2626'};
+  const ringEl=document.getElementById('ringFill');
+  ringEl.style.stroke=ringColors[g.cls]||'#4f46e5';
+  ringEl.style.transition='none';ringEl.style.strokeDashoffset='327';
+  setTimeout(()=>{ringEl.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';ringEl.style.strokeDashoffset=offset;},80);
+  document.getElementById('finalModal').classList.add('open');
+  if(pct>=0.6)launchConfetti(pct);
+}
+
+function launchConfetti(pct){
+  const canvas=document.getElementById('confettiCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const count=Math.floor(80+pct*140);
+  const colors=['#4f46e5','#7c3aed','#db2777','#0891b2','#16a34a','#f59e0b','#2563eb'];
+  const pieces=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.6,w:Math.random()*10+5,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*9,alpha:1}));
+  let frame=0;
+  (function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;
+    pieces.forEach(p=>{
+      if(p.y>canvas.height+20)return;alive=true;
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;
+      if(p.y>canvas.height*0.65)p.alpha-=0.02;
+      p.alpha=Math.max(0,p.alpha);
+      ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    });
+    frame++;
+    if(alive&&frame<260)requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
+
+function initQuizzes(){
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{const n=opt.cloneNode(true);opt.parentNode.replaceChild(n,opt);});
+    const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;
+    let answered=false;
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        if(answered)return;answered=true;
+        const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+        box.querySelectorAll('.quiz-opt').forEach(o=>{
+          o.classList.add('answered-opt');
+          const ex=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');
+          if(o.dataset.ans===correct){o.classList.add('correct');if(ex)ex.classList.add('show-correct');}
+          else if(o===opt&&!isCorrect){o.classList.add('wrong');if(ex)ex.classList.add('show-wrong');}
+          else{o.classList.add('dimmed');if(o.dataset.ans===correct&&ex)ex.classList.add('show-reveal');}
+        });
+        if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+        else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+        const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+        if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+      });
+    });
+  });
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#f5f3ff',primaryTextColor:'#1e1b4b',primaryBorderColor:'#4f46e5',lineColor:'#94a3b8',secondaryColor:'#ede9fe',tertiaryColor:'#fce7f3',fontFamily:'Plus Jakarta Sans, sans-serif',fontSize:'13px'},flowchart:{curve:'basis',padding:24}});
+
+let xp=0,scrollXpEarned=0;
+const XP_MAX=275;
+const earnedBadges=new Set();
+
+function addXP(amount,badgeId){
+  if(badgeId)scrollXpEarned=Math.min(scrollXpEarned+amount,150);
+  xp=Math.min(xp+amount,XP_MAX);
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  if(badgeId&&!earnedBadges.has(badgeId)){earnedBadges.add(badgeId);const el=document.getElementById(badgeId);if(el)el.classList.add('earned');}
+  if(xp>=XP_MAX)showToast('🏆','QUEST COMPLETE! 🎊','ML Grandmaster! 275/275 XP!','#4f46e5');
+}
+
+function showToast(icon,title,msg,color){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='gtoast';
+  t.innerHTML=`<span class="gtoast-icon">${icon}</span><div><div style="font-weight:800;color:${color};font-size:0.9rem;">${title}</div><div style="color:#6b7280;font-size:0.8rem;font-weight:400;">${msg}</div></div>`;
+  container.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+
+let quizTotal=0,quizCorrect=0;
+
+document.querySelectorAll('.quiz-box').forEach(box=>{
+  quizTotal++;
+  const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;
+  let answered=false;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    const explain=opt.dataset.explain||'';
+    if(explain){const div=document.createElement('div');div.className='quiz-explain';div.dataset.forAns=opt.dataset.ans;div.textContent=explain;opt.parentNode.insertBefore(div,opt.nextSibling);}
+  });
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+      box.querySelectorAll('.quiz-opt').forEach(o=>{
+        o.classList.add('answered-opt');
+        const ex=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');
+        if(o.dataset.ans===correct){o.classList.add('correct');if(ex)ex.classList.add('show-correct');}
+        else if(o===opt&&!isCorrect){o.classList.add('wrong');if(ex)ex.classList.add('show-wrong');}
+        else{o.classList.add('dimmed');if(o.dataset.ans===correct&&ex)ex.classList.add('show-reveal');}
+      });
+      if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+      else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+      const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+      if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+    });
+  });
+});
+
+const fadeObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObserver.unobserve(e.target);}});},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(el=>fadeObserver.observe(el));
+
+const sectionXP={
+  's1':{xp:30,badge:'badge1',msg:'🤖 ML Initiate badge unlocked!'},
+  's2':{xp:30,badge:'badge2',msg:'🧠 AI Thinker badge unlocked!'},
+  's3':{xp:30,badge:'badge3',msg:'🌍 App Explorer badge unlocked!'},
+  's4':{xp:30,badge:'badge4',msg:'🔀 Types Master badge unlocked!'},
+  's5':{xp:30,badge:'badge5',msg:'🏆 Data Pro badge unlocked!'},
+};
+const xpObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      if(sectionXP[id]&&!earnedBadges.has(sectionXP[id].badge)){const{xp:sx,badge,msg}=sectionXP[id];addXP(sx,badge);showToast('🏅','Badge Unlocked!',msg,'#4f46e5');}
+      xpObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+['s1','s2','s3','s4','s5'].forEach(id=>{const el=document.getElementById(id);if(el)xpObserver.observe(el);});
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+
+function closeModal(){document.getElementById('finalModal').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalContinue').addEventListener('click',closeModal);
+document.getElementById('modalRetry').addEventListener('click',()=>{
+  closeModal();quizCorrect=0;xp=scrollXpEarned;
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','wrong','dimmed','answered-opt'));
+    box.querySelectorAll('.quiz-explain').forEach(ex=>ex.classList.remove('show-correct','show-wrong','show-reveal'));
+    const fb=box.querySelector('.quiz-feedback');if(fb){fb.className='quiz-feedback';fb.innerHTML='';}
+  });
+  initQuizzes();window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('finalModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+
+</body>
+</html>

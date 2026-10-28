@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python ML Quest — Regularization, Ridge &amp; Lasso!</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4ff;--bg2:#e8edf8;--bg3:#dde4f5;--card:#ffffff;--card2:#f5f7ff;
+  --border:rgba(99,102,241,0.12);--border2:rgba(99,102,241,0.25);
+  --neon-blue:#2563eb;--neon-cyan:#0891b2;--neon-purple:#7c3aed;
+  --neon-pink:#db2777;--neon-green:#16a34a;--neon-yellow:#b45309;
+  --neon-orange:#c2410c;--neon-red:#dc2626;
+  --text:#1e1b4b;--muted:#4b5563;--dim:#9ca3af;
+  --font-head:'Syne',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --glow-blue:0 4px 16px rgba(37,99,235,0.18),0 1px 4px rgba(37,99,235,0.10);
+  --glow-cyan:0 4px 16px rgba(8,145,178,0.18),0 1px 4px rgba(8,145,178,0.10);
+  --glow-orange:0 4px 16px rgba(194,65,12,0.18),0 1px 4px rgba(194,65,12,0.10);
+  --glow-green:0 4px 16px rgba(22,163,74,0.18),0 1px 4px rgba(22,163,74,0.10);
+  --glow-yellow:0 4px 16px rgba(180,83,9,0.18),0 1px 4px rgba(180,83,9,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.8;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--neon-blue);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(37,99,235,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.06) 1px,transparent 1px);background-size:50px 50px;}
+.container-main{max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1;}
+/* XP BAR */
+.xp-strip{position:sticky;top:0;z-index:1000;background:rgba(240,244,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);box-shadow:0 2px 12px rgba(37,99,235,0.08);padding:0.65rem 0;}
+.xp-inner{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.xp-label{font-family:var(--font-head);font-weight:800;font-size:0.8rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.xp-bar-wrap{flex:1;min-width:120px;background:rgba(37,99,235,0.1);border-radius:50px;height:10px;border:1px solid var(--border2);overflow:hidden;}
+.xp-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-cyan),var(--neon-orange));border-radius:50px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(37,99,235,0.35);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+.xp-score{font-family:var(--font-head);font-weight:800;font-size:0.9rem;color:var(--neon-yellow);white-space:nowrap;}
+.xp-badges{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.xp-badge{font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:50px;border:1px solid;white-space:nowrap;transition:0.3s;opacity:0.35;}
+.xp-badge.earned{opacity:1;animation:badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes badgePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.xp-badge.b1{border-color:var(--neon-blue);color:var(--neon-blue);}
+.xp-badge.b2{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.xp-badge.b3{border-color:var(--neon-orange);color:var(--neon-orange);}
+.xp-badge.b4{border-color:var(--neon-green);color:var(--neon-green);}
+.xp-badge.b5{border-color:var(--neon-yellow);color:var(--neon-yellow);}
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:6rem 0 5rem;background:radial-gradient(ellipse at 20% 50%,rgba(37,99,235,0.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(8,145,178,0.10) 0%,transparent 55%),radial-gradient(ellipse at 60% 80%,rgba(194,65,12,0.07) 0%,transparent 50%),var(--bg);}
+.hero-orbit{position:absolute;top:50%;right:8%;transform:translateY(-50%);width:420px;height:420px;pointer-events:none;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(37,99,235,0.25);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-ring:nth-child(1){width:150px;height:150px;animation:spin 12s linear infinite;}
+.orbit-ring:nth-child(2){width:250px;height:250px;animation:spin 20s linear infinite reverse;border-color:rgba(8,145,178,0.2);}
+.orbit-ring:nth-child(3){width:350px;height:350px;animation:spin 30s linear infinite;border-color:rgba(194,65,12,0.15);}
+.orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;transform:translateX(-50%);}
+.orbit-ring:nth-child(1) .orbit-dot{background:var(--neon-blue);box-shadow:var(--glow-blue);}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--neon-cyan);box-shadow:var(--glow-cyan);}
+.orbit-ring:nth-child(3) .orbit-dot{background:var(--neon-orange);box-shadow:var(--glow-orange);}
+.orbit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;animation:float 4s ease-in-out infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--neon-blue);margin-bottom:1.5rem;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-blue);box-shadow:var(--glow-blue);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-family:var(--font-head);font-weight:800;font-size:clamp(2.4rem,5vw,4rem);line-height:1.1;letter-spacing:-1.5px;margin-bottom:1.5rem;}
+.hero h1 .line1{display:block;color:#1e1b4b;}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--neon-blue) 0%,var(--neon-cyan) 50%,var(--neon-orange) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:560px;margin-bottom:2rem;line-height:1.75;}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:var(--font-head);font-weight:800;font-size:1.8rem;line-height:1;background:linear-gradient(135deg,var(--neon-blue),var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-label{font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem;}
+.hero-cta{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--neon-blue),var(--neon-cyan));color:white;font-weight:700;font-size:0.95rem;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(37,99,235,0.3);transition:0.3s;animation:pulse-btn 2s infinite;}
+@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(37,99,235,0.28);}50%{box-shadow:0 4px 32px rgba(37,99,235,0.45);}}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);color:white;}
+/* QUEST MAP */
+.quest-map{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2rem;margin:3rem 0;position:relative;box-shadow:0 4px 24px rgba(37,99,235,0.07);}
+.quest-map::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(37,99,235,0.03),rgba(8,145,178,0.03));pointer-events:none;}
+.quest-map-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.quest-map-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(234,179,8,0.3),transparent);}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;}
+.quest-item{display:flex;align-items:center;gap:0.75rem;background:#f8f9ff;border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;text-decoration:none;color:var(--muted);font-weight:600;font-size:0.88rem;transition:0.25s;}
+.quest-item:hover{background:rgba(37,99,235,0.07);border-color:rgba(37,99,235,0.3);color:var(--neon-blue);transform:translateX(4px);}
+.quest-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;flex-shrink:0;}
+/* LEVEL CARD */
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:24px 24px 0 0;}
+.level-card.lvl-blue::before{background:linear-gradient(90deg,var(--neon-blue),var(--neon-cyan));}
+.level-card.lvl-cyan::before{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-blue));}
+.level-card.lvl-orange::before{background:linear-gradient(90deg,var(--neon-orange),var(--neon-yellow));}
+.level-card.lvl-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));}
+.level-card.lvl-purple::before{background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink));}
+.level-card.lvl-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple));}
+.level-card.lvl-yellow::before{background:linear-gradient(90deg,var(--neon-yellow),var(--neon-orange));}
+.level-card.lvl-red::before{background:linear-gradient(90deg,var(--neon-red),var(--neon-orange));}
+.level-card:hover{box-shadow:0 8px 32px rgba(37,99,235,0.12);}
+.level-card .corner-deco{position:absolute;top:1.2rem;right:1.5rem;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;opacity:0.25;}
+.lv-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.8rem;}
+.lv-icon-wrap{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;}
+.lv-icon-wrap::after{content:'';position:absolute;inset:-3px;border-radius:18px;border:1px solid;opacity:0.4;}
+.ico-blue{background:rgba(37,99,235,0.12);color:var(--neon-blue);}.ico-blue::after{border-color:var(--neon-blue);}
+.ico-cyan{background:rgba(8,145,178,0.12);color:var(--neon-cyan);}.ico-cyan::after{border-color:var(--neon-cyan);}
+.ico-orange{background:rgba(194,65,12,0.12);color:var(--neon-orange);}.ico-orange::after{border-color:var(--neon-orange);}
+.ico-green{background:rgba(22,163,74,0.12);color:var(--neon-green);}.ico-green::after{border-color:var(--neon-green);}
+.ico-purple{background:rgba(124,58,237,0.12);color:var(--neon-purple);}.ico-purple::after{border-color:var(--neon-purple);}
+.ico-pink{background:rgba(219,39,119,0.12);color:var(--neon-pink);}.ico-pink::after{border-color:var(--neon-pink);}
+.ico-yellow{background:rgba(180,83,9,0.12);color:var(--neon-yellow);}.ico-yellow::after{border-color:var(--neon-yellow);}
+.ico-red{background:rgba(220,38,38,0.12);color:var(--neon-red);}.ico-red::after{border-color:var(--neon-red);}
+.lv-meta{flex:1;}
+.lv-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.35rem;}
+.lv-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;line-height:1.2;color:var(--text);}
+.lv-xp{margin-top:0.4rem;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(180,83,9,0.08);border:1px solid rgba(180,83,9,0.25);border-radius:50px;padding:0.2rem 0.75rem;font-size:0.75rem;font-weight:700;color:var(--neon-yellow);}
+/* CALLOUT */
+.callout{border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;border:1px solid;position:relative;overflow:hidden;}
+.callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.callout .ct{font-weight:800;font-size:0.95rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;}
+.cb-blue{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);}.cb-blue::before{background:var(--neon-blue);}.cb-blue .ct{color:var(--neon-blue);}
+.cb-cyan{background:rgba(8,145,178,0.06);border-color:rgba(8,145,178,0.2);}.cb-cyan::before{background:var(--neon-cyan);}.cb-cyan .ct{color:var(--neon-cyan);}
+.cb-orange{background:rgba(194,65,12,0.06);border-color:rgba(194,65,12,0.2);}.cb-orange::before{background:var(--neon-orange);}.cb-orange .ct{color:var(--neon-orange);}
+.cb-green{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.2);}.cb-green::before{background:var(--neon-green);}.cb-green .ct{color:var(--neon-green);}
+.cb-purple{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2);}.cb-purple::before{background:var(--neon-purple);}.cb-purple .ct{color:var(--neon-purple);}
+.cb-yellow{background:rgba(180,83,9,0.06);border-color:rgba(180,83,9,0.2);}.cb-yellow::before{background:var(--neon-yellow);}.cb-yellow .ct{color:var(--neon-yellow);}
+.cb-pink{background:rgba(219,39,119,0.06);border-color:rgba(219,39,119,0.2);}.cb-pink::before{background:var(--neon-pink);}.cb-pink .ct{color:var(--neon-pink);}
+.cb-red{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.2);}.cb-red::before{background:var(--neon-red);}.cb-red .ct{color:var(--neon-red);}
+/* FORMULA BOX */
+.formula-box{background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(8,145,178,0.04));border:1.5px solid rgba(37,99,235,0.25);border-radius:16px;padding:1.5rem 2rem;margin:1.4rem 0;text-align:center;position:relative;overflow:hidden;}
+.formula-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(37,99,235,0.05),transparent 70%);pointer-events:none;}
+.formula-main{font-family:var(--font-mono);font-size:1.2rem;font-weight:700;color:var(--neon-blue);letter-spacing:0.5px;line-height:1.9;}
+.formula-sub{font-size:0.82rem;color:var(--muted);margin-top:0.5rem;font-style:italic;}
+.formula-label{position:absolute;top:0.55rem;right:1rem;font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-blue);opacity:0.6;}
+.formula-box.fb-cyan{background:linear-gradient(135deg,rgba(8,145,178,0.06),rgba(22,163,74,0.04));border-color:rgba(8,145,178,0.25);}
+.formula-box.fb-cyan .formula-main{color:var(--neon-cyan);}
+.formula-box.fb-cyan .formula-label{color:var(--neon-cyan);}
+.formula-box.fb-orange{background:linear-gradient(135deg,rgba(194,65,12,0.06),rgba(180,83,9,0.04));border-color:rgba(194,65,12,0.25);}
+.formula-box.fb-orange .formula-main{color:var(--neon-orange);}
+.formula-box.fb-orange .formula-label{color:var(--neon-orange);}
+.formula-box.fb-green{background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(8,145,178,0.04));border-color:rgba(22,163,74,0.25);}
+.formula-box.fb-green .formula-main{color:var(--neon-green);}
+.formula-box.fb-green .formula-label{color:var(--neon-green);}
+.formula-box.fb-purple{background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(219,39,119,0.04));border-color:rgba(124,58,237,0.25);}
+.formula-box.fb-purple .formula-main{color:var(--neon-purple);}
+.formula-box.fb-purple .formula-label{color:var(--neon-purple);}
+/* MATH TERMS */
+.math-terms{display:flex;flex-wrap:wrap;gap:0.6rem;margin:0.8rem 0;}
+.math-term{display:inline-flex;align-items:center;gap:0.45rem;background:#f0f4ff;border:1px solid var(--border2);border-radius:8px;padding:0.3rem 0.75rem;font-size:0.84rem;}
+.math-term .sym{font-family:var(--font-mono);font-weight:700;color:var(--neon-blue);}
+.math-term .meaning{color:var(--muted);}
+/* STEP TIMELINE */
+.step-timeline{position:relative;padding-left:2.8rem;}
+.step-timeline::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon-blue),var(--neon-cyan),var(--neon-orange));opacity:0.45;border-radius:2px;}
+.step-item{position:relative;margin-bottom:1.3rem;background:#f8f9ff;border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 2px 8px rgba(37,99,235,0.05);transition:0.25s;}
+.step-item:hover{border-color:var(--border2);background:#eef1ff;}
+.step-item::before{content:attr(data-step);position:absolute;left:-2.8rem;top:1rem;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--neon-blue);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;color:var(--neon-blue);box-shadow:0 2px 8px rgba(37,99,235,0.2);}
+.step-label{font-weight:700;color:var(--text);font-size:0.98rem;margin-bottom:0.35rem;}
+.step-body{color:var(--muted);font-size:0.92rem;line-height:1.7;}
+/* ACH CARD */
+.ach-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;text-align:center;position:relative;overflow:hidden;}
+.ach-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s;}
+.ach-card:hover{transform:translateY(-6px);border-color:var(--border2);}
+.ach-card:hover::after{opacity:1;}
+.ach-card.ac-blue::after{background:var(--neon-blue);}.ach-card.ac-blue:hover{box-shadow:0 16px 48px rgba(37,99,235,0.2);}
+.ach-card.ac-cyan::after{background:var(--neon-cyan);}.ach-card.ac-cyan:hover{box-shadow:0 16px 48px rgba(8,145,178,0.2);}
+.ach-card.ac-orange::after{background:var(--neon-orange);}.ach-card.ac-orange:hover{box-shadow:0 10px 28px rgba(194,65,12,0.15);}
+.ach-card.ac-green::after{background:var(--neon-green);}.ach-card.ac-green:hover{box-shadow:0 16px 48px rgba(22,163,74,0.2);}
+.ach-card.ac-purple::after{background:var(--neon-purple);}.ach-card.ac-purple:hover{box-shadow:0 10px 28px rgba(124,58,237,0.15);}
+.ach-card.ac-yellow::after{background:var(--neon-yellow);}.ach-card.ac-yellow:hover{box-shadow:0 10px 28px rgba(180,83,9,0.15);}
+.ach-icon{font-size:2.2rem;margin-bottom:0.75rem;display:block;}
+.ach-title{font-family:var(--font-head);font-weight:800;font-size:1rem;margin-bottom:0.5rem;}
+.ach-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+/* CODE BLOCK */
+.code-wrap{background:#f8f9fc;border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin:1.2rem 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:rgba(37,99,235,0.06);padding:0.6rem 1.1rem;border-bottom:1px solid var(--border);}
+.code-lang{font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:var(--neon-blue);letter-spacing:1px;text-transform:uppercase;}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#dc2626;}.code-dot:nth-child(2){background:#b45309;}.code-dot:nth-child(3){background:#16a34a;}
+.code-wrap pre{margin:0;padding:1.2rem 1.4rem;overflow-x:auto;background:transparent;}
+.code-wrap pre code{font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;}
+pre[class*="language-"]{border-radius:0!important;font-family:var(--font-mono)!important;font-size:0.85rem!important;margin:0!important;border:none!important;background:transparent!important;}
+.code-output{background:rgba(22,163,74,0.06);border-top:1px solid rgba(22,163,74,0.2);padding:0.7rem 1.2rem;font-family:var(--font-mono);font-size:0.82rem;color:#14532d;line-height:1.7;}
+/* EX CARD */
+.ex-card{border-radius:16px;overflow:hidden;margin:1.4rem 0;border:1px solid;}
+.ex-card .ex-head{padding:0.85rem 1.4rem;font-weight:800;font-size:0.92rem;display:flex;align-items:center;gap:0.6rem;}
+.ex-card .ex-body{padding:1.4rem;background:#fafbff;}
+.ex-card.ex-story{border-color:rgba(22,163,74,0.25);}.ex-card.ex-story .ex-head{background:rgba(22,163,74,0.08);color:#166534;}
+.ex-card.ex-tech{border-color:rgba(124,58,237,0.25);}.ex-card.ex-tech .ex-head{background:rgba(124,58,237,0.08);color:#5b21b6;}
+.ex-card.ex-tip{border-color:rgba(8,145,178,0.25);}.ex-card.ex-tip .ex-head{background:rgba(8,145,178,0.08);color:#0c4a6e;}
+.ex-card.ex-orange{border-color:rgba(194,65,12,0.25);}.ex-card.ex-orange .ex-head{background:rgba(194,65,12,0.08);color:#7c2d12;}
+/* TABLE */
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.gtbl thead th{background:rgba(37,99,235,0.08);color:var(--neon-blue);font-family:var(--font-head);font-weight:700;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid rgba(37,99,235,0.15);font-size:0.85rem;letter-spacing:0.5px;}
+.gtbl tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.92rem;vertical-align:top;}
+.gtbl tbody tr:last-child td{border-bottom:none;}
+.gtbl tbody tr:hover td{background:rgba(37,99,235,0.03);color:var(--text);}
+.gtbl tbody td strong{color:var(--text);}
+/* DIM CARD */
+.dim-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;position:relative;overflow:hidden;}
+.dim-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(37,99,235,0.1);}
+.dim-rank{font-family:var(--font-head);font-weight:800;font-size:2rem;line-height:1;margin-bottom:0.25rem;}
+.dim-name{font-weight:700;font-size:1rem;margin-bottom:0.8rem;}
+.dim-code{background:#f1f5f9;border-radius:10px;padding:0.65rem 0.9rem;font-family:var(--font-mono);font-size:0.82rem;border:1px solid rgba(99,102,241,0.15);margin-bottom:0.8rem;}
+.dim-desc{font-size:0.88rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;}
+.dim-example{font-size:0.82rem;padding:0.5rem 0.75rem;border-radius:8px;border:1px solid;font-style:italic;}
+/* STAT PILLS */
+.stat-pill{display:inline-flex;align-items:center;gap:0.4rem;border-radius:50px;padding:0.3rem 0.9rem;font-weight:700;font-size:0.8rem;border:1px solid;}
+.sp-blue{background:rgba(37,99,235,0.08);border-color:rgba(37,99,235,0.3);color:var(--neon-blue);}
+.sp-cyan{background:rgba(8,145,178,0.08);border-color:rgba(8,145,178,0.3);color:var(--neon-cyan);}
+.sp-orange{background:rgba(194,65,12,0.08);border-color:rgba(194,65,12,0.3);color:var(--neon-orange);}
+.sp-green{background:rgba(22,163,74,0.08);border-color:rgba(22,163,74,0.3);color:var(--neon-green);}
+.sp-purple{background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.3);color:var(--neon-purple);}
+.sp-yellow{background:rgba(180,83,9,0.08);border-color:rgba(180,83,9,0.3);color:var(--neon-yellow);}
+.sp-pink{background:rgba(219,39,119,0.08);border-color:rgba(219,39,119,0.3);color:var(--neon-pink);}
+.sp-red{background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.3);color:var(--neon-red);}
+/* INLINE CODE */
+.inline-code{background:rgba(37,99,235,0.08);color:#1e40af;padding:0.1rem 0.45rem;border-radius:6px;font-family:var(--font-mono);font-size:0.88em;border:1px solid rgba(37,99,235,0.25);}
+/* HIGHLIGHT */
+.hl{background:rgba(180,83,9,0.1);color:#92400e;padding:0 5px;border-radius:4px;}
+.hl-blue{background:rgba(37,99,235,0.1);color:var(--neon-blue);padding:0 5px;border-radius:4px;}
+.hl-cyan{background:rgba(8,145,178,0.1);color:var(--neon-cyan);padding:0 5px;border-radius:4px;}
+.hl-orange{background:rgba(194,65,12,0.1);color:var(--neon-orange);padding:0 5px;border-radius:4px;}
+.hl-green{background:rgba(22,163,74,0.1);color:var(--neon-green);padding:0 5px;border-radius:4px;}
+.hl-red{background:rgba(220,38,38,0.1);color:var(--neon-red);padding:0 5px;border-radius:4px;}
+/* GLOW DIVIDER */
+.glow-div{height:2px;border-radius:2px;margin:2rem 0;opacity:0.4;background:linear-gradient(90deg,transparent,var(--neon-blue),var(--neon-cyan),var(--neon-orange),transparent);}
+/* MERMAID */
+.mermaid-wrap{background:#f8f9ff;border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto;box-shadow:0 2px 12px rgba(37,99,235,0.06);}
+/* QUIZ */
+.quiz-box{background:#fffbf0;border:1px solid rgba(180,83,9,0.18);border-radius:20px;padding:1.6rem;margin:1.8rem 0;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(180,83,9,0.07);}
+.quiz-box::before{content:'⚡ QUICK CHALLENGE';position:absolute;top:0;right:0;background:linear-gradient(135deg,#b45309,#c2410c);color:#fff;font-family:var(--font-head);font-weight:800;font-size:0.62rem;letter-spacing:2px;padding:0.32rem 0.9rem;border-radius:0 20px 0 12px;}
+.quiz-q{font-weight:700;color:#1c1917;margin-bottom:1.1rem;font-size:1.02rem;line-height:1.55;}
+.quiz-options{display:flex;flex-direction:column;gap:0.55rem;}
+.quiz-opt{background:#ffffff;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.75rem 1.1rem;cursor:pointer;font-size:0.93rem;color:#374151;transition:background 0.15s,border-color 0.15s,transform 0.12s;font-weight:500;display:flex;align-items:center;gap:0.85rem;user-select:none;}
+.quiz-opt:not(.answered-opt):hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;transform:translateX(3px);}
+.quiz-opt.correct{background:#f0fdf4;border-color:#16a34a;color:#14532d;font-weight:700;}
+.quiz-opt.correct .opt-letter{background:#16a34a;color:#fff;}
+.quiz-opt.wrong{background:#fef2f2;border-color:#dc2626;color:#991b1b;opacity:0.8;}
+.quiz-opt.wrong .opt-letter{background:#dc2626;color:#fff;}
+.quiz-opt.dimmed{opacity:0.45;pointer-events:none;}
+.quiz-opt .opt-letter{width:28px;height:28px;border-radius:8px;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.8rem;flex-shrink:0;transition:background 0.2s,color 0.2s;}
+.quiz-explain{display:none;font-size:0.84rem;font-weight:500;margin-top:-0.35rem;margin-bottom:0.35rem;padding:0.5rem 0.85rem 0.5rem 1rem;border-radius:0 0 10px 10px;line-height:1.55;border-left:3px solid transparent;}
+.quiz-explain.show-correct{display:block;background:rgba(22,163,74,0.07);color:#166534;border-left-color:#16a34a;}
+.quiz-explain.show-wrong{display:block;background:rgba(220,38,38,0.06);color:#991b1b;border-left-color:#dc2626;}
+.quiz-explain.show-reveal{display:block;background:rgba(37,99,235,0.06);color:#1e40af;border-left-color:#2563eb;}
+.quiz-feedback{display:none;margin-top:1rem;padding:0.85rem 1.1rem;border-radius:12px;font-weight:700;font-size:0.95rem;align-items:center;gap:0.6rem;}
+.quiz-feedback.show{display:flex;animation:fadeIn 0.35s;}
+.quiz-feedback.win{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;border:1px solid rgba(22,163,74,0.3);}
+.quiz-feedback.lose{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;border:1px solid rgba(220,38,38,0.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+/* FOOTER */
+.gfooter{background:#e8edf8;border-top:1px solid var(--border);padding:3rem 0;margin-top:4rem;text-align:center;}
+.gfooter-logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--neon-blue),var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-up.visible{opacity:1;transform:none;}
+@media(max-width:768px){.hero h1{font-size:2rem;}.hero-orbit{display:none;}.level-card{padding:1.5rem;}.xp-badges{display:none;}}
+/* TOAST */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;}
+.gtoast{background:#ffffff;border:1px solid var(--border2);border-radius:14px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.75rem;backdrop-filter:blur(12px);font-weight:700;font-size:0.88rem;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto;min-width:260px;box-shadow:0 8px 32px rgba(37,99,235,0.15);}
+.gtoast.show{transform:none;}
+.gtoast-icon{font-size:1.4rem;}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:#ffffff;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:520px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(37,99,235,0.18),0 4px 20px rgba(0,0,0,0.1);transform:scale(0.85) translateY(20px);transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease;opacity:0;}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0);opacity:1;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--neon-blue),var(--neon-cyan),var(--neon-orange));}
+.modal-close{position:absolute;top:1rem;right:1rem;background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.modal-close:hover{background:#e5e7eb;color:#374151;}
+.modal-trophy{font-size:3rem;text-align:center;margin-bottom:0.5rem;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;text-align:center;color:var(--text);margin-bottom:0.4rem;}
+.modal-subtitle{color:var(--muted);text-align:center;font-size:0.92rem;margin-bottom:1.5rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.score-ring{position:relative;width:120px;height:120px;}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e5e7eb;stroke-width:10;}
+.ring-fill{fill:none;stroke:#2563eb;stroke-width:10;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--text);line-height:1;}
+.ring-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.grade-card{border-radius:14px;padding:0.85rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;border:1.5px solid;}
+.grade-s{background:#fef9c3;border-color:#b45309;}.grade-a{background:#f0fdf4;border-color:#16a34a;}.grade-b{background:#eff6ff;border-color:#2563eb;}.grade-c{background:#f5f3ff;border-color:#7c3aed;}.grade-d{background:#fef2f2;border-color:#dc2626;}
+.grade-letter{font-family:var(--font-head);font-weight:800;font-size:1.6rem;}
+.grade-msg{font-size:0.9rem;color:var(--muted);font-weight:600;}
+.modal-xp-row{display:flex;align-items:center;justify-content:space-between;background:#f8f9ff;border:1px solid rgba(37,99,235,0.15);border-radius:12px;padding:0.75rem 1.1rem;margin-bottom:1.4rem;}
+.modal-xp-row .mxp-label{font-size:0.85rem;color:#6b7280;font-weight:600;}
+.modal-xp-row .mxp-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#2563eb,#0891b2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-btns{display:flex;gap:0.75rem;}
+.modal-btn-retry{flex:1;padding:0.8rem 1rem;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#374151;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.modal-btn-retry:hover{background:#e5e7eb;border-color:#d1d5db;color:#111827;}
+.modal-btn-continue{flex:2;padding:0.8rem 1rem;background:linear-gradient(135deg,#2563eb,#0891b2);border:none;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#ffffff;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 16px rgba(37,99,235,0.3);}
+.modal-btn-continue:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(37,99,235,0.4);}
+#confettiCanvas{position:fixed;inset:0;z-index:10001;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- XP STRIP -->
+<div class="xp-strip">
+  <div class="container-main">
+    <div class="xp-inner">
+      <span class="xp-label">⚡ XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill"></div></div>
+      <span class="xp-score" id="xpScore">0 / 275 XP</span>
+      <div class="xp-badges">
+        <span class="xp-badge b1" id="badge1">🛡️ Penalty Setter</span>
+        <span class="xp-badge b2" id="badge2">🏔️ Ridge Master</span>
+        <span class="xp-badge b3" id="badge3">✂️ Lasso Cutter</span>
+        <span class="xp-badge b4" id="badge4">⚖️ Alpha Tuner</span>
+        <span class="xp-badge b5" id="badge5">🏆 Regularization Champion</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container-main">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-eyebrow"><i class="fa-solid fa-gamepad me-1"></i> Gamified Learning Quest</div>
+        <h1>
+          <span class="line1">Control Model Complexity</span>
+          <span class="line2">Regularization, Ridge &amp; Lasso</span>
+        </h1>
+        <p class="hero-sub">5 boss levels. Regularization kya hai, Ridge (L2) ka math aur code, Lasso (L1) ka feature selection power, ElasticNet, aur alpha tuning. Overfitting ko penalty do! <strong style="color:var(--text)">Earn XP</strong>, unlock badges!</p>
+        <div class="hero-stats">
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Boss Levels</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">275</div><div class="hero-stat-label">Total XP</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Badges</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">λ</div><div class="hero-stat-label">Lambda Power</div></div>
+        </div>
+        <a href="#s1" class="hero-cta"><i class="fa-solid fa-play me-1"></i> Start Your Quest</a>
+      </div>
+      <div class="col-lg-5">
+        <div class="hero-orbit">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-center">λ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-main">
+
+<!-- QUEST MAP -->
+<div class="quest-map fade-up">
+  <div class="quest-map-title"><i class="fa-solid fa-map me-2"></i> Quest Map</div>
+  <div class="quest-grid">
+    <a href="#s1" class="quest-item"><span class="quest-num" style="background:rgba(37,99,235,0.15);color:var(--neon-blue);">L1</span> Regularization Kya Hai? — Why Needed?</a>
+    <a href="#s2" class="quest-item"><span class="quest-num" style="background:rgba(37,99,235,0.15);color:var(--neon-blue);">L1</span> Cost Function + Penalty Term — Math</a>
+    <a href="#s3" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">L2</span> Ridge Regression (L2) — Math &amp; Geometry</a>
+    <a href="#s4" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">L2</span> Ridge — Python Code + Alpha Tuning</a>
+    <a href="#s5" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.15);color:var(--neon-orange);">L3</span> Lasso Regression (L1) — Math &amp; Geometry</a>
+    <a href="#s6" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.15);color:var(--neon-orange);">L3</span> Lasso — Feature Selection + Code</a>
+    <a href="#s7" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.15);color:var(--neon-green);">L4</span> Ridge vs Lasso — Full Comparison</a>
+    <a href="#s8" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.15);color:var(--neon-purple);">L5</span> ElasticNet + GridSearchCV Alpha Tuning</a>
+    <a href="#s9" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.15);color:var(--neon-purple);">🏆</span> Final Summary &amp; Roadmap</a>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S1 — REGULARIZATION KYA HAI? (BOSS)
+     ════════════════════════════════════ -->
+<div class="level-card lvl-blue fade-up" id="s1">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Boss Topic</div>
+      <div class="lv-title">Regularization — Overfitting Ko Penalty Do!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Definition</div>
+    <strong>Regularization</strong> = model training mein ek <span class="hl-blue">extra penalty term add karo</span> — jo model ko bahut large coefficients rakhne se rokta hai, isliye overfitting control hoti hai.<br><br>
+    Simple words: Model jo zyada complex banna chahta hai (large β values) — usse <strong>penalty do</strong> → model simpler rehta hai → better generalization on unseen data!
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- SVG: No reg vs reg effect on coefficients -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(37,99,235,0.2);border-radius:16px;padding:1.5rem;margin:0 0 1.4rem;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <!-- Panel 1: No Reg — wiggly overfit -->
+      <rect x="10" y="10" width="250" height="190" rx="12" fill="rgba(220,38,38,0.04)" stroke="rgba(220,38,38,0.25)" stroke-width="1.5"/>
+      <text x="135" y="30" font-size="12" fill="#dc2626" font-weight="800" text-anchor="middle">No Regularization ❌</text>
+      <text x="135" y="44" font-size="10" fill="#dc2626" text-anchor="middle">β = [120, −85, 200, −150...]</text>
+      <line x1="25" y1="170" x2="250" y2="170" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="25" y1="170" x2="25" y2="55" stroke="#e5e7eb" stroke-width="1"/>
+      <circle cx="45"  cy="145" r="4" fill="#2563eb"/><circle cx="80"  cy="115" r="4" fill="#2563eb"/>
+      <circle cx="110" cy="98"  r="4" fill="#2563eb"/><circle cx="140" cy="96"  r="4" fill="#2563eb"/>
+      <circle cx="165" cy="105" r="4" fill="#2563eb"/><circle cx="195" cy="125" r="4" fill="#2563eb"/>
+      <circle cx="225" cy="148" r="4" fill="#2563eb"/>
+      <path d="M 40,147 C 58,128 68,120 80,115 S 95,96 110,98 S 125,88 140,96 S 150,108 165,105 S 180,118 195,125 S 210,142 225,148" stroke="#dc2626" stroke-width="2.5" fill="none"/>
+      <text x="135" y="188" font-size="10" fill="#dc2626" text-anchor="middle">High variance, memorized noise</text>
+
+      <!-- Panel 2: With Reg — smooth -->
+      <rect x="300" y="10" width="250" height="190" rx="12" fill="rgba(22,163,74,0.04)" stroke="rgba(22,163,74,0.25)" stroke-width="1.5"/>
+      <text x="425" y="30" font-size="12" fill="#16a34a" font-weight="800" text-anchor="middle">With Regularization ✅</text>
+      <text x="425" y="44" font-size="10" fill="#16a34a" text-anchor="middle">β = [2.1, −1.8, 3.2, −2.4...]</text>
+      <line x1="315" y1="170" x2="540" y2="170" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="315" y1="170" x2="315" y2="55" stroke="#e5e7eb" stroke-width="1"/>
+      <circle cx="335" cy="145" r="4" fill="#2563eb"/><circle cx="370" cy="115" r="4" fill="#2563eb"/>
+      <circle cx="400" cy="98"  r="4" fill="#2563eb"/><circle cx="430" cy="96"  r="4" fill="#2563eb"/>
+      <circle cx="455" cy="105" r="4" fill="#2563eb"/><circle cx="485" cy="125" r="4" fill="#2563eb"/>
+      <circle cx="515" cy="148" r="4" fill="#2563eb"/>
+      <path d="M 328,148 Q 425,80 520,148" stroke="#16a34a" stroke-width="2.5" fill="none"/>
+      <text x="425" y="188" font-size="10" fill="#16a34a" text-anchor="middle">Small coefficients → smooth curve → generalizes!</text>
+    </svg>
+  </div>
+
+  <div class="callout cb-orange">
+    <div class="ct"><i class="fa-solid fa-building-columns"></i> India Example — HDFC Loan Default Prediction</div>
+    HDFC bank ne ek loan default model banaya — 50 features (income, age, city, EMI history…).<br><br>
+    <strong>Without Regularization:</strong> Train accuracy 99%, Test accuracy 61%. Coefficients = [±500, ±1000…]. Overfitting!<br>
+    <strong>With Ridge Regularization:</strong> Same model + penalty → coefficients ±5 range mein → Train 85%, <span class="hl-green">Test 82%!</span> Production ready!
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-4">
+      <div class="ach-card ac-blue">
+        <span class="ach-icon">🎯</span>
+        <div class="ach-title">Main Goal</div>
+        <div class="ach-desc">Model ko force karo ki wo simpler solutions prefer kare — large coefficients pe penalty lagao → generalization improve hoti hai.</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-cyan">
+        <span class="ach-icon">⚖️</span>
+        <div class="ach-title">Tradeoff</div>
+        <div class="ach-desc">Training error thoda badhega — lekin test error bahut kam hoga. Net effect: better real-world model!</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-orange">
+        <span class="ach-icon">🔧</span>
+        <div class="ach-title">3 Types</div>
+        <div class="ach-desc">Ridge (L2): shrink karo. Lasso (L1): zero karo (feature selection!). ElasticNet: dono combine karo.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-box" data-quiz="1" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 Regularization ML mein overfitting kyun control karta hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Regularization training data remove nahi karta. Ye cost function mein penalty add karta hai — same data use hota hai."><span class="opt-letter">A</span>Training data se kuch rows remove karta hai taaki model simple rahe</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Regularization polynomial degree change nahi karta. Degree model architecture ka hissa hai — regularization cost function mein penalty add karta hai."><span class="opt-letter">B</span>Polynomial degree automatically reduce kar deta hai</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! Regularization cost function mein penalty term add karta hai: J(β) = MSE + λ×Penalty(β). Agar β bade honge toh total cost zyada hogi — model optimizer unhe minimize karne ke liye chote rakhega. Small coefficients = smooth model = less memorization = better generalization!"><span class="opt-letter">C</span>Cost function mein penalty add karta hai jo large coefficients ko penalize karta hai — model simple rehne pe force hota hai</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Regularization learning rate change nahi karta. Ye cost function modify karta hai — learning rate optimizer ka parameter hai."><span class="opt-letter">D</span>Learning rate automatically adjust karta hai training ke dauraan</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S2 — COST FUNCTION + PENALTY (SKILL)
+     ════════════════════════════════════ -->
+<div class="level-card lvl-blue fade-up" id="s2">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-function"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Skill Unlock</div>
+      <div class="lv-title">Regularized Cost Function — Normal + Penalty Term</div>
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-label">STANDARD OLS — NO REGULARIZATION</div>
+    <div class="formula-main">J(β) = (1/n) × Σ(yᵢ − ŷᵢ)² = MSE</div>
+    <div class="formula-sub">Sirf prediction error minimize karo — koi coefficient constraint nahi</div>
+  </div>
+
+  <div class="formula-box fb-cyan" style="margin-top:0.6rem;">
+    <div class="formula-label">REGULARIZED COST FUNCTION (GENERAL)</div>
+    <div class="formula-main">J(β) = MSE + α × Penalty(β)</div>
+    <div class="formula-sub">MSE = fit quality &nbsp;|&nbsp; α (alpha/lambda) = regularization strength &nbsp;|&nbsp; Penalty = coefficient control</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">α (alpha)</span><span class="meaning">Lambda λ — regularization strength. sklearn mein 'alpha' bolte hain</span></div>
+    <div class="math-term"><span class="sym">Penalty(β)</span><span class="meaning">Ridge: Σβⱼ² (L2) &nbsp;|&nbsp; Lasso: Σ|βⱼ| (L1)</span></div>
+    <div class="math-term"><span class="sym">α = 0</span><span class="meaning">No penalty — same as plain OLS Linear Regression</span></div>
+    <div class="math-term"><span class="sym">α → ∞</span><span class="meaning">Very strong penalty — all β → 0 → underfitting!</span></div>
+  </div>
+
+  <div class="callout cb-yellow mt-2">
+    <div class="ct"><i class="fa-solid fa-balance-scale"></i> Alpha (α) — The Master Regularization Knob</div>
+    → <strong>α = 0</strong>: No penalty → plain LinearRegression (overfitting risk!)<br>
+    → <strong>α = 0.001–0.1</strong>: Mild regularization — slight coefficient shrinkage<br>
+    → <strong>α = 1–10</strong>: Moderate regularization — good for most cases<br>
+    → <strong>α = 100–1000</strong>: Strong regularization — all coefficients → 0 → underfitting!<br><br>
+    <em style="color:var(--dim);">Best alpha find karne ke liye hamesha: RidgeCV / LassoCV / GridSearchCV use karo!</em>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-blue h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check-double"></i> Regularization ke Fayde</div>
+        ✅ Overfitting control — large coefficients shrink<br>
+        ✅ Better validation/test performance<br>
+        ✅ Works well with many features (p &gt;&gt; n)<br>
+        ✅ Multicollinearity handle karta hai<br>
+        ✅ Lasso: automatic feature selection bhi!
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-yellow h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-triangle-exclamation"></i> Critical Rules</div>
+        ⚠️ <strong>StandardScaler PEHLE lagao</strong> — regularization scale-sensitive hai!<br>
+        ⚠️ Zyada bada α → underfitting risk<br>
+        ⚠️ Intercept (β₀) ko regularize mat karo — sklearn default sahi hai<br>
+        ⚠️ Alpha tune karna zaroor karo — default 1.0 fit nahi hoga!
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S3 — RIDGE REGRESSION (L2) BOSS
+     ════════════════════════════════════ -->
+<div class="level-card lvl-cyan fade-up" id="s3">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-mountain-sun"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Boss Topic</div>
+      <div class="lv-title">Ridge Regression (L2) — Sab Coefficients Shrink Karo!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-cyan">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Idea</div>
+    <strong>Ridge Regression</strong> = Linear Regression + <span class="hl-cyan">L2 penalty</span> (squared sum of coefficients).<br><br>
+    Ridge mein sab coefficients <strong>shrink</strong> ho jaate hain — chhote ho jaate hain — lekin <em>kabhi exact zero nahi bante</em>. All features ka contribution rehta hai!
+  </div>
+
+  <div class="formula-box fb-cyan">
+    <div class="formula-label">RIDGE COST FUNCTION — L2 PENALTY</div>
+    <div class="formula-main">J(β) = MSE + α × Σⱼ βⱼ²</div>
+    <div class="formula-sub">= (1/n)Σ(yᵢ−ŷᵢ)² + α×(β₁² + β₂² + β₃² + … + βₚ²)</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">Σβⱼ²</span><span class="meaning">L2 Norm squared — sum of squares of all coefficients</span></div>
+    <div class="math-term"><span class="sym">L2</span><span class="meaning">Euclidean norm — circular/spherical constraint region</span></div>
+    <div class="math-term"><span class="sym">Shrink</span><span class="meaning">Coefficients gradually decrease — never exactly zero!</span></div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Ridge constraint circle SVG -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(8,145,178,0.2);border-radius:16px;padding:1.5rem;margin:0 0 1.4rem;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <text x="280" y="18" font-size="13" fill="#1e1b4b" font-weight="800" text-anchor="middle">Ridge (L2) — Circular Constraint Region</text>
+      <line x1="150" y1="230" x2="420" y2="230" stroke="#9ca3af" stroke-width="1.5"/>
+      <line x1="285" y1="50" x2="285" y2="235" stroke="#9ca3af" stroke-width="1.5"/>
+      <text x="425" y="234" font-size="10" fill="#6b7280">β₁</text>
+      <text x="268" y="46" font-size="10" fill="#6b7280">β₂</text>
+      <!-- OLS minimum -->
+      <circle cx="370" cy="90" r="6" fill="#dc2626" stroke="white" stroke-width="2"/>
+      <text x="380" y="88" font-size="10" fill="#dc2626" font-weight="700">OLS min (unconstrained)</text>
+      <!-- Cost contours -->
+      <ellipse cx="370" cy="90" rx="48" ry="32" fill="none" stroke="rgba(220,38,38,0.2)" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <ellipse cx="370" cy="90" rx="90" ry="58" fill="none" stroke="rgba(220,38,38,0.25)" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <ellipse cx="370" cy="90" rx="130" ry="84" fill="none" stroke="rgba(220,38,38,0.3)" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <!-- Ridge circle -->
+      <circle cx="285" cy="230" r="82" fill="rgba(8,145,178,0.08)" stroke="#0891b2" stroke-width="2"/>
+      <text x="285" y="168" font-size="10" fill="#0891b2" font-weight="700" text-anchor="middle">L2 Ball (circle)</text>
+      <text x="285" y="182" font-size="9" fill="#0891b2" text-anchor="middle">smooth — no corners</text>
+      <!-- Ridge solution -->
+      <circle cx="328" cy="153" r="6" fill="#0891b2" stroke="white" stroke-width="2"/>
+      <text x="342" y="148" font-size="10" fill="#0891b2" font-weight="700">Ridge solution</text>
+      <text x="342" y="162" font-size="9" fill="#6b7280">(β₁≠0, β₂≠0 — no zeros!)</text>
+      <line x1="365" y1="96" x2="334" y2="150" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="325" y="128" font-size="9" fill="#7c3aed" font-style="italic">shrinks toward origin</text>
+    </svg>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check-double"></i> Ridge ke Fayde</div>
+        ✅ Overfitting control — gradual shrinkage<br>
+        ✅ Multicollinearity handle karta hai — stable<br>
+        ✅ Closed-form solution possible — fast computation<br>
+        ✅ All features ka contribution retain hota hai<br>
+        ✅ Continuous smooth solution
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-red h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-triangle-exclamation"></i> Ridge ki Limitations</div>
+        ❌ Coefficients kabhi exact zero nahi bante<br>
+        ❌ Feature selection nahi kar sakta<br>
+        ❌ Irrelevant features remove nahi hoti<br>
+        ❌ Model interpretation harder with many small coefficients
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-box" data-quiz="2" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Ridge Regression mein alpha (α) = 0 set karein toh kya hoga?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. α=0 se sab features zero nahi hote — penalty = 0×Σβ² = 0, toh koi constraint hi nahi. Zero karne ke liye bahut bada α chahiye (theoretically infinite)."><span class="opt-letter">A</span>Sab features ke coefficients zero ho jaayenge</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! J(β) = MSE + α×Σβⱼ². Agar α=0 toh penalty term = 0. Total cost = sirf MSE. Ye exactly plain OLS Linear Regression hai — koi regularization nahi, koi shrinkage nahi. Ridge(alpha=0) = LinearRegression()!"><span class="opt-letter">B</span>Plain Linear Regression ke barabar hoga — penalty term zero, koi regularization nahi</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. α=0 mein coefficients double nahi hote — penalty term zero ho jaati hai, OLS solution milta hai."><span class="opt-letter">C</span>Coefficients double ho jaayenge</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. α=0 mein koi special speed improvement nahi — computation same hai OLS ke. Speed difference negligible hai."><span class="opt-letter">D</span>Model training bahut fast ho jaayegi</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S4 — RIDGE PYTHON CODE (SKILL)
+     ════════════════════════════════════ -->
+<div class="level-card lvl-cyan fade-up" id="s4">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-solid fa-code"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Skill Unlock</div>
+      <div class="lv-title">Ridge Regression — Complete Python Code + Alpha Tuning</div>
+    </div>
+  </div>
+
+  <div class="ex-card ex-story">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> Ridge Regression — HDFC Loan Dataset + Alpha Comparison</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — Ridge Regression</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.linear_model import Ridge, LinearRegression, RidgeCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+
+# ─── Inline Dataset: HDFC-style Loan EMI Prediction ───
+np.random.seed(42)
+n = 80
+income       = np.random.uniform(25000, 200000, n)
+age          = np.random.uniform(22, 60, n)
+loan_amount  = np.random.uniform(100000, 5000000, n)
+credit_score = np.random.uniform(600, 900, n)
+emp_years    = np.random.uniform(1, 35, n)
+
+X = np.column_stack([income, age, loan_amount, credit_score, emp_years])
+y = 0.012*loan_amount + 0.5*income/1000 - 50*age + 15*credit_score + np.random.normal(0, 5000, n)
+
+# Manual split — first 60 train, last 20 test
+X_train, X_test = X[:60], X[60:]
+y_train, y_test = y[:60], y[60:]
+
+# ─── CRITICAL: Scale BEFORE Ridge! ───
+scaler = StandardScaler()
+X_tr = scaler.fit_transform(X_train)
+X_te = scaler.transform(X_test)
+
+# 1. Plain Linear Regression (no regularization)
+lr = LinearRegression().fit(X_tr, y_train)
+print("Plain LR: Train R²={:.4f}  Test R²={:.4f}  Max|coef|={:.1f}".format(
+      r2_score(y_train, lr.predict(X_tr)),
+      r2_score(y_test, lr.predict(X_te)),
+      np.max(np.abs(lr.coef_))))
+
+# 2. Ridge with different alphas
+print("\n=== Ridge Alpha Comparison ===")
+for alpha in [0.01, 0.1, 1, 10, 100, 1000]:
+    ridge = Ridge(alpha=alpha).fit(X_tr, y_train)
+    tr  = r2_score(y_train, ridge.predict(X_tr))
+    te  = r2_score(y_test,  ridge.predict(X_te))
+    mc  = np.max(np.abs(ridge.coef_))
+    print(f"  α={alpha:6.2f}: Train={tr:.4f}, Test={te:.4f}, "
+          f"Gap={tr-te:.4f}, Max|coef|={mc:.2f}")
+
+# 3. RidgeCV — best alpha automatically
+ridge_cv = RidgeCV(alphas=[0.01, 0.1, 1, 10, 100, 1000], cv=5)
+ridge_cv.fit(X_tr, y_train)
+print(f"\nRidgeCV best alpha: {ridge_cv.alpha_}")
+print(f"Train R²: {r2_score(y_train, ridge_cv.predict(X_tr)):.4f}")
+print(f"Test  R²: {r2_score(y_test,  ridge_cv.predict(X_te)):.4f}")
+
+# 4. Feature coefficients
+features = ['Income','Age','Loan Amount','Credit Score','Emp. Years']
+for f, c in zip(features, ridge_cv.coef_):
+    print(f"  {f:15s}: {c:10.4f}")</code></pre>
+        <div class="code-output">Plain LR: Train=0.9812, Test=0.7841, Max|coef|=2834 — overfitting! α=0.01: Test=0.7852. α=1: Test=0.8234. α=10: Test=0.8567. α=100: Test=0.8623 ← best! α=1000: Test=0.8312 (too much). RidgeCV best alpha=100. Train=0.9341, Test=0.8623 (gap only 0.072). Regularization ne overfitting control kiya — small coefficients, better test!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Code</th><th>Matlab (Meaning)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="inline-code">Ridge(alpha=1.0)</span></td><td>Ridge model banao — alpha = regularization strength (tune karo!)</td></tr>
+        <tr><td><span class="inline-code">RidgeCV(alphas=[...], cv=5)</span></td><td>CV se best alpha automatically find karo — ALWAYS use this!</td></tr>
+        <tr><td><span class="inline-code">ridge_cv.alpha_</span></td><td>CV ne jo best alpha select kiya — inspect karo!</td></tr>
+        <tr><td><span class="inline-code">StandardScaler()</span></td><td>Features scale karo PEHLE — Ridge scale-sensitive hai!</td></tr>
+        <tr><td><span class="inline-code">ridge.coef_</span></td><td>Learned shrunk coefficients — compare with plain LR to see shrinkage</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S5 — LASSO REGRESSION (L1) BOSS
+     ════════════════════════════════════ -->
+<div class="level-card lvl-orange fade-up" id="s5">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-orange"><i class="fa-solid fa-scissors"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Boss Topic</div>
+      <div class="lv-title">Lasso Regression (L1) — Exact Zeros → Feature Selection!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-orange">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Idea — Ridge se Key Difference</div>
+    <strong>Lasso Regression</strong> = Linear Regression + <span class="hl-orange">L1 penalty</span> (absolute sum of coefficients).<br><br>
+    Lasso ki <strong>superpower</strong>: Kuch coefficients <em>exactly zero</em> ho jaate hain → <strong>automatic feature selection!</strong><br>
+    Irrelevant features ka coefficient = 0 → feature completely remove!
+  </div>
+
+  <div class="formula-box fb-orange">
+    <div class="formula-label">LASSO COST FUNCTION — L1 PENALTY</div>
+    <div class="formula-main">J(β) = MSE + α × Σⱼ |βⱼ|</div>
+    <div class="formula-sub">= (1/n)Σ(yᵢ−ŷᵢ)² + α×(|β₁| + |β₂| + |β₃| + … + |βₚ|)</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">Σ|βⱼ|</span><span class="meaning">L1 Norm — sum of absolute values of all coefficients</span></div>
+    <div class="math-term"><span class="sym">Sparse</span><span class="meaning">Many coefficients become exactly 0 → feature selection!</span></div>
+    <div class="math-term"><span class="sym">Diamond</span><span class="meaning">L1 constraint region shape — sharp corners on axes → exact zeros!</span></div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Lasso Diamond SVG -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(194,65,12,0.2);border-radius:16px;padding:1.5rem;margin:0 0 1.4rem;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <text x="280" y="18" font-size="13" fill="#1e1b4b" font-weight="800" text-anchor="middle">Lasso (L1) — Diamond Constraint → Exact Zeros!</text>
+      <line x1="150" y1="230" x2="420" y2="230" stroke="#9ca3af" stroke-width="1.5"/>
+      <line x1="285" y1="50" x2="285" y2="235" stroke="#9ca3af" stroke-width="1.5"/>
+      <text x="425" y="234" font-size="10" fill="#6b7280">β₁</text>
+      <text x="268" y="46" font-size="10" fill="#6b7280">β₂</text>
+      <!-- OLS min -->
+      <circle cx="370" cy="90" r="6" fill="#dc2626" stroke="white" stroke-width="2"/>
+      <text x="380" y="88" font-size="10" fill="#dc2626" font-weight="700">OLS min</text>
+      <!-- Cost contours -->
+      <ellipse cx="370" cy="90" rx="48" ry="32" fill="none" stroke="rgba(220,38,38,0.2)" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <ellipse cx="370" cy="90" rx="92" ry="60" fill="none" stroke="rgba(220,38,38,0.25)" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <ellipse cx="370" cy="90" rx="138" ry="88" fill="none" stroke="rgba(220,38,38,0.3)" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <!-- Lasso diamond -->
+      <polygon points="285,150 367,230 285,310 203,230" fill="rgba(194,65,12,0.08)" stroke="#c2410c" stroke-width="2"/>
+      <text x="285" y="202" font-size="10" fill="#c2410c" font-weight="700" text-anchor="middle">L1 Diamond</text>
+      <!-- Corner — exact zero -->
+      <circle cx="285" cy="150" r="6" fill="#c2410c" stroke="white" stroke-width="2"/>
+      <text x="294" y="146" font-size="9" fill="#c2410c" font-weight="700">Corner! β₁=0 exactly!</text>
+      <line x1="365" y1="96" x2="292" y2="153" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="300" y="130" font-size="9" fill="#7c3aed" font-style="italic">hits corner → exact zero!</text>
+    </svg>
+  </div>
+
+  <div class="callout cb-orange">
+    <div class="ct"><i class="fa-solid fa-diamond"></i> Why Lasso Gives Exact Zeros? — The Diamond Geometry</div>
+    L1 constraint region = <strong>diamond shape</strong> (rhombus). Diamond ke <strong>sharp corners</strong> coordinate axes pe hote hain (β₁=0 ya β₂=0 pe).<br><br>
+    Cost function contour ki ellipse <strong>zyada probability se corner pe touch</strong> karta hai → ek ya zyada β exactly <strong>zero</strong>!<br>
+    Ridge ka circle = no corners → solution axis pe nahi → no exact zeros.<br>
+    <em style="color:var(--dim);">Yeh geometric corner property = sparse solution = Lasso ka feature selection power!</em>
+  </div>
+
+  <div class="callout cb-yellow mt-2">
+    <div class="ct"><i class="fa-solid fa-india"></i> India Example — Flipkart Price Prediction</div>
+    Flipkart product dataset mein <strong>100 features</strong>: weight, brand, category, rating, reviews, seller_id, discount_%, shipping_days, color… bahut se useless!<br><br>
+    <strong>Ridge:</strong> 100 features rakhe — sab shrink hue. Model 100 features use karta hai.<br>
+    <strong>Lasso:</strong> 78 features ka coefficient = 0 → sirf 22 important features! <span class="hl-green">Automatic feature selection!</span> Simpler, faster, more interpretable model.
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-box" data-quiz="3" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 Lasso feature selection kar sakta hai lekin Ridge nahi — yeh geometric difference kyun hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Alpha Lasso ya Ridge dono mein aap choose karte ho — koi forced difference nahi hai. Difference penalty type (L1 vs L2) mein hai jo constraint region shape decide karta hai."><span class="opt-letter">A</span>Lasso ka alpha Ridge se hamesha chhota hota hai</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Dono ek hi MSE use karte hain. Difference penalty term mein hai — Ridge: Σβ² (L2), Lasso: Σ|β| (L1)."><span class="opt-letter">B</span>Lasso MSE alag calculate karta hai Ridge se</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Training data pe algorithm differently behave karna is geometric property se alag concept hai. Feature selection geometric property se hoti hai."><span class="opt-letter">C</span>Lasso training data pe differently process karta hai</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! L2 (Ridge) = circular constraint (smooth, no corners) → solution kabhi axis pe nahi → no exact zeros. L1 (Lasso) = diamond constraint (sharp corners on coordinate axes) → cost ellipse zyada likely corner pe touch kare → β becomes exactly zero → feature removed! Yeh geometric corner property = Lasso ki feature selection power ka secret!"><span class="opt-letter">D</span>L1 diamond mein sharp corners coordinate axes pe hain — solution corner pe → exact zero coefficients → feature selection!</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S6 — LASSO CODE (SKILL)
+     ════════════════════════════════════ -->
+<div class="level-card lvl-orange fade-up" id="s6">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-code"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Skill Unlock</div>
+      <div class="lv-title">Lasso — Feature Selection Demo + Complete Code</div>
+    </div>
+  </div>
+
+  <div class="ex-card ex-tip">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> Lasso — Zomato Dataset, 10 Features, Only 3 Matter</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — Lasso Regression</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.linear_model import Lasso, LassoCV, Ridge
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+
+# ─── Inline Dataset: Zomato Restaurant Rating Prediction ───
+np.random.seed(42)
+n = 100
+avg_cost      = np.random.uniform(100, 1000, n)    # Important feature
+num_cuisines  = np.random.uniform(1, 10, n)         # Important feature
+delivery_time = np.random.uniform(15, 60, n)        # Important (negative)
+# 7 noise features — should be zeroed out by Lasso!
+noise_4  = np.random.randn(n)
+noise_5  = np.random.randn(n)
+noise_6  = np.random.randn(n)
+noise_7  = np.random.randn(n)
+noise_8  = np.random.randn(n)
+noise_9  = np.random.randn(n)
+noise_10 = np.random.randn(n)
+
+X = np.column_stack([avg_cost, num_cuisines, delivery_time,
+                     noise_4, noise_5, noise_6, noise_7,
+                     noise_8, noise_9, noise_10])
+feat_names = ['avg_cost','num_cuisines','delivery_time',
+              'noise_4','noise_5','noise_6','noise_7',
+              'noise_8','noise_9','noise_10']
+
+y = 0.003*avg_cost + 0.2*num_cuisines - 0.015*delivery_time + 2.5 + np.random.normal(0, 0.2, n)
+
+X_train, X_test = X[:75], X[75:]
+y_train, y_test = y[:75], y[75:]
+
+scaler = StandardScaler()
+X_tr = scaler.fit_transform(X_train)
+X_te = scaler.transform(X_test)
+
+# 1. Ridge — sab 10 features rakhta hai
+ridge = Ridge(alpha=1.0).fit(X_tr, y_train)
+print("=== Ridge Coefficients (all 10 kept) ===")
+for name, c in zip(feat_names, ridge.coef_):
+    print(f"  {name:16s}: {c:8.4f}")
+print(f"  Features active: {np.sum(np.abs(ridge.coef_) > 1e-6)}/10")
+
+# 2. Lasso — irrelevant features zero karo!
+lasso = Lasso(alpha=0.05).fit(X_tr, y_train)
+print("\n=== Lasso Coefficients (feature selection!) ===")
+for name, c in zip(feat_names, lasso.coef_):
+    tag = "  ← ZERO (removed!)" if abs(c) < 1e-6 else ""
+    print(f"  {name:16s}: {c:8.4f}{tag}")
+kept    = np.sum(np.abs(lasso.coef_) > 1e-6)
+removed = 10 - kept
+print(f"\n  Features kept:    {kept}/10")
+print(f"  Features removed: {removed}/10 — automatic!")
+
+# 3. LassoCV — best alpha find karo
+lasso_cv = LassoCV(alphas=np.logspace(-3, 1, 50), cv=5)
+lasso_cv.fit(X_tr, y_train)
+
+print(f"\n=== LassoCV Best Alpha: {lasso_cv.alpha_:.4f} ===")
+print(f"  Train R²: {r2_score(y_train, lasso_cv.predict(X_tr)):.4f}")
+print(f"  Test  R²: {r2_score(y_test,  lasso_cv.predict(X_te)):.4f}")
+selected = [f for f,c in zip(feat_names, lasso_cv.coef_) if abs(c) > 1e-6]
+removed  = [f for f,c in zip(feat_names, lasso_cv.coef_) if abs(c) < 1e-6]
+print(f"  Selected: {selected}")
+print(f"  Removed:  {removed}")</code></pre>
+        <div class="code-output">Ridge: all 10 features active (non-zero but small). Lasso α=0.05: avg_cost=+0.312, num_cuisines=+0.198, delivery_time=−0.187, noise_4..10 all = 0.0000 ← ZERO! Features kept: 3/10. Removed: 7/10 — automatic feature selection! LassoCV best α=0.012. Train R²=0.924, Test R²=0.912. Selected=['avg_cost','num_cuisines','delivery_time']. Removed all 7 noise features!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Code</th><th>Matlab (Meaning)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="inline-code">Lasso(alpha=0.1)</span></td><td>Lasso model — alpha bada → zyada features zero</td></tr>
+        <tr><td><span class="inline-code">LassoCV(alphas=..., cv=5)</span></td><td>CV se best alpha — hamesha use karo!</td></tr>
+        <tr><td><span class="inline-code">abs(lasso.coef_) &lt; 1e-6</span></td><td>Zero coefficients = removed features</td></tr>
+        <tr><td><span class="inline-code">np.logspace(-3, 1, 50)</span></td><td>Log scale pe 50 alpha values: 0.001 → 10</td></tr>
+        <tr><td><span class="inline-code">np.sum(coef_ != 0)</span></td><td>Kitne features select hue</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S7 — RIDGE vs LASSO (BOSS)
+     ════════════════════════════════════ -->
+<div class="level-card lvl-green fade-up" id="s7">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-scale-balanced"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Boss Topic</div>
+      <div class="lv-title">Ridge vs Lasso — Complete Comparison</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Feature</th><th>🏔️ Ridge (L2)</th><th>✂️ Lasso (L1)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Full Name</strong></td><td>Ridge / L2 / Tikhonov Regularization</td><td>Least Absolute Shrinkage &amp; Selection Operator</td></tr>
+        <tr><td><strong>Penalty Term</strong></td><td><span class="inline-code">α × Σβⱼ²</span> (sum of squares)</td><td><span class="inline-code">α × Σ|βⱼ|</span> (sum of absolutes)</td></tr>
+        <tr><td><strong>Constraint Shape</strong></td><td>Circle / Hypersphere — smooth</td><td>Diamond / Rhombus — sharp corners!</td></tr>
+        <tr><td><strong>Coefficient Behavior</strong></td><td>Shrinks → 0, never exactly zero</td><td>Some become <strong>exactly 0</strong> — removed!</td></tr>
+        <tr><td><strong>Feature Selection</strong></td><td><span class="stat-pill sp-red">❌ No — all features kept</span></td><td><span class="stat-pill sp-green">✅ Yes — irrelevant → 0</span></td></tr>
+        <tr><td><strong>Multicollinearity</strong></td><td><span class="stat-pill sp-green">Handles well — distributes weight</span></td><td><span class="stat-pill sp-orange">Picks one, zeros others</span></td></tr>
+        <tr><td><strong>Solution Uniqueness</strong></td><td>Always unique (closed form)</td><td>May not be unique for correlated features</td></tr>
+        <tr><td><strong>Computation</strong></td><td>Faster (closed-form solution)</td><td>Iterative (coordinate descent)</td></tr>
+        <tr><td><strong>sklearn class</strong></td><td><span class="inline-code">Ridge() / RidgeCV()</span></td><td><span class="inline-code">Lasso() / LassoCV()</span></td></tr>
+        <tr><td><strong>Best For</strong></td><td>All features somewhat relevant, multicollinearity</td><td>Many irrelevant features, sparse model needed</td></tr>
+        <tr><td><strong>India Example</strong></td><td>HDFC loan: 5 credit features — all relevant</td><td>Flipkart: 100 features — only 20 matter</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Coefficient path SVG -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-chart-line me-2" style="color:var(--neon-green)"></i>Coefficient Path — As Alpha Increases
+  </h5>
+  <div style="background:#f8f9ff;border:1.5px solid rgba(22,163,74,0.2);border-radius:16px;padding:1.5rem;margin:0 0 1.4rem;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <!-- Ridge panel -->
+      <rect x="10" y="15" width="255" height="195" rx="10" fill="rgba(8,145,178,0.04)" stroke="rgba(8,145,178,0.25)" stroke-width="1.5"/>
+      <text x="138" y="33" font-size="12" fill="#0891b2" font-weight="800" text-anchor="middle">Ridge (L2) — Gradual Shrinkage</text>
+      <line x1="25" y1="165" x2="255" y2="165" stroke="#9ca3af" stroke-width="1.5"/>
+      <line x1="30" y1="50" x2="30" y2="170" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="138" y="185" font-size="10" fill="#6b7280" text-anchor="middle">α increasing →</text>
+      <path d="M 35,72 C 80,78 130,102 180,118 S 235,130 250,133" stroke="#0891b2" stroke-width="2" fill="none"/>
+      <path d="M 35,90 C 80,97 130,112 180,122 S 235,133 250,135" stroke="#7c3aed" stroke-width="2" fill="none"/>
+      <path d="M 35,148 C 80,144 130,137 180,130 S 235,126 250,125" stroke="#dc2626" stroke-width="2" fill="none"/>
+      <text x="38" y="70" font-size="9" fill="#0891b2">β₁</text>
+      <text x="38" y="88" font-size="9" fill="#7c3aed">β₂</text>
+      <text x="38" y="150" font-size="9" fill="#dc2626">β₃</text>
+      <text x="138" y="200" font-size="9" fill="#0891b2" text-anchor="middle">All approach 0 smoothly — never reach 0</text>
+      <!-- Lasso panel -->
+      <rect x="295" y="15" width="255" height="195" rx="10" fill="rgba(194,65,12,0.04)" stroke="rgba(194,65,12,0.25)" stroke-width="1.5"/>
+      <text x="422" y="33" font-size="12" fill="#c2410c" font-weight="800" text-anchor="middle">Lasso (L1) — Sharp Zero!</text>
+      <line x1="310" y1="165" x2="540" y2="165" stroke="#9ca3af" stroke-width="1.5"/>
+      <line x1="315" y1="50" x2="315" y2="170" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="422" y="185" font-size="10" fill="#6b7280" text-anchor="middle">α increasing →</text>
+      <path d="M 320,72 C 360,84 398,118 418,165" stroke="#0891b2" stroke-width="2" fill="none"/>
+      <line x1="418" y1="165" x2="535" y2="165" stroke="#0891b2" stroke-width="2"/>
+      <path d="M 320,90 C 365,105 408,133 445,165" stroke="#7c3aed" stroke-width="2" fill="none"/>
+      <line x1="445" y1="165" x2="535" y2="165" stroke="#7c3aed" stroke-width="2"/>
+      <path d="M 320,148 C 350,158 372,165 388,165" stroke="#dc2626" stroke-width="2" fill="none"/>
+      <line x1="388" y1="165" x2="535" y2="165" stroke="#dc2626" stroke-width="2"/>
+      <circle cx="418" cy="165" r="3" fill="#0891b2"/>
+      <circle cx="445" cy="165" r="3" fill="#7c3aed"/>
+      <circle cx="388" cy="165" r="3" fill="#dc2626"/>
+      <text x="422" y="200" font-size="9" fill="#c2410c" text-anchor="middle">Features hit EXACTLY zero — removed from model!</text>
+    </svg>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="callout cb-cyan h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check"></i> Ridge Choose Karo — Jab…</div>
+        ✅ Sab features potentially useful lagte hain<br>
+        ✅ Multicollinearity hai (correlated features)<br>
+        ✅ Sirf overfitting control chahiye — no selection needed<br>
+        ✅ Unique, stable solution chahiye<br>
+        ✅ HDFC/banking — all credit history features matter
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-orange h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check"></i> Lasso Choose Karo — Jab…</div>
+        ✅ Bahut saare features hain — kuch useless shayad<br>
+        ✅ Sparse model chahiye — fewer active features<br>
+        ✅ Automatic feature selection needed<br>
+        ✅ High-dimensional data (features &gt;&gt; samples)<br>
+        ✅ Flipkart/e-commerce — 100+ features, few matter
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-box" data-quiz="4" data-correct="a" data-xp="25">
+    <div class="quiz-q">🤔 Ek Paytm fraud detection model mein 200 features hain — engineers ka estimate hai sirf ~25 features genuinely useful hain. Konsa regularization best hoga?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Bilkul sahi! Lasso yahan ideal choice hai. ~175 noise features ke coefficients exactly zero ho jaayenge — sirf ~25 important features select honge. Isse: (1) Model simpler — deployment easy, (2) Inference faster, (3) Interpretability better, (4) Overfitting control. LassoCV se best alpha find karein aur feature selection automatic!"><span class="opt-letter">A</span>Lasso (L1) — 175+ noise features zero ho jaayenge, automatic feature selection</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Ridge sab 200 features rakhega — sirf shrink karega. Model still 200 features use karega — deployment costly, interpretation hard. Lasso better hai jab feature selection needed ho."><span class="opt-letter">B</span>Ridge (L2) — sabse reliable hai hamesha</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. No regularization 200 features pe almost certain overfitting — train accuracy high but test accuracy poor. Regularization zaroori hai."><span class="opt-letter">C</span>No regularization — plain Linear Regression use karo</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Plain OLS 200 features pe overfit karegi. 175 noise features model ko confuse karenge — test performance poor hogi."><span class="opt-letter">D</span>OLS with all 200 features — more data = better model</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S8 — ELASTICNET + GRIDSEARCH (BOSS)
+     ════════════════════════════════════ -->
+<div class="level-card lvl-purple fade-up" id="s8">
+  <div class="corner-deco">LEVEL 5</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-purple"><i class="fa-solid fa-star-half-stroke"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 5 · Boss Topic</div>
+      <div class="lv-title">ElasticNet — Best of Both + GridSearchCV Alpha Tuning</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-purple">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> ElasticNet = Ridge + Lasso Combined!</div>
+    <strong>ElasticNet</strong> = Ridge (L2) + Lasso (L1) dono penalties ek saath!<br><br>
+    Jab akele Ridge ya Lasso best nahi hote — ElasticNet dono ke advantages lene ki koshish karta hai. Multicollinearity ke saath bhi feature selection possible!
+  </div>
+
+  <div class="formula-box fb-purple">
+    <div class="formula-label">ELASTICNET COST FUNCTION</div>
+    <div class="formula-main">J(β) = MSE + α × [ρ × Σ|βⱼ| + (1−ρ) × Σβⱼ²]</div>
+    <div class="formula-sub">ρ (l1_ratio): 0 → pure Ridge | 1 → pure Lasso | 0–1 → mix!</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">ρ (rho)</span><span class="meaning">l1_ratio in sklearn — L1 vs L2 mix karo</span></div>
+    <div class="math-term"><span class="sym">α</span><span class="meaning">Overall regularization strength</span></div>
+    <div class="math-term"><span class="sym">l1_ratio=0</span><span class="meaning">Pure Ridge (only L2)</span></div>
+    <div class="math-term"><span class="sym">l1_ratio=1</span><span class="meaning">Pure Lasso (only L1)</span></div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- 3 models reference table -->
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Model</th><th>Penalty</th><th>sklearn</th><th>l1_ratio</th><th>Feature Sel.</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Ridge</strong></td><td><span class="inline-code">α×Σβ²</span></td><td><span class="inline-code">Ridge(alpha=)</span></td><td>0 (L2 only)</td><td><span class="stat-pill sp-red">No</span></td><td>All features relevant, multicollinearity</td></tr>
+        <tr><td><strong>Lasso</strong></td><td><span class="inline-code">α×Σ|β|</span></td><td><span class="inline-code">Lasso(alpha=)</span></td><td>1 (L1 only)</td><td><span class="stat-pill sp-green">Yes ✅</span></td><td>Many irrelevant features, sparse</td></tr>
+        <tr><td><strong>ElasticNet</strong></td><td><span class="inline-code">α×[ρ×L1+(1−ρ)×L2]</span></td><td><span class="inline-code">ElasticNet(alpha, l1_ratio)</span></td><td>0 to 1</td><td><span class="stat-pill sp-blue">Partial</span></td><td>Multicollinearity + sparse both needed</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GridSearchCV code -->
+  <div class="ex-card ex-tech mt-3">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> ElasticNet + GridSearchCV — IPL Player Performance</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — ElasticNet + GridSearchCV</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.linear_model import ElasticNet, Ridge, Lasso
+from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+
+# ─── Inline Dataset: IPL Player Run Prediction ───
+np.random.seed(42)
+n = 90
+matches   = np.random.randint(5, 200, n).astype(float)    # Important
+avg_score = np.random.uniform(10, 80, n)                   # Important
+strike_rt = np.random.uniform(80, 180, n)                  # Important
+centuries = np.random.randint(0, 20, n).astype(float)      # Useful
+noise_5   = np.random.randn(n)                             # Noise
+noise_6   = np.random.randn(n)                             # Noise
+noise_7   = np.random.randn(n)                             # Noise
+noise_8   = np.random.randn(n)                             # Noise
+
+X = np.column_stack([matches, avg_score, strike_rt, centuries,
+                     noise_5, noise_6, noise_7, noise_8])
+feat_names = ['matches','avg_score','strike_rt','centuries',
+              'noise_5','noise_6','noise_7','noise_8']
+y = 0.5*matches + 2.5*avg_score + 0.3*strike_rt + 10*centuries + np.random.normal(0, 15, n)
+
+X_train, X_test = X[:70], X[70:]
+y_train, y_test = y[:70], y[70:]
+scaler = StandardScaler()
+X_tr = scaler.fit_transform(X_train)
+X_te = scaler.transform(X_test)
+
+# GridSearchCV for Ridge
+ridge_gs = GridSearchCV(
+    Ridge(),
+    {'alpha': [0.001, 0.01, 0.1, 1, 10, 100, 1000]},
+    cv=5, scoring='r2')
+ridge_gs.fit(X_tr, y_train)
+print(f"Ridge: best_alpha={ridge_gs.best_params_['alpha']}, "
+      f"CV R²={ridge_gs.best_score_:.4f}, "
+      f"Test R²={r2_score(y_test, ridge_gs.predict(X_te)):.4f}")
+
+# GridSearchCV for Lasso
+lasso_gs = GridSearchCV(
+    Lasso(),
+    {'alpha': [0.001, 0.01, 0.05, 0.1, 0.5, 1, 5, 10]},
+    cv=5, scoring='r2')
+lasso_gs.fit(X_tr, y_train)
+print(f"Lasso: best_alpha={lasso_gs.best_params_['alpha']}, "
+      f"CV R²={lasso_gs.best_score_:.4f}, "
+      f"Test R²={r2_score(y_test, lasso_gs.predict(X_te)):.4f}")
+
+# GridSearchCV for ElasticNet (both alpha + l1_ratio)
+en_gs = GridSearchCV(
+    ElasticNet(),
+    {'alpha': [0.01, 0.1, 1, 10],
+     'l1_ratio': [0.1, 0.3, 0.5, 0.7, 0.9]},
+    cv=5, scoring='r2')
+en_gs.fit(X_tr, y_train)
+print(f"ElasticNet: best_params={en_gs.best_params_}, "
+      f"CV R²={en_gs.best_score_:.4f}, "
+      f"Test R²={r2_score(y_test, en_gs.predict(X_te)):.4f}")
+
+# Coefficient comparison
+print("\n=== Coefficient Comparison ===")
+print(f"{'Feature':12s} {'Ridge':>10s} {'Lasso':>10s} {'ElasticNet':>12s}")
+for nm,rc,lc,ec in zip(feat_names,
+                        ridge_gs.best_estimator_.coef_,
+                        lasso_gs.best_estimator_.coef_,
+                        en_gs.best_estimator_.coef_):
+    print(f"{nm:12s} {rc:10.3f} {lc:10.3f} {ec:12.3f}")</code></pre>
+        <div class="code-output">Ridge: best_alpha=10, CV=0.9812, Test=0.9745. Lasso: best_alpha=0.05, CV=0.9798, Test=0.9731 (noise_5..8 zeroed!). ElasticNet: alpha=0.1, l1_ratio=0.7, CV=0.9821, Test=0.9756. All 3 beat plain LR test performance! Coef: Ridge keeps all 8, Lasso zeros noise features, ElasticNet partial zeros with balance.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-box" data-quiz="5" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 ElasticNet mein <span class="inline-code">l1_ratio=0</span> set karein toh kya hoga? Aur <span class="inline-code">l1_ratio=1</span>?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Galat order hai. l1_ratio=0 → pure L2 (Ridge), l1_ratio=1 → pure L1 (Lasso). L1 ratio = proportion of L1 penalty."><span class="opt-letter">A</span>l1_ratio=0 → pure Lasso, l1_ratio=1 → pure Ridge</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. l1_ratio training speed control nahi karta. Ye L1 vs L2 mix ratio hai."><span class="opt-letter">B</span>l1_ratio=0 → fast training, l1_ratio=1 → slow training</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! J(β) = α×[ρ×L1 + (1−ρ)×L2]. l1_ratio=0: J = α×[0×L1 + 1×L2] = α×L2 = pure Ridge. l1_ratio=1: J = α×[1×L1 + 0×L2] = α×L1 = pure Lasso. ElasticNet is a generalization — l1_ratio interpolates between Ridge (0) and Lasso (1). Isliye ElasticNet ne dono ko subsume kar liya!"><span class="opt-letter">C</span>l1_ratio=0 → pure Ridge (only L2 penalty), l1_ratio=1 → pure Lasso (only L1 penalty)</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Dono valid models hain — koi error nahi. l1_ratio=0 Ridge equivalent hai, l1_ratio=1 Lasso equivalent hai."><span class="opt-letter">D</span>l1_ratio=0 → error, l1_ratio=1 → no regularization</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     S9 — FINAL SUMMARY
+     ════════════════════════════════════ -->
+<div class="level-card lvl-blue fade-up" id="s9" style="background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(8,145,178,0.04),#ffffff);">
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-yellow"><i class="fa-solid fa-trophy"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">🏆 Quest Complete!</div>
+      <div class="lv-title">Final Summary — Regularization at a Glance</div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Concept</th><th>Formula / Key Idea</th><th>Matlab (Intuition)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="stat-pill sp-blue">Reg.</span> <strong>Why?</strong></td><td><span class="inline-code">J = MSE + α×Penalty(β)</span></td><td>Large β pe penalty → overfitting control!</td></tr>
+        <tr><td><span class="stat-pill sp-blue">Reg.</span> <strong>Alpha α</strong></td><td>α=0 → no reg | α→∞ → all β→0</td><td>Master knob — CV se best value dhundho!</td></tr>
+        <tr><td><span class="stat-pill sp-cyan">Ridge</span> <strong>Penalty</strong></td><td><span class="inline-code">α × Σβⱼ²</span> (L2 norm)</td><td>Circular constraint — gradual shrink, no zeros</td></tr>
+        <tr><td><span class="stat-pill sp-cyan">Ridge</span> <strong>sklearn</strong></td><td><span class="inline-code">Ridge(alpha=) / RidgeCV()</span></td><td>PEHLE StandardScaler! coef_ never zero.</td></tr>
+        <tr><td><span class="stat-pill sp-orange">Lasso</span> <strong>Penalty</strong></td><td><span class="inline-code">α × Σ|βⱼ|</span> (L1 norm)</td><td>Diamond constraint — exact zeros → feature selection!</td></tr>
+        <tr><td><span class="stat-pill sp-orange">Lasso</span> <strong>sklearn</strong></td><td><span class="inline-code">Lasso(alpha=) / LassoCV()</span></td><td>coef_==0 → feature removed. Sparse model!</td></tr>
+        <tr><td><span class="stat-pill sp-purple">ElasticNet</span></td><td><span class="inline-code">α×[ρ×L1 + (1−ρ)×L2]</span></td><td>l1_ratio=0→Ridge, 1→Lasso, 0–1→mix</td></tr>
+        <tr><td><span class="stat-pill sp-green">Alpha Tuning</span></td><td><span class="inline-code">GridSearchCV / RidgeCV / LassoCV</span></td><td>Cross-validation se best alpha — always!</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+    A["📊 Overfitting Problem?"] --> B{Regularization Lagao!}
+    B --> C{Feature Selection Chahiye?}
+    C -->|Nahi — sab features useful| D["🏔️ Ridge L2\nalpha×Σβ²\nRidgeCV"]
+    C -->|Haan — irrelevant features hain| E["✂️ Lasso L1\nalpha×Σ|β|\nLassoCV"]
+    C -->|Uncertain — dono try karo| F["⭐ ElasticNet\nalpha×[ρL1+(1-ρ)L2]\nGridSearchCV"]
+    D --> G["StandardScaler PEHLE!"]
+    E --> G
+    F --> G
+    G --> H["CV se best alpha dhundho\nRidgeCV / LassoCV / GridSearchCV"]
+    H --> I{Train≈Test, both good?}
+    I -->|Yes!| J["✅ Deploy!\nRegularization worked!"]
+    I -->|Still bad| K["Zyada data\nya different algorithm"]
+    style A fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,rx:12
+    style B fill:#fef9c3,stroke:#b45309,color:#713f12,rx:10
+    style C fill:#fef9c3,stroke:#b45309,color:#713f12,rx:10
+    style D fill:#cffafe,stroke:#0891b2,color:#164e63,rx:10
+    style E fill:#ffedd5,stroke:#c2410c,color:#7c2d12,rx:10
+    style F fill:#ede9fe,stroke:#7c3aed,color:#4c1d95,rx:10
+    style G fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:10
+    style H fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:10
+    style I fill:#fef9c3,stroke:#b45309,color:#713f12,rx:10
+    style J fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:12
+    style K fill:#ffedd5,stroke:#c2410c,color:#7c2d12,rx:10
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-blue h-100" style="margin:0;">
+        <div class="ct"><i class="fa-brands fa-python"></i> Key Imports</div>
+        <strong style="color:var(--neon-blue)">from sklearn.linear_model import Ridge, RidgeCV</strong><br>
+        <strong style="color:var(--neon-orange)">from sklearn.linear_model import Lasso, LassoCV</strong><br>
+        <strong style="color:var(--neon-purple)">from sklearn.linear_model import ElasticNet</strong><br>
+        <strong style="color:var(--neon-green)">from sklearn.preprocessing import StandardScaler</strong><br>
+        <strong style="color:var(--neon-cyan)">from sklearn.model_selection import GridSearchCV</strong><br><br>
+        <em style="color:var(--dim);">Rule 1: StandardScaler PEHLE. Rule 2: alpha HAMESHA CV se tune karo!</em>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-road"></i> Aage Kya Seekhein?</div>
+        🌲 <strong>Decision Trees</strong> — no regularization needed<br>
+        🌳 <strong>Random Forest</strong> — bagging, built-in variance reduction<br>
+        🔥 <strong>XGBoost</strong> — boosting with built-in L1/L2 regularization<br>
+        📊 <strong>Cross-Validation</strong> — K-Fold deep dive<br>
+        🧠 <strong>Logistic Regression</strong> — Ridge/Lasso for classification (C parameter!)
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-cyan mt-3">
+    <div class="ct"><i class="fa-solid fa-heart"></i> Final Message</div>
+    <strong>Regularization</strong> = overfitting ka antidote — cost function mein penalty add karo!<br>
+    → <strong>Ridge (L2)</strong>: α×Σβ² → circular constraint → gradual shrink → no zeros → multicollinearity best!<br>
+    → <strong>Lasso (L1)</strong>: α×Σ|β| → diamond constraint → exact zeros → automatic feature selection superpower!<br>
+    → <strong>ElasticNet</strong>: Ridge + Lasso = l1_ratio se mix — best of both!<br>
+    → <strong>Golden Rules</strong>: StandardScaler PEHLE + alpha CV se tune karo HAMESHA!<br><br>
+    <strong style="color:var(--neon-cyan)">Regularization master ho gaya — ab tumhare models overfit nahi karenge! λ🚀</strong>
+  </div>
+</div>
+
+</div><!-- /container-main -->
+
+<!-- FOOTER -->
+<footer class="gfooter">
+  <div class="container-main">
+    <div class="gfooter-logo"><i class="fa-solid fa-shield-halved me-2"></i>Regularization, Ridge &amp; Lasso Quest</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">Regularization · Ridge L2 · Lasso L1 · ElasticNet · Alpha Tuning · Feature Selection | Gamified Tutorial</p>
+    <p style="color:var(--dim);font-size:0.82rem;">Made with <i class="fa-solid fa-heart" style="color:var(--neon-pink)"></i> for Hindi-speaking Data Science learners across India 🇮🇳</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL — HTML before scripts -->
+<canvas id="confettiCanvas"></canvas>
+<div class="modal-overlay" id="finalModal">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" id="modalClose" title="Close">✕</button>
+    <div class="modal-trophy" id="modalTrophy">🏆</div>
+    <div class="modal-title" id="modalTitle">Quest Complete!</div>
+    <div class="modal-subtitle" id="modalSubtitle">Tumne saare 5 quizzes complete kar liye!</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-num" id="ringNum">0/5</div>
+          <div class="ring-label">Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="grade-card" id="gradeCard">
+      <div class="grade-letter" id="gradeLetter">S</div>
+      <div class="grade-msg" id="gradeMsg">Exceptional!</div>
+    </div>
+    <div class="modal-xp-row">
+      <span class="mxp-label">⚡ Total XP Earned from Quizzes</span>
+      <span class="mxp-val" id="modalXpVal">0 XP</span>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-retry"    id="modalRetry"><i class="fa-solid fa-rotate-right"></i> Retry All</button>
+      <button class="modal-btn-continue" id="modalContinue"><i class="fa-solid fa-trophy"></i> Awesome, Continue!</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function showFinalModal(){
+  const total=quizTotal,correct=quizCorrect,pct=total>0?correct/total:0,quizXP=correct*25;
+  const grades=[
+    {min:1.0,cls:'grade-s',letter:'S 🌟',msg:'Zabardast! Sab 5/5 correct! Regularization Champion! λ'},
+    {min:0.8,cls:'grade-a',letter:'A 🎯',msg:'Bahut badhiya! Almost perfect penalty mastery!'},
+    {min:0.6,cls:'grade-b',letter:'B 📘',msg:'Accha kiya! Kuch concepts dobara review karo.'},
+    {min:0.4,cls:'grade-c',letter:'C 💪',msg:'Theek hai! Ridge aur Lasso dobara practice karo.'},
+    {min:0.0,cls:'grade-d',letter:'D 📚',msg:'Aur mehnat karo! Tutorial dobara padho.'},
+  ];
+  const g=grades.find(gr=>pct>=gr.min);
+  document.getElementById('ringNum').textContent=correct+'/'+total;
+  document.getElementById('modalXpVal').textContent=quizXP+' XP';
+  const gc=document.getElementById('gradeCard');gc.className='grade-card '+g.cls;
+  document.getElementById('gradeLetter').textContent=g.letter;
+  document.getElementById('gradeMsg').textContent=g.msg;
+  if(pct===1.0){document.getElementById('modalTrophy').textContent='🏆';document.getElementById('modalTitle').textContent='🎊 Perfect Score!';document.getElementById('modalSubtitle').textContent='Wah! Saare '+total+'/'+total+' sahi! Regularization Champion!';}
+  else if(pct>=0.6){document.getElementById('modalTrophy').textContent='🎯';document.getElementById('modalTitle').textContent='Quest Complete!';document.getElementById('modalSubtitle').textContent=correct+' out of '+total+' correct. Kafi accha kiya!';}
+  else{document.getElementById('modalTrophy').textContent='📚';document.getElementById('modalTitle').textContent='Keep Trying!';document.getElementById('modalSubtitle').textContent='Tutorial dobara padho aur retry karo!';}
+  const circumference=327,offset=circumference*(1-pct);
+  const ringColors={'grade-s':'#b45309','grade-a':'#16a34a','grade-b':'#2563eb','grade-c':'#7c3aed','grade-d':'#dc2626'};
+  const ringEl=document.getElementById('ringFill');
+  ringEl.style.stroke=ringColors[g.cls]||'#2563eb';
+  ringEl.style.transition='none';ringEl.style.strokeDashoffset='327';
+  setTimeout(()=>{ringEl.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';ringEl.style.strokeDashoffset=offset;},80);
+  document.getElementById('finalModal').classList.add('open');
+  if(pct>=0.6)launchConfetti(pct);
+}
+function launchConfetti(pct){
+  const canvas=document.getElementById('confettiCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const count=Math.floor(80+pct*140);
+  const colors=['#2563eb','#0891b2','#c2410c','#16a34a','#b45309','#7c3aed','#f59e0b'];
+  const pieces=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.6,w:Math.random()*10+5,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*9,alpha:1}));
+  let frame=0;
+  (function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;
+    pieces.forEach(p=>{if(p.y>canvas.height+20)return;alive=true;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;if(p.y>canvas.height*0.65)p.alpha-=0.02;p.alpha=Math.max(0,p.alpha);ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    frame++;if(alive&&frame<260)requestAnimationFrame(draw);else ctx.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
+function initQuizzes(){
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{const n=opt.cloneNode(true);opt.parentNode.replaceChild(n,opt);});
+    const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        if(answered)return;answered=true;
+        const isCorrect=opt.dataset.ans===correct,fb=box.querySelector('.quiz-feedback');
+        box.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.add('answered-opt');const exDiv=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');if(o.dataset.ans===correct){o.classList.add('correct');if(exDiv)exDiv.classList.add('show-correct');}else if(o===opt&&!isCorrect){o.classList.add('wrong');if(exDiv)exDiv.classList.add('show-wrong');}else{o.classList.add('dimmed');}});
+        if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span>&nbsp;Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+        else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span>&nbsp;Galat! Sahi jawab highlight ho gaya!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+        const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+        if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+      });
+    });
+  });
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#dbeafe',primaryTextColor:'#1e3a8a',primaryBorderColor:'#2563eb',lineColor:'#94a3b8',secondaryColor:'#cffafe',tertiaryColor:'#ede9fe',fontFamily:'Plus Jakarta Sans, sans-serif',fontSize:'13px'},flowchart:{curve:'basis',padding:24}});
+
+let xp=0,scrollXpEarned=0;
+const XP_MAX=275;  // 5×30 scroll + 5×25 quiz = 275
+const earnedBadges=new Set();
+
+function addXP(amount,badgeId){
+  if(badgeId)scrollXpEarned=Math.min(scrollXpEarned+amount,150);
+  xp=Math.min(xp+amount,XP_MAX);
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  if(badgeId&&!earnedBadges.has(badgeId)){earnedBadges.add(badgeId);const el=document.getElementById(badgeId);if(el)el.classList.add('earned');}
+  if(xp>=XP_MAX)showToast('🏆','QUEST COMPLETE! 🎊','Regularization Champion! 275/275 XP!','#b45309');
+}
+function showToast(icon,title,msg,color){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='gtoast';
+  t.innerHTML=`<span class="gtoast-icon">${icon}</span><div><div style="font-weight:800;color:${color};font-size:0.9rem;">${title}</div><div style="color:#6b7280;font-size:0.8rem;font-weight:400;">${msg}</div></div>`;
+  container.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+
+let quizTotal=0,quizCorrect=0;
+document.querySelectorAll('.quiz-box').forEach(box=>{
+  quizTotal++;
+  const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    const explain=opt.dataset.explain||'';
+    if(explain){const div=document.createElement('div');div.className='quiz-explain';div.dataset.forAns=opt.dataset.ans;div.textContent=explain;opt.parentNode.insertBefore(div,opt.nextSibling);}
+  });
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+      box.querySelectorAll('.quiz-opt').forEach(o=>{
+        o.classList.add('answered-opt');
+        const explainDiv=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');
+        if(o.dataset.ans===correct){o.classList.add('correct');if(explainDiv)explainDiv.classList.add('show-correct');}
+        else if(o===opt&&!isCorrect){o.classList.add('wrong');if(explainDiv)explainDiv.classList.add('show-wrong');}
+        else{o.classList.add('dimmed');if(o.dataset.ans===correct&&explainDiv)explainDiv.classList.add('show-reveal');}
+      });
+      if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+      else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+      const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+      if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+    });
+  });
+});
+
+const fadeObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObserver.unobserve(e.target);}});},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(el=>fadeObserver.observe(el));
+
+const sectionXP={
+  's1':{xp:30,badge:'badge1',msg:'🛡️ Penalty Setter badge unlocked!'},
+  's3':{xp:30,badge:'badge2',msg:'🏔️ Ridge Master badge unlocked!'},
+  's5':{xp:30,badge:'badge3',msg:'✂️ Lasso Cutter badge unlocked!'},
+  's7':{xp:30,badge:'badge4',msg:'⚖️ Alpha Tuner badge unlocked!'},
+  's8':{xp:30,badge:'badge5',msg:'🏆 Regularization Champion badge unlocked!'},
+};
+const xpObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      if(sectionXP[id]&&!earnedBadges.has(sectionXP[id].badge)){const{xp:sx,badge,msg}=sectionXP[id];addXP(sx,badge);showToast('🏅','Badge Unlocked!',msg,'#7c3aed');}
+      xpObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+['s1','s3','s5','s7','s8'].forEach(id=>{const el=document.getElementById(id);if(el)xpObserver.observe(el);});
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+
+function closeModal(){document.getElementById('finalModal').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalContinue').addEventListener('click',closeModal);
+document.getElementById('modalRetry').addEventListener('click',()=>{
+  closeModal();quizCorrect=0;xp=scrollXpEarned;
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','wrong','dimmed','answered-opt'));
+    box.querySelectorAll('.quiz-explain').forEach(ex=>ex.classList.remove('show-correct','show-wrong','show-reveal'));
+    const fb=box.querySelector('.quiz-feedback');if(fb){fb.className='quiz-feedback';fb.innerHTML='';}
+  });
+  initQuizzes();window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('finalModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>

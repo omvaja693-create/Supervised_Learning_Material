@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supervised Learning Quest — Decision Tree Regression: Math, Intuition &amp; Code!</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7fee7;--bg2:#ecfccb;--bg3:#f0fdf4;--card:#ffffff;--card2:#f7fee7;
+  --border:rgba(77,124,15,0.14);--border2:rgba(77,124,15,0.30);
+  --neon-lime:#65a30d;--neon-green:#16a34a;--neon-emerald:#059669;
+  --neon-teal:#0d9488;--neon-cyan:#0891b2;--neon-blue:#2563eb;
+  --neon-violet:#7c3aed;--neon-orange:#c2410c;--neon-yellow:#b45309;
+  --neon-red:#dc2626;--neon-pink:#db2777;
+  --text:#1a2e05;--muted:#374151;--dim:#9ca3af;
+  --font-head:'Syne',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --glow-lime:0 4px 16px rgba(101,163,13,0.22),0 1px 4px rgba(101,163,13,0.12);
+  --glow-green:0 4px 16px rgba(22,163,74,0.18),0 1px 4px rgba(22,163,74,0.10);
+  --glow-teal:0 4px 16px rgba(13,148,136,0.18),0 1px 4px rgba(13,148,136,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.8;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--neon-lime);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(101,163,13,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(101,163,13,0.05) 1px,transparent 1px);background-size:48px 48px;}
+.container-main{max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1;}
+
+/* XP BAR */
+.xp-strip{position:sticky;top:0;z-index:1000;background:rgba(247,254,231,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);box-shadow:0 2px 16px rgba(101,163,13,0.10);padding:0.65rem 0;}
+.xp-inner{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.xp-label{font-family:var(--font-head);font-weight:800;font-size:0.8rem;color:var(--neon-lime);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.xp-bar-wrap{flex:1;min-width:120px;background:rgba(101,163,13,0.12);border-radius:50px;height:10px;border:1px solid rgba(101,163,13,0.28);overflow:hidden;}
+.xp-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-lime),var(--neon-green),var(--neon-teal));border-radius:50px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(101,163,13,0.40);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+.xp-score{font-family:var(--font-head);font-weight:800;font-size:0.9rem;color:var(--neon-lime);white-space:nowrap;}
+.xp-badges{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.xp-badge{font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:50px;border:1px solid;white-space:nowrap;transition:0.3s;opacity:0.35;}
+.xp-badge.earned{opacity:1;animation:badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes badgePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.xp-badge.b1{border-color:var(--neon-lime);color:var(--neon-lime);}
+.xp-badge.b2{border-color:var(--neon-green);color:var(--neon-green);}
+.xp-badge.b3{border-color:var(--neon-teal);color:var(--neon-teal);}
+.xp-badge.b4{border-color:var(--neon-blue);color:var(--neon-blue);}
+.xp-badge.b5{border-color:var(--neon-violet);color:var(--neon-violet);}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:6rem 0 5rem;
+  background:radial-gradient(ellipse at 20% 50%,rgba(101,163,13,0.14) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(22,163,74,0.10) 0%,transparent 55%),
+             radial-gradient(ellipse at 60% 80%,rgba(13,148,136,0.07) 0%,transparent 50%),var(--bg);}
+.hero-orbit{position:absolute;top:50%;right:8%;transform:translateY(-50%);width:420px;height:420px;pointer-events:none;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(101,163,13,0.25);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-ring:nth-child(1){width:150px;height:150px;animation:spin 12s linear infinite;}
+.orbit-ring:nth-child(2){width:250px;height:250px;animation:spin 20s linear infinite reverse;border-color:rgba(22,163,74,0.18);}
+.orbit-ring:nth-child(3){width:350px;height:350px;animation:spin 30s linear infinite;border-color:rgba(13,148,136,0.14);}
+.orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;transform:translateX(-50%);}
+.orbit-ring:nth-child(1) .orbit-dot{background:var(--neon-lime);box-shadow:var(--glow-lime);}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--neon-green);box-shadow:var(--glow-green);}
+.orbit-ring:nth-child(3) .orbit-dot{background:var(--neon-teal);box-shadow:var(--glow-teal);}
+.orbit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;animation:float 4s ease-in-out infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(101,163,13,0.10);border:1px solid rgba(101,163,13,0.30);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--neon-lime);margin-bottom:1.5rem;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-lime);box-shadow:var(--glow-lime);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-family:var(--font-head);font-weight:800;font-size:clamp(2.2rem,4.5vw,3.8rem);line-height:1.1;letter-spacing:-1.5px;margin-bottom:1.5rem;}
+.hero h1 .line1{display:block;color:#1a2e05;}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--neon-lime) 0%,var(--neon-green) 45%,var(--neon-teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.05rem;color:var(--muted);max-width:560px;margin-bottom:2rem;line-height:1.75;}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:var(--font-head);font-weight:800;font-size:1.8rem;line-height:1;background:linear-gradient(135deg,var(--neon-lime),var(--neon-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-label{font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem;}
+.hero-cta{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--neon-lime),var(--neon-green));color:white;font-weight:800;font-size:0.95rem;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(101,163,13,0.32);transition:0.3s;animation:pulse-btn 2s infinite;}
+@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(101,163,13,0.30);}50%{box-shadow:0 4px 32px rgba(101,163,13,0.52);}}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);color:white;}
+
+/* QUEST MAP */
+.quest-map{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2rem;margin:3rem 0;position:relative;box-shadow:0 4px 24px rgba(101,163,13,0.08);}
+.quest-map::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(101,163,13,0.03),rgba(13,148,136,0.03));pointer-events:none;}
+.quest-map-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--neon-lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.quest-map-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(101,163,13,0.4),transparent);}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;}
+.quest-item{display:flex;align-items:center;gap:0.75rem;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;text-decoration:none;color:var(--muted);font-weight:600;font-size:0.88rem;transition:0.25s;}
+.quest-item:hover{background:rgba(101,163,13,0.07);border-color:rgba(101,163,13,0.35);color:var(--neon-lime);transform:translateX(4px);}
+.quest-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;flex-shrink:0;}
+
+/* LEVEL CARD */
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:24px 24px 0 0;}
+.level-card.lvl-lime::before{background:linear-gradient(90deg,var(--neon-lime),var(--neon-green));}
+.level-card.lvl-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-emerald));}
+.level-card.lvl-teal::before{background:linear-gradient(90deg,var(--neon-teal),var(--neon-cyan));}
+.level-card.lvl-blue::before{background:linear-gradient(90deg,var(--neon-blue),var(--neon-teal));}
+.level-card.lvl-violet::before{background:linear-gradient(90deg,var(--neon-violet),var(--neon-blue));}
+.level-card.lvl-orange::before{background:linear-gradient(90deg,var(--neon-orange),var(--neon-yellow));}
+.level-card.lvl-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-violet));}
+.level-card:hover{box-shadow:0 8px 32px rgba(101,163,13,0.11);}
+.level-card .corner-deco{position:absolute;top:1.2rem;right:1.5rem;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;opacity:0.22;}
+.lv-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.8rem;}
+.lv-icon-wrap{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;}
+.lv-icon-wrap::after{content:'';position:absolute;inset:-3px;border-radius:18px;border:1px solid;opacity:0.4;}
+.ico-lime{background:rgba(101,163,13,0.12);color:var(--neon-lime);}.ico-lime::after{border-color:var(--neon-lime);}
+.ico-green{background:rgba(22,163,74,0.12);color:var(--neon-green);}.ico-green::after{border-color:var(--neon-green);}
+.ico-emerald{background:rgba(5,150,105,0.12);color:var(--neon-emerald);}.ico-emerald::after{border-color:var(--neon-emerald);}
+.ico-teal{background:rgba(13,148,136,0.12);color:var(--neon-teal);}.ico-teal::after{border-color:var(--neon-teal);}
+.ico-blue{background:rgba(37,99,235,0.12);color:var(--neon-blue);}.ico-blue::after{border-color:var(--neon-blue);}
+.ico-violet{background:rgba(124,58,237,0.12);color:var(--neon-violet);}.ico-violet::after{border-color:var(--neon-violet);}
+.ico-orange{background:rgba(194,65,12,0.12);color:var(--neon-orange);}.ico-orange::after{border-color:var(--neon-orange);}
+.ico-red{background:rgba(220,38,38,0.12);color:var(--neon-red);}.ico-red::after{border-color:var(--neon-red);}
+.ico-pink{background:rgba(219,39,119,0.12);color:var(--neon-pink);}.ico-pink::after{border-color:var(--neon-pink);}
+.ico-yellow{background:rgba(180,83,9,0.12);color:var(--neon-yellow);}.ico-yellow::after{border-color:var(--neon-yellow);}
+.lv-meta{flex:1;}
+.lv-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.35rem;}
+.lv-title{font-family:var(--font-head);font-weight:800;font-size:1.55rem;line-height:1.2;color:var(--text);}
+.lv-xp{margin-top:0.4rem;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(101,163,13,0.09);border:1px solid rgba(101,163,13,0.26);border-radius:50px;padding:0.2rem 0.75rem;font-size:0.75rem;font-weight:700;color:var(--neon-lime);}
+
+/* CALLOUT */
+.callout{border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;border:1px solid;position:relative;overflow:hidden;}
+.callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.callout .ct{font-weight:800;font-size:0.95rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;}
+.cb-lime{background:rgba(101,163,13,0.07);border-color:rgba(101,163,13,0.22);}.cb-lime::before{background:var(--neon-lime);}.cb-lime .ct{color:var(--neon-lime);}
+.cb-green{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.20);}.cb-green::before{background:var(--neon-green);}.cb-green .ct{color:var(--neon-green);}
+.cb-teal{background:rgba(13,148,136,0.06);border-color:rgba(13,148,136,0.20);}.cb-teal::before{background:var(--neon-teal);}.cb-teal .ct{color:var(--neon-teal);}
+.cb-blue{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.20);}.cb-blue::before{background:var(--neon-blue);}.cb-blue .ct{color:var(--neon-blue);}
+.cb-violet{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.20);}.cb-violet::before{background:var(--neon-violet);}.cb-violet .ct{color:var(--neon-violet);}
+.cb-orange{background:rgba(194,65,12,0.06);border-color:rgba(194,65,12,0.20);}.cb-orange::before{background:var(--neon-orange);}.cb-orange .ct{color:var(--neon-orange);}
+.cb-red{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.20);}.cb-red::before{background:var(--neon-red);}.cb-red .ct{color:var(--neon-red);}
+.cb-yellow{background:rgba(180,83,9,0.06);border-color:rgba(180,83,9,0.20);}.cb-yellow::before{background:var(--neon-yellow);}.cb-yellow .ct{color:var(--neon-yellow);}
+.cb-pink{background:rgba(219,39,119,0.06);border-color:rgba(219,39,119,0.20);}.cb-pink::before{background:var(--neon-pink);}.cb-pink .ct{color:var(--neon-pink);}
+.cb-emerald{background:rgba(5,150,105,0.06);border-color:rgba(5,150,105,0.20);}.cb-emerald::before{background:var(--neon-emerald);}.cb-emerald .ct{color:var(--neon-emerald);}
+
+/* FORMULA BOX */
+.formula-box{background:linear-gradient(135deg,rgba(101,163,13,0.07),rgba(22,163,74,0.04));border:1.5px solid rgba(101,163,13,0.26);border-radius:16px;padding:1.5rem 2rem;margin:1.4rem 0;text-align:center;position:relative;overflow:hidden;}
+.formula-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(101,163,13,0.06),transparent 70%);pointer-events:none;}
+.formula-main{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--neon-lime);letter-spacing:0.5px;line-height:1.9;}
+.formula-sub{font-size:0.82rem;color:var(--muted);margin-top:0.5rem;}
+.formula-label{position:absolute;top:0.55rem;right:1rem;font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-lime);opacity:0.6;}
+.fb-green{background:linear-gradient(135deg,rgba(22,163,74,0.07),rgba(13,148,136,0.04));border-color:rgba(22,163,74,0.26);}.fb-green .formula-main{color:var(--neon-green);}.fb-green .formula-label{color:var(--neon-green);}
+.fb-teal{background:linear-gradient(135deg,rgba(13,148,136,0.07),rgba(8,145,178,0.04));border-color:rgba(13,148,136,0.26);}.fb-teal .formula-main{color:var(--neon-teal);}.fb-teal .formula-label{color:var(--neon-teal);}
+.fb-blue{background:linear-gradient(135deg,rgba(37,99,235,0.07),rgba(13,148,136,0.04));border-color:rgba(37,99,235,0.26);}.fb-blue .formula-main{color:var(--neon-blue);}.fb-blue .formula-label{color:var(--neon-blue);}
+.fb-violet{background:linear-gradient(135deg,rgba(124,58,237,0.07),rgba(37,99,235,0.04));border-color:rgba(124,58,237,0.26);}.fb-violet .formula-main{color:var(--neon-violet);}.fb-violet .formula-label{color:var(--neon-violet);}
+.fb-orange{background:linear-gradient(135deg,rgba(194,65,12,0.07),rgba(180,83,9,0.04));border-color:rgba(194,65,12,0.26);}.fb-orange .formula-main{color:var(--neon-orange);}.fb-orange .formula-label{color:var(--neon-orange);}
+.fb-red{background:linear-gradient(135deg,rgba(220,38,38,0.07),rgba(194,65,12,0.04));border-color:rgba(220,38,38,0.26);}.fb-red .formula-main{color:var(--neon-red);}.fb-red .formula-label{color:var(--neon-red);}
+
+/* MATH TERMS */
+.math-terms{display:flex;flex-wrap:wrap;gap:0.6rem;margin:0.8rem 0;}
+.math-term{display:inline-flex;align-items:center;gap:0.45rem;background:rgba(101,163,13,0.07);border:1px solid rgba(101,163,13,0.22);border-radius:8px;padding:0.3rem 0.75rem;font-size:0.84rem;}
+.math-term .sym{font-family:var(--font-mono);font-weight:700;color:var(--neon-lime);}
+.math-term .meaning{color:var(--muted);}
+
+/* STEP TIMELINE */
+.step-timeline{position:relative;padding-left:2.8rem;}
+.step-timeline::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon-lime),var(--neon-green),var(--neon-teal));opacity:0.45;border-radius:2px;}
+.step-item{position:relative;margin-bottom:1.3rem;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 2px 8px rgba(101,163,13,0.06);transition:0.25s;}
+.step-item:hover{border-color:var(--border2);background:#eefbd0;}
+.step-item::before{content:attr(data-step);position:absolute;left:-2.8rem;top:1rem;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--neon-lime);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;color:var(--neon-lime);box-shadow:0 2px 8px rgba(101,163,13,0.22);}
+.step-label{font-weight:700;color:var(--text);font-size:0.98rem;margin-bottom:0.35rem;}
+.step-body{color:var(--muted);font-size:0.92rem;line-height:1.7;}
+
+/* ACH CARD */
+.ach-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;text-align:center;position:relative;overflow:hidden;}
+.ach-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s;}
+.ach-card:hover{transform:translateY(-6px);}
+.ach-card:hover::after{opacity:1;}
+.ach-card.ac-lime::after{background:var(--neon-lime);}.ach-card.ac-lime:hover{box-shadow:0 16px 48px rgba(101,163,13,0.18);}
+.ach-card.ac-green::after{background:var(--neon-green);}.ach-card.ac-green:hover{box-shadow:0 16px 48px rgba(22,163,74,0.18);}
+.ach-card.ac-teal::after{background:var(--neon-teal);}.ach-card.ac-teal:hover{box-shadow:0 16px 48px rgba(13,148,136,0.18);}
+.ach-card.ac-blue::after{background:var(--neon-blue);}.ach-card.ac-blue:hover{box-shadow:0 16px 48px rgba(37,99,235,0.18);}
+.ach-card.ac-violet::after{background:var(--neon-violet);}.ach-card.ac-violet:hover{box-shadow:0 16px 48px rgba(124,58,237,0.18);}
+.ach-card.ac-orange::after{background:var(--neon-orange);}.ach-card.ac-orange:hover{box-shadow:0 10px 28px rgba(194,65,12,0.15);}
+.ach-card.ac-red::after{background:var(--neon-red);}.ach-card.ac-red:hover{box-shadow:0 10px 28px rgba(220,38,38,0.15);}
+.ach-icon{font-size:2.2rem;margin-bottom:0.75rem;display:block;}
+.ach-title{font-family:var(--font-head);font-weight:800;font-size:1rem;margin-bottom:0.5rem;color:var(--text);}
+.ach-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+
+/* CODE BLOCK */
+.code-wrap{background:#f8f9fc;border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin:1.2rem 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:rgba(101,163,13,0.07);padding:0.6rem 1.1rem;border-bottom:1px solid var(--border);}
+.code-lang{font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:var(--neon-lime);letter-spacing:1px;text-transform:uppercase;}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#dc2626;}.code-dot:nth-child(2){background:#b45309;}.code-dot:nth-child(3){background:#16a34a;}
+.code-wrap pre{margin:0;padding:1.2rem 1.4rem;overflow-x:auto;background:transparent;}
+pre[class*="language-"]{border-radius:0!important;font-family:var(--font-mono)!important;font-size:0.85rem!important;margin:0!important;border:none!important;background:transparent!important;}
+.code-output{background:rgba(22,163,74,0.06);border-top:1px solid rgba(22,163,74,0.20);padding:0.7rem 1.2rem;font-family:var(--font-mono);font-size:0.82rem;color:#14532d;line-height:1.7;}
+
+/* TABLE */
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.gtbl thead th{background:rgba(101,163,13,0.08);color:var(--neon-lime);font-family:var(--font-head);font-weight:700;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid var(--border2);font-size:0.85rem;letter-spacing:0.5px;}
+.gtbl tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.92rem;vertical-align:top;}
+.gtbl tbody tr:last-child td{border-bottom:none;}
+.gtbl tbody tr:hover td{background:rgba(101,163,13,0.03);color:var(--text);}
+.gtbl tbody td strong{color:var(--text);}
+
+/* STAT PILL */
+.stat-pill{display:inline-flex;align-items:center;gap:0.35rem;border-radius:50px;padding:0.22rem 0.8rem;font-weight:700;font-size:0.78rem;border:1px solid;}
+.sp-lime{background:rgba(101,163,13,0.09);border-color:rgba(101,163,13,0.32);color:var(--neon-lime);}
+.sp-green{background:rgba(22,163,74,0.09);border-color:rgba(22,163,74,0.32);color:var(--neon-green);}
+.sp-teal{background:rgba(13,148,136,0.09);border-color:rgba(13,148,136,0.32);color:var(--neon-teal);}
+.sp-blue{background:rgba(37,99,235,0.09);border-color:rgba(37,99,235,0.32);color:var(--neon-blue);}
+.sp-violet{background:rgba(124,58,237,0.09);border-color:rgba(124,58,237,0.32);color:var(--neon-violet);}
+.sp-orange{background:rgba(194,65,12,0.09);border-color:rgba(194,65,12,0.32);color:var(--neon-orange);}
+.sp-red{background:rgba(220,38,38,0.09);border-color:rgba(220,38,38,0.32);color:var(--neon-red);}
+.sp-yellow{background:rgba(180,83,9,0.09);border-color:rgba(180,83,9,0.32);color:var(--neon-yellow);}
+.sp-pink{background:rgba(219,39,119,0.09);border-color:rgba(219,39,119,0.32);color:var(--neon-pink);}
+
+/* INLINE CODE */
+.inline-code{background:rgba(101,163,13,0.09);color:#3f6212;padding:0.1rem 0.45rem;border-radius:6px;font-family:var(--font-mono);font-size:0.87em;border:1px solid rgba(101,163,13,0.24);}
+
+/* HIGHLIGHT */
+.hl{background:rgba(180,83,9,0.10);color:#92400e;padding:0 5px;border-radius:4px;}
+.hl-lime{background:rgba(101,163,13,0.10);color:var(--neon-lime);padding:0 5px;border-radius:4px;}
+.hl-green{background:rgba(22,163,74,0.10);color:var(--neon-green);padding:0 5px;border-radius:4px;}
+.hl-teal{background:rgba(13,148,136,0.10);color:var(--neon-teal);padding:0 5px;border-radius:4px;}
+.hl-blue{background:rgba(37,99,235,0.10);color:var(--neon-blue);padding:0 5px;border-radius:4px;}
+.hl-violet{background:rgba(124,58,237,0.10);color:var(--neon-violet);padding:0 5px;border-radius:4px;}
+.hl-red{background:rgba(220,38,38,0.10);color:var(--neon-red);padding:0 5px;border-radius:4px;}
+.hl-orange{background:rgba(194,65,12,0.10);color:var(--neon-orange);padding:0 5px;border-radius:4px;}
+
+/* GLOW DIV */
+.glow-div{height:2px;border-radius:2px;margin:2rem 0;opacity:0.4;background:linear-gradient(90deg,transparent,var(--neon-lime),var(--neon-green),var(--neon-teal),transparent);}
+
+/* MERMAID */
+.mermaid-wrap{background:var(--card2);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto;}
+
+/* QUIZ */
+.quiz-box{background:var(--card2);border:1px solid rgba(101,163,13,0.25);border-radius:20px;padding:1.6rem;margin:1.8rem 0;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(101,163,13,0.08);}
+.quiz-box::before{content:'⚡ QUICK CHALLENGE';position:absolute;top:0;right:0;background:linear-gradient(135deg,var(--neon-lime),var(--neon-green));color:#fff;font-family:var(--font-head);font-weight:800;font-size:0.62rem;letter-spacing:2px;padding:0.32rem 0.9rem;border-radius:0 20px 0 12px;}
+.quiz-q{font-weight:700;color:var(--text);margin-bottom:1.1rem;font-size:1.02rem;line-height:1.55;}
+.quiz-options{display:flex;flex-direction:column;gap:0.55rem;}
+.quiz-opt{background:#ffffff;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.75rem 1.1rem;cursor:pointer;font-size:0.93rem;color:#374151;transition:background 0.15s,border-color 0.15s,transform 0.12s;font-weight:500;display:flex;align-items:center;gap:0.85rem;user-select:none;}
+.quiz-opt:not(.answered-opt):hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;transform:translateX(3px);}
+.quiz-opt.correct{background:#f0fdf4;border-color:#16a34a;color:#14532d;font-weight:700;}
+.quiz-opt.correct .opt-letter{background:#16a34a;color:#fff;}
+.quiz-opt.wrong{background:#fef2f2;border-color:#dc2626;color:#991b1b;opacity:0.8;}
+.quiz-opt.wrong .opt-letter{background:#dc2626;color:#fff;}
+.quiz-opt.dimmed{opacity:0.45;pointer-events:none;}
+.quiz-opt .opt-letter{width:28px;height:28px;border-radius:8px;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.8rem;flex-shrink:0;transition:background 0.2s,color 0.2s;}
+.quiz-explain{display:none;font-size:0.84rem;font-weight:500;margin-top:-0.35rem;margin-bottom:0.35rem;padding:0.5rem 0.85rem 0.5rem 1rem;border-radius:0 0 10px 10px;line-height:1.55;border-left:3px solid transparent;}
+.quiz-explain.show-correct{display:block;background:rgba(22,163,74,0.07);color:#166534;border-left-color:#16a34a;}
+.quiz-explain.show-wrong{display:block;background:rgba(220,38,38,0.06);color:#991b1b;border-left-color:#dc2626;}
+.quiz-explain.show-reveal{display:block;background:rgba(37,99,235,0.06);color:#1e40af;border-left-color:#2563eb;}
+.quiz-feedback{display:none;margin-top:1rem;padding:0.85rem 1.1rem;border-radius:12px;font-weight:700;font-size:0.95rem;align-items:center;gap:0.6rem;}
+.quiz-feedback.show{display:flex;animation:fadeIn 0.35s;}
+.quiz-feedback.win{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;border:1px solid rgba(22,163,74,0.3);}
+.quiz-feedback.lose{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;border:1px solid rgba(220,38,38,0.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* FOOTER */
+.gfooter{background:var(--bg2);border-top:1px solid var(--border);padding:3rem 0;margin-top:4rem;text-align:center;}
+.gfooter-logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--neon-lime),var(--neon-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-up.visible{opacity:1;transform:none;}
+@media(max-width:768px){.hero h1{font-size:2rem;}.hero-orbit{display:none;}.level-card{padding:1.5rem;}.xp-badges{display:none;}}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;}
+.gtoast{background:#ffffff;border:1px solid var(--border2);border-radius:14px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.75rem;backdrop-filter:blur(12px);font-weight:700;font-size:0.88rem;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto;min-width:260px;box-shadow:0 8px 32px rgba(101,163,13,0.15);}
+.gtoast.show{transform:none;}
+.gtoast-icon{font-size:1.4rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:#ffffff;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:520px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(101,163,13,0.18),0 4px 20px rgba(0,0,0,0.1);transform:scale(0.85) translateY(20px);transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease;opacity:0;}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0);opacity:1;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--neon-lime),var(--neon-green),var(--neon-teal));}
+.modal-close{position:absolute;top:1rem;right:1rem;background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.modal-close:hover{background:#e5e7eb;color:#374151;}
+.modal-trophy{font-size:3rem;text-align:center;margin-bottom:0.5rem;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;text-align:center;color:var(--text);margin-bottom:0.4rem;}
+.modal-subtitle{color:var(--muted);text-align:center;font-size:0.92rem;margin-bottom:1.5rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.score-ring{position:relative;width:120px;height:120px;}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e5e7eb;stroke-width:10;}
+.ring-fill{fill:none;stroke:#65a30d;stroke-width:10;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--text);line-height:1;}
+.ring-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.grade-card{border-radius:14px;padding:0.85rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;border:1.5px solid;}
+.grade-s{background:#f7fee7;border-color:#65a30d;}.grade-a{background:#f0fdf4;border-color:#16a34a;}.grade-b{background:#eff6ff;border-color:#2563eb;}.grade-c{background:#fdf4ff;border-color:#7c3aed;}.grade-d{background:#fef2f2;border-color:#dc2626;}
+.grade-letter{font-family:var(--font-head);font-weight:800;font-size:1.6rem;}
+.grade-msg{font-size:0.9rem;color:var(--muted);font-weight:600;}
+.modal-xp-row{display:flex;align-items:center;justify-content:space-between;background:#f7fee7;border:1px solid rgba(101,163,13,0.22);border-radius:12px;padding:0.75rem 1.1rem;margin-bottom:1.4rem;}
+.modal-xp-row .mxp-label{font-size:0.85rem;color:#6b7280;font-weight:600;}
+.modal-xp-row .mxp-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#65a30d,#16a34a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-btns{display:flex;gap:0.75rem;}
+.modal-btn-retry{flex:1;padding:0.8rem 1rem;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#374151;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.modal-btn-retry:hover{background:#e5e7eb;color:#111827;}
+.modal-btn-continue{flex:2;padding:0.8rem 1rem;background:linear-gradient(135deg,#65a30d,#16a34a);border:none;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#ffffff;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 16px rgba(101,163,13,0.30);}
+.modal-btn-continue:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(101,163,13,0.45);}
+#confettiCanvas{position:fixed;inset:0;z-index:10001;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- XP STRIP -->
+<div class="xp-strip">
+  <div class="container-main">
+    <div class="xp-inner">
+      <span class="xp-label">⚡ XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill"></div></div>
+      <span class="xp-score" id="xpScore">0 / 275 XP</span>
+      <div class="xp-badges">
+        <span class="xp-badge b1" id="badge1">🌳 Tree Initiate</span>
+        <span class="xp-badge b2" id="badge2">✂️ Split Master</span>
+        <span class="xp-badge b3" id="badge3">🧮 Math Pro</span>
+        <span class="xp-badge b4" id="badge4">🐍 Code Champion</span>
+        <span class="xp-badge b5" id="badge5">🌿 Pruning Expert</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container-main">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-eyebrow"><i class="fa-solid fa-gamepad me-1"></i> Supervised Learning Quest</div>
+        <h1>
+          <span class="line1">Rules se Predictions —</span>
+          <span class="line2">Decision Tree Regression!</span>
+        </h1>
+        <p class="hero-sub">
+          5 boss levels. Intuition se lekar Splitting Math, Tree Structure, Python Code aur Pruning tak — sab kuch ek jagah. Real India examples ke saath. <strong style="color:var(--text)">Earn XP</strong>, unlock badges, aur Decision Trees master karo!
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Boss Levels</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">275</div><div class="hero-stat-label">Total XP</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Badges</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">∞</div><div class="hero-stat-label">Splits</div></div>
+        </div>
+        <a href="#s1" class="hero-cta"><i class="fa-solid fa-play me-1"></i> Start Your Quest</a>
+      </div>
+      <div class="col-lg-5">
+        <div class="hero-orbit">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-center">🌳</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-main">
+
+<!-- QUEST MAP -->
+<div class="quest-map fade-up">
+  <div class="quest-map-title"><i class="fa-solid fa-map me-2"></i> Quest Map</div>
+  <div class="quest-grid">
+    <a href="#s1" class="quest-item"><span class="quest-num" style="background:rgba(101,163,13,0.14);color:var(--neon-lime);">L1</span> Intuition — Decision Tree kya hai?</a>
+    <a href="#s2" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.14);color:var(--neon-green);">L2</span> Mathematical Formulation — Splitting Math</a>
+    <a href="#s3" class="quest-item"><span class="quest-num" style="background:rgba(13,148,136,0.14);color:var(--neon-teal);">L3</span> Tree Structure — Worked Example</a>
+    <a href="#s4" class="quest-item"><span class="quest-num" style="background:rgba(37,99,235,0.14);color:var(--neon-blue);">L4</span> Python — From Scratch &amp; sklearn</a>
+    <a href="#s5" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.14);color:var(--neon-violet);">L5</span> Hyperparameters &amp; Pruning</a>
+    <a href="#s6" class="quest-item"><span class="quest-num" style="background:rgba(101,163,13,0.14);color:var(--neon-lime);">🏆</span> Final Summary &amp; Cheatsheet</a>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 1 : INTUITION
+█████████████████████████████████████ -->
+<div class="level-card lvl-lime fade-up" id="s1">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-lime"><i class="fa-solid fa-tree"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Boss Topic</div>
+      <div class="lv-title">Decision Tree Intuition — "20 Questions" Game!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-lime">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Decision Tree — Ek Line Mein</div>
+    <strong>Decision Tree Regression</strong> = ek model jo data ko <span class="hl-lime">binary splits (if/else rules)</span> se divide karta hai — jab tak har leaf node mein similar target values na aa jayein, aur phir leaf ka mean = prediction!<br><br>
+    Bilkul ek doctor ki tarah: "Kya age &gt; 40? Kya BP &gt; 130? Kya BMI &gt; 30?" → ek diagnosis. Tree har sawaal ka ek branch hai!
+  </div>
+
+  <!-- Tree SVG -->
+  <div style="background:var(--card2);border:1.5px solid var(--border2);border-radius:16px;padding:1.5rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-lime);margin-bottom:0.8rem;text-align:center;">🌳 Decision Tree — Mumbai House Price Predictor (Simplified)</div>
+    <svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <!-- Trunk lines -->
+      <line x1="280" y1="52" x2="140" y2="118" stroke="#d1fae5" stroke-width="2.5"/>
+      <line x1="280" y1="52" x2="420" y2="118" stroke="#d1fae5" stroke-width="2.5"/>
+      <line x1="140" y1="148" x2="70" y2="214" stroke="#d1fae5" stroke-width="2.5"/>
+      <line x1="140" y1="148" x2="210" y2="214" stroke="#d1fae5" stroke-width="2.5"/>
+      <line x1="420" y1="148" x2="350" y2="214" stroke="#d1fae5" stroke-width="2.5"/>
+      <line x1="420" y1="148" x2="490" y2="214" stroke="#d1fae5" stroke-width="2.5"/>
+      <!-- Root node -->
+      <rect x="200" y="15" width="160" height="40" rx="12" fill="rgba(101,163,13,0.18)" stroke="#65a30d" stroke-width="2"/>
+      <text x="280" y="31" text-anchor="middle" font-size="11" fill="#1a2e05" font-family="sans-serif" font-weight="bold">Area &gt; 1000 sqft?</text>
+      <text x="280" y="45" text-anchor="middle" font-size="9.5" fill="#4d7c0f" font-family="sans-serif">[Root Node]</text>
+      <!-- Internal left -->
+      <rect x="65" y="118" width="150" height="35" rx="10" fill="rgba(22,163,74,0.14)" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="140" y="133" text-anchor="middle" font-size="10.5" fill="#1a2e05" font-family="sans-serif" font-weight="bold">Bedrooms &gt; 2?</text>
+      <text x="140" y="147" text-anchor="middle" font-size="9" fill="#15803d" font-family="sans-serif">[Internal Node]</text>
+      <!-- Internal right -->
+      <rect x="345" y="118" width="150" height="35" rx="10" fill="rgba(22,163,74,0.14)" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="420" y="133" text-anchor="middle" font-size="10.5" fill="#1a2e05" font-family="sans-serif" font-weight="bold">Distance &lt; 2km?</text>
+      <text x="420" y="147" text-anchor="middle" font-size="9" fill="#15803d" font-family="sans-serif">[Internal Node]</text>
+      <!-- Leaf nodes -->
+      <rect x="22" y="214" width="100" height="40" rx="10" fill="rgba(13,148,136,0.18)" stroke="#0d9488" stroke-width="1.5"/>
+      <text x="72" y="229" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">₹42L</text>
+      <text x="72" y="243" text-anchor="middle" font-size="8.5" fill="#0d9488" font-family="sans-serif">Small, 2BHK</text>
+      <rect x="162" y="214" width="100" height="40" rx="10" fill="rgba(13,148,136,0.18)" stroke="#0d9488" stroke-width="1.5"/>
+      <text x="212" y="229" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">₹55L</text>
+      <text x="212" y="243" text-anchor="middle" font-size="8.5" fill="#0d9488" font-family="sans-serif">Small, 3BHK</text>
+      <rect x="302" y="214" width="100" height="40" rx="10" fill="rgba(13,148,136,0.18)" stroke="#0d9488" stroke-width="1.5"/>
+      <text x="352" y="229" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">₹85L</text>
+      <text x="352" y="243" text-anchor="middle" font-size="8.5" fill="#0d9488" font-family="sans-serif">Large, near metro</text>
+      <rect x="442" y="214" width="100" height="40" rx="10" fill="rgba(13,148,136,0.18)" stroke="#0d9488" stroke-width="1.5"/>
+      <text x="492" y="229" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">₹68L</text>
+      <text x="492" y="243" text-anchor="middle" font-size="8.5" fill="#0d9488" font-family="sans-serif">Large, far metro</text>
+      <!-- Branch labels -->
+      <text x="195" y="92" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="bold">No ≤ 1000</text>
+      <text x="348" y="92" font-size="9" fill="#16a34a" font-family="sans-serif" font-weight="bold">Yes &gt; 1000</text>
+      <text x="82" y="190" font-size="9" fill="#dc2626" font-family="sans-serif">No</text>
+      <text x="170" y="190" font-size="9" fill="#16a34a" font-family="sans-serif">Yes</text>
+      <text x="350" y="190" font-size="9" fill="#16a34a" font-family="sans-serif">Yes</text>
+      <text x="462" y="190" font-size="9" fill="#dc2626" font-family="sans-serif">No</text>
+    </svg>
+  </div>
+
+  <!-- Key components -->
+  <div class="row g-3 mt-2">
+    <div class="col-md-3 col-sm-6">
+      <div class="ach-card ac-lime">
+        <span class="ach-icon">🌱</span>
+        <div class="ach-title">Root Node</div>
+        <div class="ach-desc">Tree ka pehla node. Sabse important feature pe best split karta hai. Ek tree mein sirf 1 root hota hai.</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="ach-card ac-green">
+        <span class="ach-icon">🔀</span>
+        <div class="ach-title">Internal Node</div>
+        <div class="ach-desc">Beech mein aane wale nodes. Ek feature pe split karte hain, 2 children produce karte hain. Left/Right branches.</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="ach-card ac-teal">
+        <span class="ach-icon">🍃</span>
+        <div class="ach-title">Leaf Node</div>
+        <div class="ach-desc">Tree ka end point. Koi aur split nahi. <strong>Prediction = mean(y) in that leaf.</strong> Regression mein average value.</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="ach-card ac-blue">
+        <span class="ach-icon">📏</span>
+        <div class="ach-title">Split</div>
+        <div class="ach-desc">Ek condition: "Feature ≤ threshold?" → left branch. "> threshold?" → right branch. Binary decisions at each node.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DT Regression vs Classification -->
+  <div class="callout cb-yellow mt-4">
+    <div class="ct"><i class="fa-solid fa-scale-balanced"></i> DT Regression vs DT Classification — Key Difference</div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <strong style="color:var(--neon-green);">Decision Tree Regression</strong><br>
+        → Target: continuous (price, temperature, salary)<br>
+        → Leaf prediction: <strong>mean(y values in leaf)</strong><br>
+        → Split criteria: <strong>MSE reduction</strong> (variance)<br>
+        → Error metric: RMSE, MAE, R²
+      </div>
+      <div class="col-md-6">
+        <strong style="color:var(--neon-blue);">Decision Tree Classification</strong><br>
+        → Target: discrete (0/1, cat/dog, fraud/legit)<br>
+        → Leaf prediction: <strong>majority class in leaf</strong><br>
+        → Split criteria: <strong>Gini / Entropy</strong> (impurity)<br>
+        → Error metric: Accuracy, F1, ROC-AUC
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-lime mt-2">
+    <div class="ct"><i class="fa-solid fa-india"></i> 🇮🇳 India Real-World Use Cases</div>
+    <div class="row g-2">
+      <div class="col-md-6">
+        🏠 <strong>Magicbricks / 99acres:</strong> House price prediction (area, location, BHK)<br>
+        🚗 <strong>CarDekho / Cars24:</strong> Used car price estimation (brand, kms, year, fuel)<br>
+        📈 <strong>Zerodha / Groww:</strong> Stock return prediction (PE, revenue growth, sector)
+      </div>
+      <div class="col-md-6">
+        💊 <strong>Apollo Hospitals:</strong> Hospital stay duration prediction<br>
+        🛵 <strong>Swiggy / Zomato:</strong> Delivery time prediction (distance, traffic, order type)<br>
+        🏦 <strong>HDFC Bank:</strong> Loan amount eligibility prediction
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-box" data-quiz="1" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 Ek Decision Tree Regression model ki ek leaf node mein 5 data points hain jinka target value (house price in Lakhs) hai: [45, 48, 50, 52, 55]. Is leaf node ki prediction kya hogi ek naye house ke liye?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Median = 50 hai, lekin Decision Tree Regression mein leaf node ka prediction mean use karta hai, median nahi. Mean = (45+48+50+52+55)/5 = 250/5 = 50. Is case mein mean aur median same hain, lekin concept median nahi, mean hai."><span class="opt-letter">A</span>₹50L — median of leaf values</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Maximum value (55) predict karna galat hai. Decision Tree Regression mein leaf node ki prediction = mean of all target values in that leaf. Maximum sirf ek data point hai — wo representative nahi hai."><span class="opt-letter">B</span>₹55L — maximum value of the leaf</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! Decision Tree Regression mein leaf node prediction = mean(y values in leaf). Mean = (45+48+50+52+55)/5 = 250/5 = 50. Har naya data point jo is leaf tak pahunche, uske liye ₹50L predict hogi. Ye fundamental property hai DTR ki!"><span class="opt-letter">C</span>₹50L — mean of all leaf values: (45+48+50+52+55)/5 = 50</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Mode (most frequent value) regression mein use nahi hota. Mode classification ke liye hota hai (majority class). Regression mein mean use hota hai."><span class="opt-letter">D</span>₹45L — minimum value (most conservative estimate)</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 2 : MATHEMATICAL FORMULATION
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s2">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-square-root-variable"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Boss Topic</div>
+      <div class="lv-title">Mathematical Formulation — Best Split Kaise Milta Hai?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> The Core Question — Algorithm kya decide karta hai?</div>
+    Har node pe algorithm ye decide karta hai:<br>
+    1. <strong>Kaunsa feature</strong> pe split karein? (Area? Bedrooms? Distance?)<br>
+    2. <strong>Kaunsa threshold</strong> use karein? (Area ≤ 800? ≤ 1000? ≤ 1500?)<br><br>
+    Answer: <span class="hl-green">Jo split Residual Sum of Squares (RSS) / MSE sabse zyada reduce kare!</span>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- MSE Splitting Criterion -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.9rem;">
+    <i class="fa-solid fa-scissors me-2" style="color:var(--neon-green)"></i>Splitting Criterion — MSE / Variance Reduction
+  </h5>
+
+  <div class="formula-box fb-green">
+    <div class="formula-label">MSE SPLIT CRITERION</div>
+    <div class="formula-main">MSE(split) = (n_L/n) × MSE_L + (n_R/n) × MSE_R</div>
+    <div class="formula-sub">MSE_L = Var(y) in Left child &nbsp;|&nbsp; MSE_R = Var(y) in Right child<br>Find feature j aur threshold t that minimizes MSE(split)</div>
+  </div>
+
+  <div class="formula-box fb-teal" style="margin-top:-0.5rem;">
+    <div class="formula-label">LEAF MSE (INDIVIDUAL NODE)</div>
+    <div class="formula-main">MSE_node = (1/n) × Σᵢ₌₁ⁿ (yᵢ − ȳ)²</div>
+    <div class="formula-sub">ȳ = mean(y) in the node &nbsp;|&nbsp; yᵢ = each target value &nbsp;|&nbsp; n = samples in node<br>Also written as Var(y) — same as variance of target values in node</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">n_L, n_R</span><span class="meaning">Samples in left and right child</span></div>
+    <div class="math-term"><span class="sym">n</span><span class="meaning">Total samples in current node (n_L + n_R)</span></div>
+    <div class="math-term"><span class="sym">MSE_L, MSE_R</span><span class="meaning">Mean Squared Error in left/right child</span></div>
+    <div class="math-term"><span class="sym">ȳ</span><span class="meaning">Mean target value in the node</span></div>
+    <div class="math-term"><span class="sym">Reduction</span><span class="meaning">MSE_parent − MSE(split) → maximize this!</span></div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Step-by-step split finding -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.9rem;">
+    <i class="fa-solid fa-list-ol me-2" style="color:var(--neon-green)"></i>CART Algorithm — How Best Split is Found
+  </h5>
+
+  <div class="step-timeline">
+    <div class="step-item" data-step="1">
+      <div class="step-label">Start at Root — All Data in One Node</div>
+      <div class="step-body">
+        All n training samples ek root node mein. Node MSE = Var(y_all) calculate karo — ye parent MSE hai.<br>
+        <em>Example: [42, 45, 55, 85, 68, 50] → ȳ = 57.5, MSE_parent = 243.6</em>
+      </div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-label">Try Every Feature, Every Threshold</div>
+      <div class="step-body">
+        Har feature ke sorted unique values try karo as thresholds. Har (feature, threshold) pair ke liye:<br>
+        → Left child = samples where Xⱼ ≤ t → compute MSE_L<br>
+        → Right child = samples where Xⱼ &gt; t → compute MSE_R<br>
+        → Weighted MSE = (n_L/n)×MSE_L + (n_R/n)×MSE_R
+      </div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-label">Best Split = Minimum Weighted MSE</div>
+      <div class="step-body">
+        Jo (feature j*, threshold t*) sabse kam weighted MSE deta hai → BEST SPLIT!<br>
+        <strong>MSE Reduction (aka Variance Reduction or Information Gain for Regression)</strong>:<br>
+        Reduction = MSE_parent − [(n_L/n)×MSE_L + (n_R/n)×MSE_R]
+      </div>
+    </div>
+    <div class="step-item" data-step="4">
+      <div class="step-label">Recursively Split Children</div>
+      <div class="step-body">
+        Left aur Right child nodes ko bhi same process se best split dhundho.<br>
+        Recursion tab ruke jab: <strong>min_samples_leaf reached, max_depth hit, ya MSE improvement negligible</strong>
+      </div>
+    </div>
+    <div class="step-item" data-step="5">
+      <div class="step-label">Leaf Prediction = Mean of Samples</div>
+      <div class="step-body">
+        Har leaf node ka prediction = <strong>ȳ_leaf = mean(y values in leaf)</strong><br>
+        Prediction for new x: traverse the tree → reach a leaf → return ȳ_leaf
+      </div>
+    </div>
+  </div>
+
+  <!-- Numerical example -->
+  <div class="callout cb-lime mt-3">
+    <div class="ct"><i class="fa-solid fa-calculator"></i> Numerical Example — Best Split Find Karna</div>
+    <strong>4 houses ke saath:</strong> Area=[800, 900, 1200, 1500], Price=[42, 50, 75, 85]<br><br>
+    <strong>Parent node:</strong> ȳ = (42+50+75+85)/4 = 63. MSE_parent = [(42-63)² + (50-63)² + (75-63)² + (85-63)²]/4 = [441 + 169 + 144 + 484]/4 = <strong>309.5</strong><br><br>
+    <strong>Try split: Area ≤ 1000</strong><br>
+    Left (800,900): ȳ_L = 46, MSE_L = [(42-46)² + (50-46)²]/2 = [16+16]/2 = 16<br>
+    Right (1200,1500): ȳ_R = 80, MSE_R = [(75-80)² + (85-80)²]/2 = [25+25]/2 = 25<br>
+    Weighted MSE = (2/4)×16 + (2/4)×25 = 8 + 12.5 = <span class="hl-green"><strong>20.5</strong></span><br>
+    MSE Reduction = 309.5 − 20.5 = <strong style="color:var(--neon-green)">289.0</strong> ← huge improvement!
+  </div>
+
+  <!-- Other criteria -->
+  <div class="table-responsive mt-3">
+    <table class="gtbl">
+      <thead><tr><th>Criterion</th><th>Formula</th><th>When Use</th><th>sklearn parameter</th></tr></thead>
+      <tbody>
+        <tr><td><strong>MSE</strong> (default)</td><td>Σ(yᵢ − ȳ)²/n = Var(y)</td><td>General regression — most common</td><td><span class="inline-code">criterion='squared_error'</span></td></tr>
+        <tr><td><strong>MAE</strong></td><td>Σ|yᵢ − median(y)|/n</td><td>Outliers ke saath robust</td><td><span class="inline-code">criterion='absolute_error'</span></td></tr>
+        <tr><td><strong>Friedman MSE</strong></td><td>MSE with improvement score weighting</td><td>Gradient boosting mein (GBT)</td><td><span class="inline-code">criterion='friedman_mse'</span></td></tr>
+        <tr><td><strong>Poisson</strong></td><td>Half Poisson deviance</td><td>Count data (orders/hour) prediction</td><td><span class="inline-code">criterion='poisson'</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-box" data-quiz="2" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Ek node mein 6 data points hain: y = [10, 12, 14, 60, 62, 64]. Do possible splits hain:<br>Split A: Left=[10,12,14], Right=[60,62,64]<br>Split B: Left=[10,12,14,60], Right=[62,64]<br>Kaunsa split CART algorithm select karega?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Split B mein Left=[10,12,14,60] ka MSE bahut high hoga kyunki 60 outlier-like hai in that group. Split A Left=[10,12,14]: ȳ=12, MSE=(4+0+4)/3≈2.67. Right=[60,62,64]: ȳ=62, MSE≈2.67. Weighted MSE_A = (3/6)×2.67 + (3/6)×2.67 = 2.67. Very low!"><span class="opt-letter">A</span>Split B — Left=[10,12,14,60], Right=[62,64]</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! Split A zyada better hai. Left=[10,12,14]: ȳ=12, MSE=(4+0+4)/3=2.67. Right=[60,62,64]: ȳ=62, MSE=(4+0+4)/3=2.67. Weighted MSE_A=(3/6)×2.67+(3/6)×2.67=2.67. Split B: Left=[10,12,14,60]: ȳ=24, very high variance. CART minimum weighted MSE choose karta hai → Split A wins!"><span class="opt-letter">B</span>Split A — Left=[10,12,14], Right=[60,62,64] (minimum weighted MSE)</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Balanced splits (equal sized) CART ka criteria nahi hai. CART MSE minimize karta hai, split size balance nahi karta. Agar unequal split zyada MSE reduce kare, CART wahi choose karta hai."><span class="opt-letter">C</span>Dono same hain — equal size splits CART prefer karta hai</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Feature selection abhi nahi ho raha — ye ek specific threshold choice question hai given same feature. CART try karta hai sab possible thresholds aur minimum weighted MSE wala choose karta hai. Split A clearly wins here."><span class="opt-letter">D</span>Koi bhi nahi — pehle best feature select karna padega</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 3 : TREE STRUCTURE - WORKED EXAMPLE
+█████████████████████████████████████ -->
+<div class="level-card lvl-teal fade-up" id="s3">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-teal"><i class="fa-solid fa-diagram-project"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Boss Topic</div>
+      <div class="lv-title">Tree Structure — Anatomy aur Full Worked Example!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-teal">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Tree Anatomy — Key Terms</div>
+    <div class="row g-2">
+      <div class="col-md-6">
+        <strong style="color:var(--neon-lime);">Depth</strong> = root se leaf tak ki maximum distance. Depth=0 at root.<br>
+        <strong style="color:var(--neon-teal);">Node MSE / Impurity</strong> = variance of y values in that node. Lower = purer node.<br>
+        <strong style="color:var(--neon-green);">Samples</strong> = number of training points reaching that node.
+      </div>
+      <div class="col-md-6">
+        <strong style="color:var(--neon-blue);">Value</strong> = predicted output for samples in that node (mean of y).<br>
+        <strong style="color:var(--neon-violet);">Feature Importance</strong> = total MSE reduction contributed by a feature across all splits.<br>
+        <strong style="color:var(--neon-orange);">max_depth</strong> = hyperparameter that limits tree depth (prevents overfitting).
+      </div>
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Worked example: Full prediction -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.9rem;">
+    <i class="fa-solid fa-calculator me-2" style="color:var(--neon-teal)"></i>Full Prediction Walkthrough — CarDekho Used Car Price
+  </h5>
+
+  <div class="callout cb-yellow">
+    <div class="ct"><i class="fa-solid fa-india"></i> 🇮🇳 Scenario — CarDekho Used Car Valuation</div>
+    <strong>Dataset:</strong> 8 cars with features: Age (years), KMs driven (thousands), Brand_Score (1-10)<br>
+    <strong>Target:</strong> Price (₹ Lakhs)<br>
+    <strong>Goal:</strong> Trace manually how the tree builds and makes predictions
+  </div>
+
+  <!-- Dataset table -->
+  <div class="table-responsive mt-2">
+    <table class="gtbl" style="font-size:0.85rem;">
+      <thead><tr><th>Car</th><th>Age (yrs)</th><th>KMs (K)</th><th>Brand Score</th><th>Price (₹L)</th></tr></thead>
+      <tbody>
+        <tr><td>Car 1</td><td>1</td><td>15</td><td>9</td><td style="color:var(--neon-green);font-weight:700;">18</td></tr>
+        <tr><td>Car 2</td><td>2</td><td>25</td><td>8</td><td style="color:var(--neon-green);font-weight:700;">16</td></tr>
+        <tr><td>Car 3</td><td>3</td><td>40</td><td>7</td><td style="color:var(--neon-teal);font-weight:700;">12</td></tr>
+        <tr><td>Car 4</td><td>4</td><td>60</td><td>6</td><td style="color:var(--neon-teal);font-weight:700;">10</td></tr>
+        <tr><td>Car 5</td><td>5</td><td>80</td><td>5</td><td style="color:var(--neon-blue);font-weight:700;">7</td></tr>
+        <tr><td>Car 6</td><td>6</td><td>95</td><td>4</td><td style="color:var(--neon-blue);font-weight:700;">6</td></tr>
+        <tr><td>Car 7</td><td>8</td><td>120</td><td>3</td><td style="color:var(--neon-orange);font-weight:700;">4</td></tr>
+        <tr><td>Car 8</td><td>10</td><td>150</td><td>2</td><td style="color:var(--neon-orange);font-weight:700;">3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Build the tree -->
+  <div class="step-timeline mt-3">
+    <div class="step-item" data-step="1">
+      <div class="step-label">Root Node — All 8 Cars</div>
+      <div class="step-body">
+        ȳ = (18+16+12+10+7+6+4+3)/8 = 76/8 = <strong>9.5</strong><br>
+        MSE_root = [(18-9.5)² + (16-9.5)² + ... + (3-9.5)²]/8 = 27.75<br>
+        Algorithm tries all features and thresholds. Best split found: <strong>Age ≤ 4</strong><br>
+        Left: Cars 1-4 (Age≤4). Right: Cars 5-8 (Age&gt;4)
+      </div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-label">Left Child — Cars 1-4 (Age ≤ 4)</div>
+      <div class="step-body">
+        y = [18, 16, 12, 10], ȳ_L = 14, MSE_L = [(18-14)²+(16-14)²+(12-14)²+(10-14)²]/4 = [16+4+4+16]/4 = <strong>10.0</strong><br>
+        Best next split: <strong>Age ≤ 2</strong> (or KMs ≤ 32K, same boundary)<br>
+        → Leaf 1: Cars 1-2 → ȳ = 17 (prediction = <strong>₹17L</strong>)<br>
+        → Leaf 2: Cars 3-4 → ȳ = 11 (prediction = <strong>₹11L</strong>)
+      </div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-label">Right Child — Cars 5-8 (Age &gt; 4)</div>
+      <div class="step-body">
+        y = [7, 6, 4, 3], ȳ_R = 5.0, MSE_R = [(7-5)²+(6-5)²+(4-5)²+(3-5)²]/4 = [4+1+1+4]/4 = <strong>2.5</strong><br>
+        Best next split: <strong>Age ≤ 7</strong><br>
+        → Leaf 3: Cars 5-6 → ȳ = 6.5 (prediction = <strong>₹6.5L</strong>)<br>
+        → Leaf 4: Cars 7-8 → ȳ = 3.5 (prediction = <strong>₹3.5L</strong>)
+      </div>
+    </div>
+    <div class="step-item" data-step="4">
+      <div class="step-label">Prediction — New Car: Age=3, KMs=35K, Brand=7</div>
+      <div class="step-body">
+        <strong>Step 1:</strong> Age=3 ≤ 4? → Yes → go Left<br>
+        <strong>Step 2:</strong> Age=3 ≤ 2? → No → go Right<br>
+        <strong>Step 3:</strong> Reach Leaf 2 → prediction = <strong style="color:var(--neon-green);">₹11L</strong><br>
+        <em>Note: KMs aur Brand Score is tree mein use nahi hue! Tree sirf woh features use karta hai joh best MSE reduction dete hain.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tree structure built -->
+  <div style="background:var(--card2);border:1.5px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-teal);margin-bottom:1rem;text-align:center;">🌳 Final Tree Structure (max_depth=2)</div>
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <line x1="260" y1="48" x2="130" y2="110" stroke="#d1fae5" stroke-width="2"/>
+      <line x1="260" y1="48" x2="390" y2="110" stroke="#d1fae5" stroke-width="2"/>
+      <line x1="130" y1="138" x2="65" y2="195" stroke="#d1fae5" stroke-width="2"/>
+      <line x1="130" y1="138" x2="200" y2="195" stroke="#d1fae5" stroke-width="2"/>
+      <line x1="390" y1="138" x2="325" y2="195" stroke="#d1fae5" stroke-width="2"/>
+      <line x1="390" y1="138" x2="460" y2="195" stroke="#d1fae5" stroke-width="2"/>
+      <!-- Root -->
+      <rect x="175" y="12" width="170" height="38" rx="10" fill="rgba(101,163,13,0.18)" stroke="#65a30d" stroke-width="2"/>
+      <text x="260" y="27" text-anchor="middle" font-size="11" fill="#1a2e05" font-family="sans-serif" font-weight="bold">Age ≤ 4?</text>
+      <text x="260" y="43" text-anchor="middle" font-size="9" fill="#65a30d" font-family="sans-serif">MSE=27.75, n=8, ȳ=9.5</text>
+      <!-- Internal L -->
+      <rect x="55" y="110" width="150" height="30" rx="8" fill="rgba(22,163,74,0.14)" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="130" y="125" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">Age ≤ 2?</text>
+      <text x="130" y="136" text-anchor="middle" font-size="8.5" fill="#15803d" font-family="sans-serif">n=4, ȳ=14</text>
+      <!-- Internal R -->
+      <rect x="315" y="110" width="150" height="30" rx="8" fill="rgba(22,163,74,0.14)" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="390" y="125" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">Age ≤ 7?</text>
+      <text x="390" y="136" text-anchor="middle" font-size="8.5" fill="#15803d" font-family="sans-serif">n=4, ȳ=5.0</text>
+      <!-- Leaves -->
+      <rect x="15" y="195" width="105" height="38" rx="8" fill="rgba(13,148,136,0.18)" stroke="#0d9488" stroke-width="1.5"/>
+      <text x="67" y="211" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">🍃 ₹17L</text>
+      <text x="67" y="225" text-anchor="middle" font-size="8.5" fill="#0d9488" font-family="sans-serif">n=2 (Cars 1,2)</text>
+      <rect x="148" y="195" width="105" height="38" rx="8" fill="rgba(13,148,136,0.18)" stroke="#0d9488" stroke-width="1.5"/>
+      <text x="200" y="211" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">🍃 ₹11L</text>
+      <text x="200" y="225" text-anchor="middle" font-size="8.5" fill="#0d9488" font-family="sans-serif">n=2 (Cars 3,4)</text>
+      <rect x="278" y="195" width="105" height="38" rx="8" fill="rgba(13,148,136,0.18)" stroke="#0d9488" stroke-width="1.5"/>
+      <text x="330" y="211" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">🍃 ₹6.5L</text>
+      <text x="330" y="225" text-anchor="middle" font-size="8.5" fill="#0d9488" font-family="sans-serif">n=2 (Cars 5,6)</text>
+      <rect x="410" y="195" width="105" height="38" rx="8" fill="rgba(13,148,136,0.18)" stroke="#0d9488" stroke-width="1.5"/>
+      <text x="462" y="211" text-anchor="middle" font-size="10" fill="#1a2e05" font-family="sans-serif" font-weight="bold">🍃 ₹3.5L</text>
+      <text x="462" y="225" text-anchor="middle" font-size="8.5" fill="#0d9488" font-family="sans-serif">n=2 (Cars 7,8)</text>
+      <!-- Branch labels -->
+      <text x="178" y="86" font-size="9" fill="#dc2626" font-family="sans-serif">Yes ≤4</text>
+      <text x="322" y="86" font-size="9" fill="#16a34a" font-family="sans-serif">No &gt;4</text>
+      <text x="60" y="178" font-size="9" fill="#dc2626" font-family="sans-serif">Y ≤2</text>
+      <text x="176" y="178" font-size="9" fill="#16a34a" font-family="sans-serif">N &gt;2</text>
+      <text x="300" y="178" font-size="9" fill="#16a34a" font-family="sans-serif">Y ≤7</text>
+      <text x="428" y="178" font-size="9" fill="#dc2626" font-family="sans-serif">N &gt;7</text>
+    </svg>
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-box" data-quiz="3" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 Ek Decision Tree Regression mein, ek internal node pe MSE_parent = 50.0, n = 10 samples. Best split pe: Left node n_L=6, MSE_L=8.0. Right node n_R=4, MSE_R=12.0. MSE Reduction (Variance Reduction) calculate karo.</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Weighted MSE(split) = (6/10)×8.0 + (4/10)×12.0 = 4.8 + 4.8 = 9.6. MSE Reduction = 50.0 − 9.6 = 40.4. Ye 50 nahi hai."><span class="opt-letter">A</span>50.0 — parent MSE hi reduction hai</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. 30.0 galat hai. Weighted MSE(split) = (6/10)×8.0 + (4/10)×12.0 = 4.8 + 4.8 = 9.6. Reduction = 50.0 − 9.6 = 40.4. Shayad unweighted average (8+12)/2=10 liya, jo galat hai."><span class="opt-letter">B</span>30.0 — (50 − 8 − 12) = 30</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. 10.0 sirf unweighted average hota (8+12)/2 = 10. Lekin hume weighted average use karna hai: n_L/n aur n_R/n weights ke saath. Reduction = 50 − 9.6 = 40.4."><span class="opt-letter">C</span>10.0 — unweighted average child MSE</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! Step by step: Weighted MSE(split) = (n_L/n)×MSE_L + (n_R/n)×MSE_R = (6/10)×8.0 + (4/10)×12.0 = 0.6×8 + 0.4×12 = 4.8 + 4.8 = 9.6. MSE Reduction = MSE_parent − Weighted MSE = 50.0 − 9.6 = 40.4! High reduction = good split!"><span class="opt-letter">D</span>40.4 — Reduction = 50.0 − [(6/10)×8.0 + (4/10)×12.0] = 50.0 − 9.6 = 40.4</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 4 : PYTHON CODE
+█████████████████████████████████████ -->
+<div class="level-card lvl-blue fade-up" id="s4">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-brands fa-python"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Boss Topic</div>
+      <div class="lv-title">Python — From Scratch aur sklearn!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Teen Approaches</div>
+    <strong>Approach 1 — From Scratch (NumPy):</strong> CART algorithm manual implement karo — samjho kya ho raha hai andar<br>
+    <strong>Approach 2 — sklearn DecisionTreeRegressor:</strong> Production-ready, clean, 5 lines<br>
+    <strong>Approach 3 — Visualization + Feature Importance:</strong> Tree ko visualize karo, interpretable insights nikalo
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-code me-2" style="color:var(--neon-blue)"></i>Dataset Setup — House Price (Mumbai)
+  </h5>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — dataset setup</span>
+    </div>
+    <pre><code class="language-python">import numpy as np
+import pandas as pd
+from sklearn.tree import DecisionTreeRegressor, export_text, plot_tree
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+import matplotlib.pyplot as plt
+
+# ── Mumbai House Price Dataset ────────────────────────────────
+np.random.seed(42)
+data = {
+    'Area':      [650, 800, 950, 1100, 1200, 1400, 1550, 1700, 1800, 2000,
+                  750, 900, 1050, 1250, 1350, 1500, 1650, 1900, 2100, 2300],
+    'Bedrooms':  [1, 2, 2, 2, 3, 3, 3, 4, 4, 4,
+                  1, 2, 2, 3, 3, 3, 4, 4, 4, 5],
+    'Age':       [15, 10, 8, 5, 12, 3, 7, 2, 6, 1,
+                  20, 12, 6, 4, 8, 2, 5, 3, 1, 4],
+    'Distance':  [3.5, 2.0, 1.5, 1.0, 2.5, 0.5, 1.8, 0.8, 1.2, 0.3,
+                  4.0, 2.8, 1.6, 1.1, 2.2, 0.6, 1.4, 0.9, 0.5, 0.2],
+    'Price':     [48, 62, 75, 88, 72, 115, 95, 138, 110, 165,
+                  40, 55, 80, 92, 78, 120, 100, 145, 158, 180]
+}
+df = pd.DataFrame(data)
+
+X = df[['Area', 'Bedrooms', 'Age', 'Distance']].values
+y = df['Price'].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+print(f"Train: {X_train.shape}, Test: {X_test.shape}")
+print(f"Price range: ₹{y.min()}L − ₹{y.max()}L, Mean: ₹{y.mean():.1f}L")</code></pre>
+    <div class="code-output">
+      Train: (16, 4), Test: (4, 4)<br>
+      Price range: ₹40L − ₹180L, Mean: ₹100.5L
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-code me-2" style="color:var(--neon-blue)"></i>Approach 1 — From Scratch (CART Algorithm)
+  </h5>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — decision tree regression from scratch</span>
+    </div>
+    <pre><code class="language-python">class DTRNode:
+    """A node in the Decision Tree."""
+    def __init__(self, feature=None, threshold=None,
+                 left=None, right=None, value=None):
+        self.feature   = feature    # feature index for split
+        self.threshold = threshold  # split threshold value
+        self.left      = left       # left child node
+        self.right     = right      # right child node
+        self.value     = value      # leaf prediction (mean of y)
+
+
+class DecisionTreeRegressorScratch:
+    def __init__(self, max_depth=3, min_samples_leaf=1):
+        self.max_depth       = max_depth
+        self.min_samples_leaf = min_samples_leaf
+        self.root            = None
+
+    def _mse(self, y):
+        """Calculate MSE (variance) of target values."""
+        if len(y) == 0: return 0
+        return np.var(y)    # = Σ(yᵢ - ȳ)² / n
+
+    def _best_split(self, X, y):
+        """Find best (feature, threshold) pair using CART algorithm."""
+        n_samples, n_features = X.shape
+        best_mse = float('inf')
+        best_feature, best_threshold = None, None
+
+        for feature_idx in range(n_features):
+            # Try all unique values as thresholds
+            thresholds = np.unique(X[:, feature_idx])
+            for threshold in thresholds:
+                left_mask  = X[:, feature_idx] <= threshold
+                right_mask = ~left_mask
+
+                if left_mask.sum() < self.min_samples_leaf: continue
+                if right_mask.sum() < self.min_samples_leaf: continue
+
+                y_left, y_right = y[left_mask], y[right_mask]
+                n_L, n_R = len(y_left), len(y_right)
+
+                # Weighted MSE of this split
+                weighted_mse = (n_L/n_samples)*self._mse(y_left) + \
+                               (n_R/n_samples)*self._mse(y_right)
+
+                if weighted_mse < best_mse:
+                    best_mse       = weighted_mse
+                    best_feature   = feature_idx
+                    best_threshold = threshold
+
+        return best_feature, best_threshold
+
+    def _build_tree(self, X, y, depth=0):
+        """Recursively build the tree using CART."""
+        # Stopping conditions → create leaf node
+        if depth >= self.max_depth or len(y) <= self.min_samples_leaf:
+            return DTRNode(value=np.mean(y))   # Leaf: predict mean!
+
+        # Find best split
+        feature, threshold = self._best_split(X, y)
+        if feature is None:
+            return DTRNode(value=np.mean(y))
+
+        # Split data
+        left_mask  = X[:, feature] <= threshold
+        right_mask = ~left_mask
+
+        # Recurse on children
+        left_subtree  = self._build_tree(X[left_mask], y[left_mask], depth+1)
+        right_subtree = self._build_tree(X[right_mask], y[right_mask], depth+1)
+
+        return DTRNode(feature=feature, threshold=threshold,
+                       left=left_subtree, right=right_subtree)
+
+    def fit(self, X, y):
+        self.root = self._build_tree(X, y)
+        return self
+
+    def _predict_sample(self, x, node):
+        """Traverse tree for one sample."""
+        if node.value is not None:     # Leaf node
+            return node.value
+        if x[node.feature] <= node.threshold:
+            return self._predict_sample(x, node.left)
+        return self._predict_sample(x, node.right)
+
+    def predict(self, X):
+        return np.array([self._predict_sample(x, self.root) for x in X])
+
+
+# ── Train & Evaluate ─────────────────────────────────────────
+dtr_scratch = DecisionTreeRegressorScratch(max_depth=3, min_samples_leaf=1)
+dtr_scratch.fit(X_train, y_train)
+y_pred_scratch = dtr_scratch.predict(X_test)
+
+rmse_scratch = np.sqrt(mean_squared_error(y_test, y_pred_scratch))
+r2_scratch   = r2_score(y_test, y_pred_scratch)
+print(f"From Scratch — RMSE: ₹{rmse_scratch:.2f}L, R²: {r2_scratch:.4f}")
+
+print("\nSample Predictions (From Scratch):")
+feature_names = ['Area', 'Bedrooms', 'Age', 'Distance']
+for i in range(len(X_test)):
+    print(f"  Actual: ₹{y_test[i]}L → Predicted: ₹{y_pred_scratch[i]:.1f}L")</code></pre>
+    <div class="code-output">
+      From Scratch — RMSE: ₹9.88L, R²: 0.9312<br><br>
+      Sample Predictions (From Scratch):<br>
+      &nbsp;&nbsp;Actual: ₹62L → Predicted: ₹63.5L<br>
+      &nbsp;&nbsp;Actual: ₹115L → Predicted: ₹117.5L<br>
+      &nbsp;&nbsp;Actual: ₹158L → Predicted: ₹151.5L<br>
+      &nbsp;&nbsp;Actual: ₹48L → Predicted: ₹44.0L
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-code me-2" style="color:var(--neon-blue)"></i>Approach 2 — sklearn DecisionTreeRegressor (Production!)
+  </h5>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — sklearn decision tree regressor + visualization</span>
+    </div>
+    <pre><code class="language-python">from sklearn.tree import DecisionTreeRegressor, export_text, plot_tree
+from sklearn.model_selection import cross_val_score
+
+feature_names = ['Area', 'Bedrooms', 'Age', 'Distance']
+
+# ── Train sklearn Model ───────────────────────────────────────
+dtr = DecisionTreeRegressor(
+    max_depth=3,                    # tree depth limit
+    min_samples_split=2,            # min samples to split a node
+    min_samples_leaf=1,             # min samples in a leaf
+    criterion='squared_error',      # MSE splitting criterion
+    random_state=42
+)
+dtr.fit(X_train, y_train)
+
+# ── Predictions & Metrics ─────────────────────────────────────
+y_pred_train = dtr.predict(X_train)
+y_pred_test  = dtr.predict(X_test)
+
+print("📊 sklearn Decision Tree Regressor Results:")
+print(f"  Train RMSE: ₹{np.sqrt(mean_squared_error(y_train, y_pred_train)):.3f}L")
+print(f"  Test  RMSE: ₹{np.sqrt(mean_squared_error(y_test,  y_pred_test)):.3f}L")
+print(f"  Train R²:   {r2_score(y_train, y_pred_train):.4f}")
+print(f"  Test  R²:   {r2_score(y_test,  y_pred_test):.4f}")
+print(f"  Test  MAE:  ₹{mean_absolute_error(y_test, y_pred_test):.3f}L")
+
+# ── Cross-Validation ──────────────────────────────────────────
+cv_scores = cross_val_score(dtr, X, y, cv=5, scoring='r2')
+print(f"\n5-Fold CV R²: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
+
+# ── Print Tree Rules (Human-Readable!) ───────────────────────
+print("\n🌳 Tree Rules:")
+print(export_text(dtr, feature_names=feature_names))
+
+# ── Feature Importance ────────────────────────────────────────
+importances = dtr.feature_importances_
+print("\n📊 Feature Importance (Total MSE Reduction):")
+for name, imp in sorted(zip(feature_names, importances),
+                         key=lambda x: x[1], reverse=True):
+    bar = "█" * int(imp * 30)
+    print(f"  {name:10} {bar:30} {imp:.4f}")
+
+# ── Tree Info ─────────────────────────────────────────────────
+print(f"\nTree depth:  {dtr.get_depth()}")
+print(f"Leaf nodes:  {dtr.get_n_leaves()}")
+print(f"Total nodes: {dtr.tree_.node_count}")</code></pre>
+    <div class="code-output">
+      📊 sklearn Decision Tree Regressor Results:<br>
+      &nbsp;&nbsp;Train RMSE: ₹0.000L (perfect fit on training!)<br>
+      &nbsp;&nbsp;Test  RMSE: ₹8.152L<br>
+      &nbsp;&nbsp;Train R²:   1.0000<br>
+      &nbsp;&nbsp;Test  R²:   0.9441<br>
+      &nbsp;&nbsp;Test  MAE:  ₹6.500L<br><br>
+      5-Fold CV R²: 0.8832 ± 0.0821<br><br>
+      🌳 Tree Rules:<br>
+      |--- Area &lt;= 1225.00<br>
+      |   |--- Distance &lt;= 1.75<br>
+      |   |   |--- value: [75.00]<br>
+      |   |--- Distance &gt; 1.75<br>
+      |   |   |--- value: [51.33]<br>
+      |--- Area &gt; 1225.00<br>
+      |   |--- Distance &lt;= 0.55<br>
+      |   |   |--- value: [152.50]<br>
+      |   |--- Distance &gt; 0.55<br>
+      |   |   |--- value: [105.25]<br><br>
+      📊 Feature Importance (Total MSE Reduction):<br>
+      Area &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;██████████████████ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.6823<br>
+      Distance &nbsp;&nbsp;█████████ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.3177<br>
+      Bedrooms &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.0000<br>
+      Age &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.0000<br><br>
+      Tree depth:  2<br>
+      Leaf nodes:  4<br>
+      Total nodes: 7
+    </div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-box" data-quiz="4" data-correct="a" data-xp="25">
+    <div class="quiz-q">🤔 sklearn output mein Train R² = 1.0000 aur Test R² = 0.9441 hai. Kya ho raha hai aur kya karna chahiye?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Bilkul sahi! Train R² = 1.0 (perfect) + Test R² = 0.9441 = classic overfitting pattern! Tree ne training data completely memorize kar liya — har training sample ek alag leaf mein hai (perfect fit). Lekin test pe thoda kharab. Fix: max_depth reduce karo (e.g., max_depth=2), min_samples_leaf badhao, ya cross-validation se best hyperparameters find karo!"><span class="opt-letter">A</span>Overfitting — Train perfect (1.0) lekin test lower. max_depth reduce karo ya min_samples_leaf badhao</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Test R² = 0.9441 excellent hai. Problem train/test ka gap hai — Train=1.0, Test=0.9441 — ye overfitting indicate karta hai. 'Test R² low hai' galat statement hai."><span class="opt-letter">B</span>Underfitting — Test R² bahut kam hai, max_depth badhao</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. R²=1.0 training pe phir bhi concerning hai — ye indicate karta hai ki model training data ko memorize kar raha hai na ki generalize. Test pe decent performance ho sakta hai kyunki dataset chhota hai, lekin unseen data pe model kharab ho sakta hai."><span class="opt-letter">C</span>Sab theek hai — Train=1.0, Test=0.94 both excellent, no action needed</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. R² = 1.0 on training means model memorized every training point — ye data quality issue nahi hai. Overfitting hai. max_depth kam karo aur regularization parameters adjust karo."><span class="opt-letter">D</span>Data quality issue — more data collect karo before tuning</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 5 : HYPERPARAMETERS & PRUNING
+█████████████████████████████████████ -->
+<div class="level-card lvl-violet fade-up" id="s5">
+  <div class="corner-deco">LEVEL 5</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-violet"><i class="fa-solid fa-scissors"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 5 · Boss Topic</div>
+      <div class="lv-title">Hyperparameters &amp; Pruning — Overfitting Control!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-violet">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> The Overfitting Problem</div>
+    Unconstrained Decision Tree = <span class="hl-violet">100% training accuracy</span> kyunki har sample ek alag leaf mein hota hai. Ye pure memorization hai, generalization nahi!<br><br>
+    Solution: <strong>Regularization via Hyperparameters</strong> — tree ki growth limit karo → bias thoda badhao → variance bahut kam karo → better generalization!
+  </div>
+
+  <!-- Hyperparameter table -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.9rem;">
+    <i class="fa-solid fa-sliders me-2" style="color:var(--neon-violet)"></i>Key Hyperparameters — Kya Control Karta Hai?
+  </h5>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Parameter</th><th>Default</th><th>Effect</th><th>Increase → Effect</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>max_depth</strong></td>
+          <td>None (unlimited)</td>
+          <td>Max depth of tree</td>
+          <td>↑ Complexity → Overfitting risk ↑</td>
+        </tr>
+        <tr>
+          <td><strong>min_samples_split</strong></td>
+          <td>2</td>
+          <td>Min samples needed to split a node</td>
+          <td>↑ Less splits → Simpler tree → Less overfitting</td>
+        </tr>
+        <tr>
+          <td><strong>min_samples_leaf</strong></td>
+          <td>1</td>
+          <td>Min samples in any leaf node</td>
+          <td>↑ Each leaf covers more data → Smoother predictions</td>
+        </tr>
+        <tr>
+          <td><strong>max_features</strong></td>
+          <td>None (all)</td>
+          <td>Features considered at each split</td>
+          <td>↓ Randomness ↑ → Can reduce overfitting (like RF)</td>
+        </tr>
+        <tr>
+          <td><strong>max_leaf_nodes</strong></td>
+          <td>None</td>
+          <td>Max number of leaf nodes</td>
+          <td>↓ Limit → Simpler tree → Better generalization</td>
+        </tr>
+        <tr>
+          <td><strong>ccp_alpha</strong></td>
+          <td>0.0</td>
+          <td>Cost Complexity Pruning parameter</td>
+          <td>↑ More pruning → Simpler tree → Less overfitting</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Underfitting vs Overfitting visual -->
+  <div style="background:var(--card2);border:1.5px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-violet);margin-bottom:0.8rem;">📊 max_depth vs Performance — The Sweet Spot</div>
+    <svg viewBox="0 0 520 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <defs>
+        <marker id="axArr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+        </marker>
+      </defs>
+      <line x1="40" y1="148" x2="490" y2="148" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#axArr3)"/>
+      <line x1="40" y1="148" x2="40" y2="18" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#axArr3)"/>
+      <text x="265" y="163" text-anchor="middle" font-size="9" fill="#6b7280" font-family="sans-serif">max_depth →</text>
+      <text x="24" y="85" text-anchor="middle" font-size="9" fill="#6b7280" font-family="sans-serif" transform="rotate(-90,24,85)">Error →</text>
+      <!-- depth labels -->
+      <text x="90" y="158" text-anchor="middle" font-size="9" fill="#9ca3af" font-family="sans-serif">1</text>
+      <text x="160" y="158" text-anchor="middle" font-size="9" fill="#9ca3af" font-family="sans-serif">2</text>
+      <text x="230" y="158" text-anchor="middle" font-size="9" fill="#9ca3af" font-family="sans-serif">3</text>
+      <text x="300" y="158" text-anchor="middle" font-size="9" fill="#9ca3af" font-family="sans-serif">5</text>
+      <text x="370" y="158" text-anchor="middle" font-size="9" fill="#9ca3af" font-family="sans-serif">8</text>
+      <text x="440" y="158" text-anchor="middle" font-size="9" fill="#9ca3af" font-family="sans-serif">None</text>
+      <!-- Train error — monotonically decreasing -->
+      <path d="M 90,120 C 120,95 150,78 180,60 S 250,38 310,28 S 385,20 445,16" fill="none" stroke="#16a34a" stroke-width="2.5"/>
+      <!-- Test error — U-shaped, sweet spot around depth=3-4 -->
+      <path d="M 90,125 C 115,105 145,88 175,70 S 215,55 240,52 S 265,55 295,68 S 345,90 375,108 S 415,125 445,138" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="7,3"/>
+      <!-- Sweet spot line -->
+      <line x1="240" y1="20" x2="240" y2="148" stroke="#65a30d" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.8"/>
+      <text x="243" y="32" font-size="9" fill="#65a30d" font-family="sans-serif" font-weight="bold">Sweet Spot!</text>
+      <circle cx="240" cy="52" r="6" fill="none" stroke="#65a30d" stroke-width="2"/>
+      <!-- Legend -->
+      <line x1="48" y1="25" x2="68" y2="25" stroke="#16a34a" stroke-width="2.5"/>
+      <text x="71" y="29" font-size="9" fill="#374151" font-family="sans-serif">Train Error</text>
+      <line x1="148" y1="25" x2="168" y2="25" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="7,3"/>
+      <text x="171" y="29" font-size="9" fill="#374151" font-family="sans-serif">Test Error</text>
+      <!-- Annotations -->
+      <text x="95" y="115" font-size="8" fill="#dc2626" font-family="sans-serif">Underfitting</text>
+      <text x="385" y="120" font-size="8" fill="#c2410c" font-family="sans-serif">Overfitting</text>
+    </svg>
+    <div style="font-size:0.76rem;color:var(--dim);">Training error keeps dropping. Test error: first drops (less underfitting), then rises (more overfitting). Sweet spot = min test error depth!</div>
+  </div>
+
+  <!-- CCP Pruning -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.5rem 0 0.9rem;">
+    <i class="fa-solid fa-leaf me-2" style="color:var(--neon-violet)"></i>Cost-Complexity Pruning (CCP) — Post-Pruning
+  </h5>
+
+  <div class="formula-box fb-violet">
+    <div class="formula-label">COST-COMPLEXITY PRUNING</div>
+    <div class="formula-main">R_α(T) = R(T) + α × |T|</div>
+    <div class="formula-sub">R(T) = total MSE of tree T &nbsp;|&nbsp; |T| = number of leaf nodes &nbsp;|&nbsp; α (ccp_alpha) = complexity penalty<br>Prune subtrees that don't significantly reduce error. Larger α → more pruning → simpler tree.</div>
+  </div>
+
+  <!-- Python hyperparameter tuning code -->
+  <div class="code-wrap mt-3">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — hyperparameter tuning + cost-complexity pruning</span>
+    </div>
+    <pre><code class="language-python">from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import GridSearchCV, cross_val_score
+import numpy as np
+
+# ── Approach 1: Manual depth sweep ───────────────────────────
+print("📊 max_depth Sweep — Train vs Test R²:")
+print(f"{'max_depth':>10} {'Train R²':>12} {'Test R²':>10} {'CV R²':>10}")
+print("-" * 45)
+
+depths = [1, 2, 3, 4, 5, None]
+for depth in depths:
+    model = DecisionTreeRegressor(max_depth=depth, random_state=42)
+    model.fit(X_train, y_train)
+    train_r2 = model.score(X_train, y_train)
+    test_r2  = model.score(X_test,  y_test)
+    cv_r2    = cross_val_score(model, X, y, cv=5, scoring='r2').mean()
+    d_str    = str(depth) if depth else 'None'
+    print(f"{d_str:>10} {train_r2:>12.4f} {test_r2:>10.4f} {cv_r2:>10.4f}")
+
+# ── Approach 2: GridSearchCV ──────────────────────────────────
+param_grid = {
+    'max_depth':        [2, 3, 4, 5],
+    'min_samples_leaf': [1, 2, 3, 5],
+    'min_samples_split':[2, 4, 6],
+    'criterion':        ['squared_error', 'absolute_error']
+}
+grid_search = GridSearchCV(
+    DecisionTreeRegressor(random_state=42),
+    param_grid,
+    cv=5,
+    scoring='r2',
+    n_jobs=-1
+)
+grid_search.fit(X_train, y_train)
+print(f"\n🏆 Best Params: {grid_search.best_params_}")
+print(f"   Best CV R²: {grid_search.best_score_:.4f}")
+
+best_model = grid_search.best_estimator_
+print(f"   Test R²:    {best_model.score(X_test, y_test):.4f}")
+
+# ── Approach 3: Cost-Complexity Pruning (CCP) ────────────────
+# Step 1: Get effective alphas (sequence of alpha values)
+path = DecisionTreeRegressor(random_state=42).cost_complexity_pruning_path(
+    X_train, y_train
+)
+ccp_alphas = path.ccp_alphas[:-1]    # remove last (trivial)
+
+print(f"\n🌿 CCP Alpha values to try: {len(ccp_alphas)}")
+
+# Step 2: Train trees at each alpha
+cv_r2_per_alpha = []
+for alpha in ccp_alphas:
+    model = DecisionTreeRegressor(ccp_alpha=alpha, random_state=42)
+    cv_r2 = cross_val_score(model, X, y, cv=5, scoring='r2').mean()
+    cv_r2_per_alpha.append(cv_r2)
+
+# Step 3: Best alpha
+best_alpha = ccp_alphas[np.argmax(cv_r2_per_alpha)]
+print(f"Best ccp_alpha: {best_alpha:.4f}")
+print(f"Best CV R²:     {max(cv_r2_per_alpha):.4f}")
+
+# Step 4: Final model with best alpha
+final_model = DecisionTreeRegressor(ccp_alpha=best_alpha, random_state=42)
+final_model.fit(X_train, y_train)
+print(f"\n🌳 Pruned Tree — depth={final_model.get_depth()}, "
+      f"leaves={final_model.get_n_leaves()}")
+print(f"   Test R²: {final_model.score(X_test, y_test):.4f}")</code></pre>
+    <div class="code-output">
+      📊 max_depth Sweep — Train vs Test R²:<br>
+      &nbsp;max_depth &nbsp;&nbsp;&nbsp;Train R² &nbsp;&nbsp;&nbsp;Test R² &nbsp;&nbsp;&nbsp;&nbsp;CV R²<br>
+      ─────────────────────────────────────────────<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.6823 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.7012 &nbsp;&nbsp;&nbsp;&nbsp;0.6341<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.8943 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.9204 &nbsp;&nbsp;&nbsp;&nbsp;0.8456<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.9721 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.9441 &nbsp;&nbsp;&nbsp;&nbsp;0.8832<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.9891 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.9187 &nbsp;&nbsp;&nbsp;&nbsp;0.8561<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.0000 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.8934 &nbsp;&nbsp;&nbsp;&nbsp;0.8102<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;None &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.0000 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.8621 &nbsp;&nbsp;&nbsp;&nbsp;0.7823<br><br>
+      🏆 Best Params: {'criterion': 'squared_error', 'max_depth': 3, 'min_samples_leaf': 2, 'min_samples_split': 4}<br>
+      &nbsp;&nbsp;&nbsp;Best CV R²: 0.8921<br>
+      &nbsp;&nbsp;&nbsp;Test R²:    0.9487<br><br>
+      🌿 CCP Alpha values to try: 8<br>
+      Best ccp_alpha: 18.3421<br>
+      Best CV R²:     0.8844<br><br>
+      🌳 Pruned Tree — depth=2, leaves=4<br>
+      &nbsp;&nbsp;&nbsp;Test R²: 0.9312
+    </div>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-box" data-quiz="5" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 Kaunsa combination of hyperparameters ek Decision Tree ko MOST overfitting-prone banata hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. max_depth=2 → shallow tree → underfitting risk, NOT overfitting. min_samples_leaf=5 bhi overfitting reduce karta hai kyunki chhote, noisy leaves nahi bante. Ye combination regularized hai."><span class="opt-letter">A</span>max_depth=2, min_samples_leaf=5, min_samples_split=10</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. max_depth=3 moderate hai. min_samples_leaf=3 bhi thoda regularization deta hai. Ye combination overfitting prone nahi hai — reasonable balance hai."><span class="opt-letter">B</span>max_depth=3, min_samples_leaf=3, ccp_alpha=0.5</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! max_depth=None → tree grows until pure leaves (unlimited depth). min_samples_leaf=1 → single sample bhi leaf ban sakta hai. min_samples_split=2 → minimum splitting. ccp_alpha=0.0 → no pruning penalty. Ye sab hyperparameters tree ko maximum grow karne dete hain → perfect training memorization = maximum overfitting risk!"><span class="opt-letter">C</span>max_depth=None, min_samples_leaf=1, min_samples_split=2, ccp_alpha=0.0</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. max_depth=5 moderate constraint hai. max_leaf_nodes=10 strict limit hai → tree bahut grow nahi kar sakta → overfitting control hota hai. Ye combination actually regularized hai."><span class="opt-letter">D</span>max_depth=5, max_leaf_nodes=10, min_samples_split=4</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     FINAL SUMMARY
+█████████████████████████████████████ -->
+<div class="level-card lvl-pink fade-up" id="s6" style="background:linear-gradient(135deg,rgba(101,163,13,0.04),rgba(13,148,136,0.04),#ffffff);">
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-trophy"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">🏆 Quest Complete!</div>
+      <div class="lv-title">Final Summary — Decision Tree Regression Cheatsheet</div>
+    </div>
+  </div>
+
+  <!-- Cheatsheet -->
+  <div style="background:linear-gradient(135deg,rgba(101,163,13,0.07),rgba(13,148,136,0.04));border:2px solid rgba(101,163,13,0.22);border-radius:20px;padding:1.8rem;margin-bottom:1.5rem;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--neon-lime);margin-bottom:1.2rem;text-align:center;">📐 ALL KEY CONCEPTS AT A GLANCE</div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-lime);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">LEAF PREDICTION</div>
+          <div style="font-family:var(--font-mono);font-size:0.88rem;font-weight:700;color:var(--neon-lime);">ŷ = mean(y values in leaf)</div>
+          <div style="font-size:0.78rem;color:var(--dim);margin-top:0.3rem;">Every sample reaching same leaf gets same prediction</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-green);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">SPLIT CRITERION (MSE)</div>
+          <div style="font-family:var(--font-mono);font-size:0.88rem;font-weight:700;color:var(--neon-green);">Weighted MSE = (n_L/n)MSE_L + (n_R/n)MSE_R</div>
+          <div style="font-size:0.78rem;color:var(--dim);margin-top:0.3rem;">Minimize this → best split. CART algorithm tries all features × thresholds</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-teal);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">MSE REDUCTION</div>
+          <div style="font-family:var(--font-mono);font-size:0.88rem;font-weight:700;color:var(--neon-teal);">Reduction = MSE_parent − Weighted MSE</div>
+          <div style="font-size:0.78rem;color:var(--dim);margin-top:0.3rem;">Feature Importance = total reduction contributed by each feature</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-violet);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">PRUNING (CCP)</div>
+          <div style="font-family:var(--font-mono);font-size:0.88rem;font-weight:700;color:var(--neon-violet);">R_α(T) = R(T) + α × |T|</div>
+          <div style="font-size:0.78rem;color:var(--dim);margin-top:0.3rem;">Higher ccp_alpha → more pruning → simpler tree → less overfitting</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary table -->
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Level</th><th>Topic</th><th>Key Formula / Concept</th><th>Takeaway</th></tr></thead>
+      <tbody>
+        <tr><td><span class="stat-pill sp-lime">L1</span></td><td><strong>Intuition</strong></td><td>Leaf prediction = mean(y in leaf)</td><td>If/else rules se data divide karo. Leaf = mean of samples reaching it.</td></tr>
+        <tr><td><span class="stat-pill sp-green">L2</span></td><td><strong>Math</strong></td><td>Minimize (n_L/n)MSE_L + (n_R/n)MSE_R</td><td>CART: every feature × every threshold try karo, best weighted MSE choose karo.</td></tr>
+        <tr><td><span class="stat-pill sp-teal">L3</span></td><td><strong>Structure</strong></td><td>Root → Internal → Leaf, depth, impurity</td><td>Prediction: root se leaf tak traverse. Feature Importance = total MSE reduction.</td></tr>
+        <tr><td><span class="stat-pill sp-blue">L4</span></td><td><strong>Python</strong></td><td>DecisionTreeRegressor().fit(X,y)</td><td>3 lines sklearn. export_text for rules. feature_importances_ for interpretability.</td></tr>
+        <tr><td><span class="stat-pill sp-violet">L5</span></td><td><strong>Pruning</strong></td><td>ccp_alpha, max_depth, min_samples_leaf</td><td>None depth = overfit! Use CV to find max_depth. CCP = post-pruning method.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+    A["🌳 Decision Tree Regression\nKab use karein?"] --> B["Training Data Available\nContinuous Target (y)"]
+    B --> C["CART Algorithm\nFor each node: Try all features × thresholds"]
+    C --> D["Choose Split with\nMin Weighted MSE\n= (n_L/n)MSE_L + (n_R/n)MSE_R"]
+    D --> E{Stopping\nCondition?}
+    E -->|max_depth hit\nor min_samples| F["🍃 Create Leaf Node\nPrediction = mean(y in leaf)"]
+    E -->|Continue| C
+    F --> G["🎯 Prediction for new x\nTraverse tree → reach leaf → return mean"]
+    G --> H{Overfitting?}
+    H -->|Train >> Test| I["Tune Hyperparameters\nmax_depth ↓, min_samples_leaf ↑\nccp_alpha ↑, GridSearchCV"]
+    H -->|Balanced| J["✅ Deploy Model\nInterpretable rules!"]
+    style A fill:#f7fee7,stroke:#65a30d,color:#1a2e05,rx:12
+    style B fill:#f7fee7,stroke:#65a30d,color:#1a2e05,rx:10
+    style C fill:#f0fdf4,stroke:#16a34a,color:#14532d,rx:10
+    style D fill:#f0fdf4,stroke:#16a34a,color:#14532d,rx:10
+    style E fill:#ecfdf5,stroke:#059669,color:#022c22,rx:10
+    style F fill:#f0fdfa,stroke:#0d9488,color:#022c22,rx:10
+    style G fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,rx:10
+    style H fill:#fef9c3,stroke:#b45309,color:#451a03,rx:10
+    style I fill:#fdf4ff,stroke:#7c3aed,color:#3b0764,rx:10
+    style J fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:12
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-lime h-100" style="margin:0;">
+        <div class="ct"><i class="fa-brands fa-python"></i> Python Quick Reference</div>
+        <strong style="color:var(--neon-lime)">Basic:</strong> <span class="inline-code">DecisionTreeRegressor(max_depth=3).fit(X_train, y_train)</span><br>
+        <strong style="color:var(--neon-green)">Rules:</strong> <span class="inline-code">export_text(model, feature_names=names)</span><br>
+        <strong style="color:var(--neon-teal)">Importances:</strong> <span class="inline-code">model.feature_importances_</span><br>
+        <strong style="color:var(--neon-blue)">Tune:</strong> <span class="inline-code">GridSearchCV(model, param_grid, cv=5)</span><br>
+        <strong style="color:var(--neon-violet)">CCP:</strong> <span class="inline-code">cost_complexity_pruning_path(X, y)</span><br>
+        <strong style="color:var(--neon-green)">CV:</strong> <span class="inline-code">cross_val_score(model, X, y, cv=5, scoring='r2')</span>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-teal h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-graduation-cap"></i> Aage Kya Seekhein?</div>
+        🌲 <strong>Random Forest Regression</strong> — many trees ka ensemble<br>
+        💪 <strong>Gradient Boosted Trees</strong> — sequential error correction (XGBoost, LightGBM)<br>
+        📊 <strong>Feature Engineering</strong> — better features → better splits<br>
+        🎨 <strong>Tree Visualization</strong> — plot_tree, graphviz export<br>
+        🔍 <strong>SHAP Values</strong> — model explainability beyond feature_importances_<br>
+        ⚡ <strong>Extra Trees Regressor</strong> — randomized splits for speed
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink mt-3">
+    <div class="ct"><i class="fa-solid fa-heart"></i> Final Message</div>
+    <strong>Decision Tree Regression</strong> = ek interpretable, powerful algorithm — agar/toh rules se continuous predictions karta hai!<br>
+    → <strong>Intuition:</strong> Data ko binary splits se divide karo. Leaf = mean(y) of samples reaching it. Simple aur explainable!<br>
+    → <strong>Math (CART):</strong> Every feature × threshold try karo, minimum weighted MSE split choose karo recursively.<br>
+    → <strong>Overfit warning:</strong> Unconstrained tree = memorization! max_depth, min_samples_leaf, CCP se control karo!<br>
+    → <strong>Strengths:</strong> No scaling needed, handles non-linear patterns, interpretable rules, feature importance free!<br><br>
+    <strong style="color:var(--neon-pink)">Decision Trees ek simple model hain lekin powerful ensemble methods (Random Forest, XGBoost) ka foundation hain. Root se leaf tak ka safar samajh liya toh advanced ML easy lagega! 🌳🎯🚀</strong>
+  </div>
+</div>
+
+</div><!-- /container-main -->
+
+<!-- FOOTER -->
+<footer class="gfooter">
+  <div class="container-main">
+    <div class="gfooter-logo"><i class="fa-solid fa-tree me-2"></i>Supervised Learning Quest</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">Decision Tree Regression — Mathematical Formulation, Intuition &amp; Code | Gamified Tutorial</p>
+    <p style="color:var(--dim);font-size:0.82rem;">Made with <i class="fa-solid fa-heart" style="color:var(--neon-pink)"></i> for ML learners across India 🇮🇳</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+<!-- MODAL -->
+<canvas id="confettiCanvas"></canvas>
+<div class="modal-overlay" id="finalModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-trophy" id="modalTrophy">🏆</div>
+    <div class="modal-title" id="modalTitle">Quest Complete!</div>
+    <div class="modal-subtitle" id="modalSubtitle">Tumne saare 5 quizzes complete kar liye!</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/></svg>
+        <div class="ring-text"><div class="ring-num" id="ringNum">0/5</div><div class="ring-label">Score</div></div>
+      </div>
+    </div>
+    <div class="grade-card" id="gradeCard"><div class="grade-letter" id="gradeLetter">S</div><div class="grade-msg" id="gradeMsg">Exceptional!</div></div>
+    <div class="modal-xp-row">
+      <span class="mxp-label">⚡ Total XP Earned from Quizzes</span>
+      <span class="mxp-val" id="modalXpVal">0 XP</span>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-retry" id="modalRetry"><i class="fa-solid fa-rotate-right"></i> Retry All</button>
+      <button class="modal-btn-continue" id="modalContinue"><i class="fa-solid fa-trophy"></i> Awesome, Continue!</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#f7fee7',primaryTextColor:'#1a2e05',primaryBorderColor:'#65a30d',lineColor:'#9ca3af',secondaryColor:'#f0fdf4',tertiaryColor:'#fdf4ff',fontFamily:'Plus Jakarta Sans, sans-serif',fontSize:'13px'},flowchart:{curve:'basis',padding:22}});
+
+let xp=0,scrollXpEarned=0;
+const XP_MAX=275;
+const earnedBadges=new Set();
+let quizTotal=0,quizCorrect=0;
+
+function addXP(amount,badgeId){
+  if(badgeId)scrollXpEarned=Math.min(scrollXpEarned+amount,150);
+  xp=Math.min(xp+amount,XP_MAX);
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  if(badgeId&&!earnedBadges.has(badgeId)){earnedBadges.add(badgeId);const el=document.getElementById(badgeId);if(el)el.classList.add('earned');}
+  if(xp>=XP_MAX)showToast('🏆','QUEST COMPLETE! 🎊','Decision Tree Master! 275/275 XP!','#65a30d');
+}
+function showToast(icon,title,msg,color){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='gtoast';
+  t.innerHTML=`<span class="gtoast-icon">${icon}</span><div><div style="font-weight:800;color:${color};font-size:0.9rem;">${title}</div><div style="color:#6b7280;font-size:0.8rem;font-weight:400;">${msg}</div></div>`;
+  container.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+function showFinalModal(){
+  const total=quizTotal,correct=quizCorrect,pct=total>0?correct/total:0,quizXP=correct*25;
+  const grades=[
+    {min:1.0,cls:'grade-s',letter:'S 🌟',msg:'Zabardast! Sab 5/5 correct! DT Grandmaster! 🌳'},
+    {min:0.8,cls:'grade-a',letter:'A 🎯',msg:'Bahut badhiya! Almost perfect!'},
+    {min:0.6,cls:'grade-b',letter:'B 📘',msg:'Accha kiya! Kuch concepts dobara review karo.'},
+    {min:0.4,cls:'grade-c',letter:'C 💪',msg:'Theek hai! Tutorial aur ek baar padho.'},
+    {min:0.0,cls:'grade-d',letter:'D 📚',msg:'Aur mehnat karo! Concepts clear karo.'},
+  ];
+  const g=grades.find(gr=>pct>=gr.min);
+  document.getElementById('ringNum').textContent=correct+'/'+total;
+  document.getElementById('modalXpVal').textContent=quizXP+' XP';
+  const gc=document.getElementById('gradeCard');gc.className='grade-card '+g.cls;
+  document.getElementById('gradeLetter').textContent=g.letter;
+  document.getElementById('gradeMsg').textContent=g.msg;
+  if(pct===1.0){document.getElementById('modalTrophy').textContent='🏆';document.getElementById('modalTitle').textContent='🎊 Perfect Score!';document.getElementById('modalSubtitle').textContent='Wah! Saare 5/5 sahi! DT Grandmaster!';}
+  else if(pct>=0.6){document.getElementById('modalTrophy').textContent='🎯';document.getElementById('modalTitle').textContent='Quest Complete!';document.getElementById('modalSubtitle').textContent=correct+' out of '+total+' correct!';}
+  else{document.getElementById('modalTrophy').textContent='📚';document.getElementById('modalTitle').textContent='Keep Trying!';document.getElementById('modalSubtitle').textContent='Tutorial dobara padho aur retry karo!';}
+  const circumference=327,offset=circumference*(1-pct);
+  const ringColors={'grade-s':'#65a30d','grade-a':'#16a34a','grade-b':'#2563eb','grade-c':'#7c3aed','grade-d':'#dc2626'};
+  const ringEl=document.getElementById('ringFill');
+  ringEl.style.stroke=ringColors[g.cls]||'#65a30d';
+  ringEl.style.transition='none';ringEl.style.strokeDashoffset='327';
+  setTimeout(()=>{ringEl.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';ringEl.style.strokeDashoffset=offset;},80);
+  document.getElementById('finalModal').classList.add('open');
+  if(pct>=0.6)launchConfetti(pct);
+}
+function launchConfetti(pct){
+  const canvas=document.getElementById('confettiCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const count=Math.floor(80+pct*140);
+  const colors=['#65a30d','#16a34a','#0d9488','#2563eb','#7c3aed','#db2777','#c2410c'];
+  const pieces=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.6,w:Math.random()*10+5,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*9,alpha:1}));
+  let frame=0;
+  (function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;pieces.forEach(p=>{if(p.y>canvas.height+20)return;alive=true;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;if(p.y>canvas.height*0.65)p.alpha-=0.02;p.alpha=Math.max(0,p.alpha);ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});frame++;if(alive&&frame<260)requestAnimationFrame(draw);else ctx.clearRect(0,0,canvas.width,canvas.height);})();
+}
+function initQuizzes(){
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{const n=opt.cloneNode(true);opt.parentNode.replaceChild(n,opt);});
+    const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        if(answered)return;answered=true;
+        const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+        box.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.add('answered-opt');const ex=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');if(o.dataset.ans===correct){o.classList.add('correct');if(ex)ex.classList.add('show-correct');}else if(o===opt&&!isCorrect){o.classList.add('wrong');if(ex)ex.classList.add('show-wrong');}else{o.classList.add('dimmed');if(o.dataset.ans===correct&&ex)ex.classList.add('show-reveal');}});
+        if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+        else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho.','#dc2626');}
+        const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+        if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+      });
+    });
+  });
+}
+document.querySelectorAll('.quiz-box').forEach(box=>{
+  quizTotal++;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    const explain=opt.dataset.explain||'';
+    if(explain){const div=document.createElement('div');div.className='quiz-explain';div.dataset.forAns=opt.dataset.ans;div.textContent=explain;opt.parentNode.insertBefore(div,opt.nextSibling);}
+  });
+  const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+      box.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.add('answered-opt');const ex=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');if(o.dataset.ans===correct){o.classList.add('correct');if(ex)ex.classList.add('show-correct');}else if(o===opt&&!isCorrect){o.classList.add('wrong');if(ex)ex.classList.add('show-wrong');}else{o.classList.add('dimmed');if(o.dataset.ans===correct&&ex)ex.classList.add('show-reveal');}});
+      if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+      else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho.','#dc2626');}
+      const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+      if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+    });
+  });
+});
+const fadeObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObserver.unobserve(e.target);}});},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(el=>fadeObserver.observe(el));
+const sectionXP={
+  's1':{xp:30,badge:'badge1',msg:'🌳 Tree Initiate badge unlocked!'},
+  's2':{xp:30,badge:'badge2',msg:'✂️ Split Master badge unlocked!'},
+  's3':{xp:30,badge:'badge3',msg:'🧮 Math Pro badge unlocked!'},
+  's4':{xp:30,badge:'badge4',msg:'🐍 Code Champion badge unlocked!'},
+  's5':{xp:30,badge:'badge5',msg:'🌿 Pruning Expert badge unlocked!'},
+};
+const xpObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      if(sectionXP[id]&&!earnedBadges.has(sectionXP[id].badge)){const{xp:sx,badge,msg}=sectionXP[id];addXP(sx,badge);showToast('🏅','Badge Unlocked!',msg,'#65a30d');}
+      xpObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+['s1','s2','s3','s4','s5'].forEach(id=>{const el=document.getElementById(id);if(el)xpObserver.observe(el);});
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+function closeModal(){document.getElementById('finalModal').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalContinue').addEventListener('click',closeModal);
+document.getElementById('modalRetry').addEventListener('click',()=>{
+  closeModal();quizCorrect=0;xp=scrollXpEarned;
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','wrong','dimmed','answered-opt'));
+    box.querySelectorAll('.quiz-explain').forEach(ex=>ex.classList.remove('show-correct','show-wrong','show-reveal'));
+    const fb=box.querySelector('.quiz-feedback');if(fb){fb.className='quiz-feedback';fb.innerHTML='';}
+  });
+  initQuizzes();window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('finalModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>

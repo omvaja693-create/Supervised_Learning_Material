@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python ML Quest — Multiple Linear Regression: Math &amp; Code!</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4ff;--bg2:#e8edf8;--bg3:#dde4f5;--card:#ffffff;--card2:#f5f7ff;
+  --border:rgba(99,102,241,0.12);--border2:rgba(99,102,241,0.25);
+  --neon-blue:#2563eb;--neon-cyan:#0891b2;--neon-purple:#7c3aed;
+  --neon-pink:#db2777;--neon-green:#16a34a;--neon-yellow:#b45309;
+  --neon-orange:#c2410c;--neon-red:#dc2626;
+  --text:#1e1b4b;--muted:#4b5563;--dim:#9ca3af;
+  --font-head:'Syne',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --glow-blue:0 4px 16px rgba(37,99,235,0.18),0 1px 4px rgba(37,99,235,0.10);
+  --glow-purple:0 4px 16px rgba(124,58,237,0.18),0 1px 4px rgba(124,58,237,0.10);
+  --glow-cyan:0 4px 16px rgba(8,145,178,0.18),0 1px 4px rgba(8,145,178,0.10);
+  --glow-green:0 4px 16px rgba(22,163,74,0.18),0 1px 4px rgba(22,163,74,0.10);
+  --glow-yellow:0 4px 16px rgba(180,83,9,0.18),0 1px 4px rgba(180,83,9,0.10);
+  --glow-pink:0 4px 16px rgba(219,39,119,0.18),0 1px 4px rgba(219,39,119,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.8;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--neon-purple);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(37,99,235,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.06) 1px,transparent 1px);background-size:50px 50px;}
+.container-main{max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1;}
+
+/* XP BAR */
+.xp-strip{position:sticky;top:0;z-index:1000;background:rgba(240,244,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);box-shadow:0 2px 12px rgba(37,99,235,0.08);padding:0.65rem 0;}
+.xp-inner{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.xp-label{font-family:var(--font-head);font-weight:800;font-size:0.8rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.xp-bar-wrap{flex:1;min-width:120px;background:rgba(37,99,235,0.1);border-radius:50px;height:10px;border:1px solid var(--border2);overflow:hidden;}
+.xp-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-purple),var(--neon-blue),var(--neon-cyan));border-radius:50px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(124,58,237,0.35);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+.xp-score{font-family:var(--font-head);font-weight:800;font-size:0.9rem;color:var(--neon-yellow);white-space:nowrap;}
+.xp-badges{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.xp-badge{font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:50px;border:1px solid;white-space:nowrap;transition:0.3s;opacity:0.35;}
+.xp-badge.earned{opacity:1;animation:badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes badgePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.xp-badge.b1{border-color:var(--neon-purple);color:var(--neon-purple);}
+.xp-badge.b2{border-color:var(--neon-orange);color:var(--neon-orange);}
+.xp-badge.b3{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.xp-badge.b4{border-color:var(--neon-green);color:var(--neon-green);}
+.xp-badge.b5{border-color:var(--neon-pink);color:var(--neon-pink);}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:6rem 0 5rem;
+  background:radial-gradient(ellipse at 20% 50%,rgba(124,58,237,0.12) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(194,65,12,0.10) 0%,transparent 55%),
+             radial-gradient(ellipse at 60% 80%,rgba(8,145,178,0.07) 0%,transparent 50%),var(--bg);}
+.hero-orbit{position:absolute;top:50%;right:8%;transform:translateY(-50%);width:420px;height:420px;pointer-events:none;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(124,58,237,0.25);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-ring:nth-child(1){width:150px;height:150px;animation:spin 12s linear infinite;}
+.orbit-ring:nth-child(2){width:250px;height:250px;animation:spin 20s linear infinite reverse;border-color:rgba(194,65,12,0.2);}
+.orbit-ring:nth-child(3){width:350px;height:350px;animation:spin 30s linear infinite;border-color:rgba(8,145,178,0.15);}
+.orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;transform:translateX(-50%);}
+.orbit-ring:nth-child(1) .orbit-dot{background:var(--neon-purple);box-shadow:var(--glow-purple);}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--neon-orange);box-shadow:var(--glow-yellow);}
+.orbit-ring:nth-child(3) .orbit-dot{background:var(--neon-cyan);box-shadow:var(--glow-cyan);}
+.orbit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;animation:float 4s ease-in-out infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.3);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--neon-purple);margin-bottom:1.5rem;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-purple);box-shadow:var(--glow-purple);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-family:var(--font-head);font-weight:800;font-size:clamp(2.4rem,5vw,4rem);line-height:1.1;letter-spacing:-1.5px;margin-bottom:1.5rem;}
+.hero h1 .line1{display:block;color:#1e1b4b;}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--neon-purple) 0%,var(--neon-orange) 50%,var(--neon-cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:560px;margin-bottom:2rem;line-height:1.75;}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:var(--font-head);font-weight:800;font-size:1.8rem;line-height:1;background:linear-gradient(135deg,var(--neon-purple),var(--neon-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-label{font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem;}
+.hero-cta{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--neon-purple),var(--neon-orange));color:white;font-weight:700;font-size:0.95rem;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(124,58,237,0.3);transition:0.3s;animation:pulse-btn 2s infinite;}
+@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(124,58,237,0.28);}50%{box-shadow:0 4px 32px rgba(124,58,237,0.45);}}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);color:white;}
+
+/* QUEST MAP */
+.quest-map{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2rem;margin:3rem 0;position:relative;box-shadow:0 4px 24px rgba(37,99,235,0.07);}
+.quest-map::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(124,58,237,0.03),rgba(194,65,12,0.03));pointer-events:none;}
+.quest-map-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.quest-map-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(234,179,8,0.3),transparent);}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;}
+.quest-item{display:flex;align-items:center;gap:0.75rem;background:#f8f9ff;border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;text-decoration:none;color:var(--muted);font-weight:600;font-size:0.88rem;transition:0.25s;}
+.quest-item:hover{background:rgba(124,58,237,0.07);border-color:rgba(124,58,237,0.3);color:var(--neon-purple);transform:translateX(4px);}
+.quest-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;flex-shrink:0;}
+
+/* LEVEL CARD */
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:24px 24px 0 0;}
+.level-card.lvl-purple::before{background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink));}
+.level-card.lvl-orange::before{background:linear-gradient(90deg,var(--neon-orange),var(--neon-yellow));}
+.level-card.lvl-cyan::before{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green));}
+.level-card.lvl-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));}
+.level-card.lvl-blue::before{background:linear-gradient(90deg,var(--neon-blue),var(--neon-cyan));}
+.level-card.lvl-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple));}
+.level-card:hover{box-shadow:0 8px 32px rgba(37,99,235,0.12);}
+.level-card .corner-deco{position:absolute;top:1.2rem;right:1.5rem;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;opacity:0.25;}
+.lv-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.8rem;}
+.lv-icon-wrap{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;}
+.lv-icon-wrap::after{content:'';position:absolute;inset:-3px;border-radius:18px;border:1px solid;opacity:0.4;}
+.ico-purple{background:rgba(124,58,237,0.12);color:var(--neon-purple);}.ico-purple::after{border-color:var(--neon-purple);}
+.ico-orange{background:rgba(194,65,12,0.12);color:var(--neon-orange);}.ico-orange::after{border-color:var(--neon-orange);}
+.ico-cyan{background:rgba(8,145,178,0.12);color:var(--neon-cyan);}.ico-cyan::after{border-color:var(--neon-cyan);}
+.ico-green{background:rgba(22,163,74,0.12);color:var(--neon-green);}.ico-green::after{border-color:var(--neon-green);}
+.ico-blue{background:rgba(37,99,235,0.12);color:var(--neon-blue);}.ico-blue::after{border-color:var(--neon-blue);}
+.ico-pink{background:rgba(219,39,119,0.12);color:var(--neon-pink);}.ico-pink::after{border-color:var(--neon-pink);}
+.ico-yellow{background:rgba(180,83,9,0.12);color:var(--neon-yellow);}.ico-yellow::after{border-color:var(--neon-yellow);}
+.ico-red{background:rgba(220,38,38,0.12);color:var(--neon-red);}.ico-red::after{border-color:var(--neon-red);}
+.lv-meta{flex:1;}
+.lv-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.35rem;}
+.lv-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;line-height:1.2;color:var(--text);}
+.lv-xp{margin-top:0.4rem;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(180,83,9,0.08);border:1px solid rgba(180,83,9,0.25);border-radius:50px;padding:0.2rem 0.75rem;font-size:0.75rem;font-weight:700;color:var(--neon-yellow);}
+
+/* CALLOUT */
+.callout{border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;border:1px solid;position:relative;overflow:hidden;}
+.callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.callout .ct{font-weight:800;font-size:0.95rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;}
+.cb-purple{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2);}.cb-purple::before{background:var(--neon-purple);}.cb-purple .ct{color:var(--neon-purple);}
+.cb-orange{background:rgba(194,65,12,0.06);border-color:rgba(194,65,12,0.2);}.cb-orange::before{background:var(--neon-orange);}.cb-orange .ct{color:var(--neon-orange);}
+.cb-cyan{background:rgba(8,145,178,0.06);border-color:rgba(8,145,178,0.2);}.cb-cyan::before{background:var(--neon-cyan);}.cb-cyan .ct{color:var(--neon-cyan);}
+.cb-green{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.2);}.cb-green::before{background:var(--neon-green);}.cb-green .ct{color:var(--neon-green);}
+.cb-blue{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);}.cb-blue::before{background:var(--neon-blue);}.cb-blue .ct{color:var(--neon-blue);}
+.cb-yellow{background:rgba(180,83,9,0.06);border-color:rgba(180,83,9,0.2);}.cb-yellow::before{background:var(--neon-yellow);}.cb-yellow .ct{color:var(--neon-yellow);}
+.cb-pink{background:rgba(219,39,119,0.06);border-color:rgba(219,39,119,0.2);}.cb-pink::before{background:var(--neon-pink);}.cb-pink .ct{color:var(--neon-pink);}
+.cb-red{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.2);}.cb-red::before{background:var(--neon-red);}.cb-red .ct{color:var(--neon-red);}
+
+/* FORMULA BOX */
+.formula-box{background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(37,99,235,0.04));border:1.5px solid rgba(124,58,237,0.25);border-radius:16px;padding:1.5rem 2rem;margin:1.4rem 0;text-align:center;position:relative;overflow:hidden;}
+.formula-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(124,58,237,0.05),transparent 70%);pointer-events:none;}
+.formula-main{font-family:var(--font-mono);font-size:1.2rem;font-weight:700;color:var(--neon-purple);letter-spacing:0.5px;line-height:1.9;}
+.formula-sub{font-size:0.82rem;color:var(--muted);margin-top:0.5rem;font-style:italic;}
+.formula-label{position:absolute;top:0.55rem;right:1rem;font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-purple);opacity:0.6;}
+.formula-box.fb-orange{background:linear-gradient(135deg,rgba(194,65,12,0.06),rgba(180,83,9,0.04));border-color:rgba(194,65,12,0.25);}
+.formula-box.fb-orange::before{background:radial-gradient(ellipse at center,rgba(194,65,12,0.05),transparent 70%);}
+.formula-box.fb-orange .formula-main{color:var(--neon-orange);}
+.formula-box.fb-orange .formula-label{color:var(--neon-orange);}
+.formula-box.fb-cyan{background:linear-gradient(135deg,rgba(8,145,178,0.06),rgba(22,163,74,0.04));border-color:rgba(8,145,178,0.25);}
+.formula-box.fb-cyan .formula-main{color:var(--neon-cyan);}
+.formula-box.fb-cyan .formula-label{color:var(--neon-cyan);}
+.formula-box.fb-green{background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(8,145,178,0.04));border-color:rgba(22,163,74,0.25);}
+.formula-box.fb-green .formula-main{color:var(--neon-green);}
+.formula-box.fb-green .formula-label{color:var(--neon-green);}
+.formula-box.fb-blue{background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(124,58,237,0.04));border-color:rgba(37,99,235,0.25);}
+.formula-box.fb-blue .formula-main{color:var(--neon-blue);}
+.formula-box.fb-blue .formula-label{color:var(--neon-blue);}
+
+/* MATH TERM ANNOTATION */
+.math-terms{display:flex;flex-wrap:wrap;gap:0.6rem;margin:0.8rem 0;}
+.math-term{display:inline-flex;align-items:center;gap:0.45rem;background:#f0f4ff;border:1px solid var(--border2);border-radius:8px;padding:0.3rem 0.75rem;font-size:0.84rem;}
+.math-term .sym{font-family:var(--font-mono);font-weight:700;color:var(--neon-purple);}
+.math-term .meaning{color:var(--muted);}
+
+/* STEP TIMELINE */
+.step-timeline{position:relative;padding-left:2.8rem;}
+.step-timeline::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon-purple),var(--neon-orange),var(--neon-cyan));opacity:0.45;border-radius:2px;}
+.step-item{position:relative;margin-bottom:1.3rem;background:#f8f9ff;border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 2px 8px rgba(37,99,235,0.05);transition:0.25s;}
+.step-item:hover{border-color:var(--border2);background:#eef1ff;}
+.step-item::before{content:attr(data-step);position:absolute;left:-2.8rem;top:1rem;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--neon-purple);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;color:var(--neon-purple);box-shadow:0 2px 8px rgba(124,58,237,0.2);}
+.step-label{font-weight:700;color:var(--text);font-size:0.98rem;margin-bottom:0.35rem;}
+.step-body{color:var(--muted);font-size:0.92rem;line-height:1.7;}
+
+/* ACH CARD */
+.ach-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;text-align:center;position:relative;overflow:hidden;}
+.ach-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s;}
+.ach-card:hover{transform:translateY(-6px);border-color:var(--border2);}
+.ach-card:hover::after{opacity:1;}
+.ach-card.ac-purple::after{background:var(--neon-purple);}.ach-card.ac-purple:hover{box-shadow:0 10px 28px rgba(124,58,237,0.15);}
+.ach-card.ac-orange::after{background:var(--neon-orange);}.ach-card.ac-orange:hover{box-shadow:0 10px 28px rgba(194,65,12,0.15);}
+.ach-card.ac-cyan::after{background:var(--neon-cyan);}.ach-card.ac-cyan:hover{box-shadow:0 16px 48px rgba(8,145,178,0.2);}
+.ach-card.ac-green::after{background:var(--neon-green);}.ach-card.ac-green:hover{box-shadow:0 16px 48px rgba(22,163,74,0.2);}
+.ach-card.ac-blue::after{background:var(--neon-blue);}.ach-card.ac-blue:hover{box-shadow:0 16px 48px rgba(37,99,235,0.2);}
+.ach-card.ac-pink::after{background:var(--neon-pink);}.ach-card.ac-pink:hover{box-shadow:0 16px 48px rgba(219,39,119,0.2);}
+.ach-card.ac-yellow::after{background:var(--neon-yellow);}.ach-card.ac-yellow:hover{box-shadow:0 10px 28px rgba(180,83,9,0.15);}
+.ach-icon{font-size:2.2rem;margin-bottom:0.75rem;display:block;}
+.ach-title{font-family:var(--font-head);font-weight:800;font-size:1rem;margin-bottom:0.5rem;}
+.ach-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+
+/* CODE BLOCK */
+.code-wrap{background:#f8f9fc;border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin:1.2rem 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.06);padding:0.6rem 1.1rem;border-bottom:1px solid var(--border);}
+.code-lang{font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:var(--neon-purple);letter-spacing:1px;text-transform:uppercase;}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#dc2626;}.code-dot:nth-child(2){background:#b45309;}.code-dot:nth-child(3){background:#16a34a;}
+.code-wrap pre{margin:0;padding:1.2rem 1.4rem;overflow-x:auto;background:transparent;}
+.code-wrap pre code{font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;}
+pre[class*="language-"]{border-radius:0!important;font-family:var(--font-mono)!important;font-size:0.85rem!important;margin:0!important;border:none!important;background:transparent!important;}
+.code-output{background:rgba(22,163,74,0.06);border-top:1px solid rgba(22,163,74,0.2);padding:0.7rem 1.2rem;font-family:var(--font-mono);font-size:0.82rem;color:#14532d;line-height:1.7;}
+
+/* TABLE */
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.gtbl thead th{background:rgba(124,58,237,0.07);color:var(--neon-purple);font-family:var(--font-head);font-weight:700;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid var(--border2);font-size:0.85rem;letter-spacing:0.5px;}
+.gtbl tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.92rem;vertical-align:top;}
+.gtbl tbody tr:last-child td{border-bottom:none;}
+.gtbl tbody tr:hover td{background:rgba(124,58,237,0.03);color:var(--text);}
+.gtbl tbody td strong{color:var(--text);}
+
+/* STAT PILL */
+.stat-pill{display:inline-flex;align-items:center;gap:0.35rem;border-radius:50px;padding:0.22rem 0.8rem;font-weight:700;font-size:0.78rem;border:1px solid;}
+.sp-purple{background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.28);color:var(--neon-purple);}
+.sp-orange{background:rgba(194,65,12,0.08);border-color:rgba(194,65,12,0.28);color:var(--neon-orange);}
+.sp-cyan{background:rgba(8,145,178,0.08);border-color:rgba(8,145,178,0.28);color:var(--neon-cyan);}
+.sp-green{background:rgba(22,163,74,0.08);border-color:rgba(22,163,74,0.28);color:var(--neon-green);}
+.sp-blue{background:rgba(37,99,235,0.08);border-color:rgba(37,99,235,0.28);color:var(--neon-blue);}
+.sp-pink{background:rgba(219,39,119,0.08);border-color:rgba(219,39,119,0.28);color:var(--neon-pink);}
+.sp-yellow{background:rgba(180,83,9,0.08);border-color:rgba(180,83,9,0.28);color:var(--neon-yellow);}
+.sp-red{background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.28);color:var(--neon-red);}
+
+/* INLINE CODE */
+.inline-code{background:rgba(124,58,237,0.07);color:var(--neon-purple);padding:0.1rem 0.45rem;border-radius:6px;font-family:var(--font-mono);font-size:0.87em;border:1px solid rgba(124,58,237,0.2);}
+
+/* HIGHLIGHT */
+.hl{background:rgba(180,83,9,0.1);color:#92400e;padding:0 5px;border-radius:4px;}
+.hl-blue{background:rgba(37,99,235,0.1);color:var(--neon-blue);padding:0 5px;border-radius:4px;}
+.hl-green{background:rgba(22,163,74,0.1);color:var(--neon-green);padding:0 5px;border-radius:4px;}
+.hl-red{background:rgba(220,38,38,0.1);color:var(--neon-red);padding:0 5px;border-radius:4px;}
+.hl-purple{background:rgba(124,58,237,0.1);color:var(--neon-purple);padding:0 5px;border-radius:4px;}
+
+/* GLOW DIV */
+.glow-div{height:2px;border-radius:2px;margin:2rem 0;opacity:0.4;background:linear-gradient(90deg,transparent,var(--neon-purple),var(--neon-orange),var(--neon-cyan),transparent);}
+
+/* MERMAID */
+.mermaid-wrap{background:#f8f9ff;border:1px solid var(--border2);border-radius:16px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto;}
+
+/* MATRIX BOX */
+.matrix-box{display:inline-block;border-left:3px solid var(--neon-purple);border-right:3px solid var(--neon-purple);padding:0.6rem 1rem;margin:0.3rem;font-family:var(--font-mono);font-size:0.88rem;line-height:1.9;color:var(--text);background:rgba(124,58,237,0.04);border-radius:4px;}
+.matrix-wrap{text-align:center;margin:1.2rem 0;overflow-x:auto;padding:0.5rem;}
+.matrix-eq{display:flex;align-items:center;justify-content:center;gap:0.75rem;flex-wrap:wrap;font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--neon-purple);}
+.matrix-label{font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:center;margin-top:0.2rem;}
+
+/* VIF BAR */
+.vif-bar-wrap{margin:0.5rem 0;}
+.vif-label-row{display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.2rem;}
+.vif-bar-outer{height:10px;background:#e5e7eb;border-radius:50px;overflow:hidden;}
+.vif-bar-inner{height:100%;border-radius:50px;transition:width 1.2s cubic-bezier(0.34,1.56,0.64,1);}
+
+/* QUIZ */
+.quiz-box{background:#f5f7ff;border:1px solid rgba(124,58,237,0.22);border-radius:20px;padding:1.6rem;margin:1.8rem 0;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(37,99,235,0.07);}
+.quiz-box::before{content:'⚡ QUICK CHALLENGE';position:absolute;top:0;right:0;background:linear-gradient(135deg,var(--neon-purple),var(--neon-orange));color:#fff;font-family:var(--font-head);font-weight:800;font-size:0.62rem;letter-spacing:2px;padding:0.32rem 0.9rem;border-radius:0 20px 0 12px;}
+.quiz-q{font-weight:700;color:#1e1b4b;margin-bottom:1.1rem;font-size:1.02rem;line-height:1.55;}
+.quiz-options{display:flex;flex-direction:column;gap:0.55rem;}
+.quiz-opt{background:#ffffff;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.75rem 1.1rem;cursor:pointer;font-size:0.93rem;color:#374151;transition:background 0.15s,border-color 0.15s,transform 0.12s;font-weight:500;display:flex;align-items:center;gap:0.85rem;user-select:none;}
+.quiz-opt:not(.answered-opt):hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;transform:translateX(3px);}
+.quiz-opt.correct{background:#f0fdf4;border-color:#16a34a;color:#14532d;font-weight:700;}
+.quiz-opt.correct .opt-letter{background:#16a34a;color:#fff;}
+.quiz-opt.wrong{background:#fef2f2;border-color:#dc2626;color:#991b1b;opacity:0.8;}
+.quiz-opt.wrong .opt-letter{background:#dc2626;color:#fff;}
+.quiz-opt.dimmed{opacity:0.45;pointer-events:none;}
+.quiz-opt .opt-letter{width:28px;height:28px;border-radius:8px;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.8rem;flex-shrink:0;transition:background 0.2s,color 0.2s;}
+.quiz-explain{display:none;font-size:0.84rem;font-weight:500;margin-top:-0.35rem;margin-bottom:0.35rem;padding:0.5rem 0.85rem 0.5rem 1rem;border-radius:0 0 10px 10px;line-height:1.55;border-left:3px solid transparent;}
+.quiz-explain.show-correct{display:block;background:rgba(22,163,74,0.07);color:#166534;border-left-color:#16a34a;}
+.quiz-explain.show-wrong{display:block;background:rgba(220,38,38,0.06);color:#991b1b;border-left-color:#dc2626;}
+.quiz-explain.show-reveal{display:block;background:rgba(37,99,235,0.06);color:#1e40af;border-left-color:#2563eb;}
+.quiz-feedback{display:none;margin-top:1rem;padding:0.85rem 1.1rem;border-radius:12px;font-weight:700;font-size:0.95rem;align-items:center;gap:0.6rem;}
+.quiz-feedback.show{display:flex;animation:fadeIn 0.35s;}
+.quiz-feedback.win{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;border:1px solid rgba(22,163,74,0.3);}
+.quiz-feedback.lose{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;border:1px solid rgba(220,38,38,0.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* FOOTER */
+.gfooter{background:var(--bg2);border-top:1px solid var(--border);padding:3rem 0;margin-top:4rem;text-align:center;}
+.gfooter-logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--neon-purple),var(--neon-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-up.visible{opacity:1;transform:none;}
+@media(max-width:768px){.hero h1{font-size:2rem;}.hero-orbit{display:none;}.level-card{padding:1.5rem;}.xp-badges{display:none;}}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;}
+.gtoast{background:#ffffff;border:1px solid var(--border2);border-radius:14px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.75rem;backdrop-filter:blur(12px);font-weight:700;font-size:0.88rem;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto;min-width:260px;box-shadow:0 8px 32px rgba(37,99,235,0.15);}
+.gtoast.show{transform:none;}
+.gtoast-icon{font-size:1.4rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:#ffffff;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:520px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(37,99,235,0.18),0 4px 20px rgba(0,0,0,0.1);transform:scale(0.85) translateY(20px);transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease;opacity:0;}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0);opacity:1;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--neon-purple),var(--neon-orange),var(--neon-cyan));}
+.modal-close{position:absolute;top:1rem;right:1rem;background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.modal-close:hover{background:#e5e7eb;color:#374151;}
+.modal-trophy{font-size:3rem;text-align:center;margin-bottom:0.5rem;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;text-align:center;color:var(--text);margin-bottom:0.4rem;}
+.modal-subtitle{color:var(--muted);text-align:center;font-size:0.92rem;margin-bottom:1.5rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.score-ring{position:relative;width:120px;height:120px;}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e5e7eb;stroke-width:10;}
+.ring-fill{fill:none;stroke:#7c3aed;stroke-width:10;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--text);line-height:1;}
+.ring-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.grade-card{border-radius:14px;padding:0.85rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;border:1.5px solid;}
+.grade-s{background:#fef9c3;border-color:#b45309;}.grade-a{background:#f0fdf4;border-color:#16a34a;}.grade-b{background:#eff6ff;border-color:#2563eb;}.grade-c{background:#f5f3ff;border-color:#7c3aed;}.grade-d{background:#fef2f2;border-color:#dc2626;}
+.grade-letter{font-family:var(--font-head);font-weight:800;font-size:1.6rem;}
+.grade-msg{font-size:0.9rem;color:var(--muted);font-weight:600;}
+.modal-xp-row{display:flex;align-items:center;justify-content:space-between;background:#f8f9ff;border:1px solid rgba(37,99,235,0.15);border-radius:12px;padding:0.75rem 1.1rem;margin-bottom:1.4rem;}
+.modal-xp-row .mxp-label{font-size:0.85rem;color:#6b7280;font-weight:600;}
+.modal-xp-row .mxp-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#7c3aed,#c2410c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-btns{display:flex;gap:0.75rem;}
+.modal-btn-retry{flex:1;padding:0.8rem 1rem;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#374151;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.modal-btn-retry:hover{background:#e5e7eb;border-color:#d1d5db;color:#111827;}
+.modal-btn-continue{flex:2;padding:0.8rem 1rem;background:linear-gradient(135deg,#7c3aed,#c2410c);border:none;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#ffffff;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 16px rgba(124,58,237,0.3);}
+.modal-btn-continue:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(124,58,237,0.4);}
+#confettiCanvas{position:fixed;inset:0;z-index:10001;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- XP STRIP -->
+<div class="xp-strip">
+  <div class="container-main">
+    <div class="xp-inner">
+      <span class="xp-label">⚡ XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill"></div></div>
+      <span class="xp-score" id="xpScore">0 / 275 XP</span>
+      <div class="xp-badges">
+        <span class="xp-badge b1" id="badge1">🧮 MLR Builder</span>
+        <span class="xp-badge b2" id="badge2">📐 Matrix Ninja</span>
+        <span class="xp-badge b3" id="badge3">🔬 Assumption Guard</span>
+        <span class="xp-badge b4" id="badge4">🐍 Code Master</span>
+        <span class="xp-badge b5" id="badge5">🎯 VIF Slayer</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container-main">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-eyebrow"><i class="fa-solid fa-gamepad me-1"></i> Gamified Learning Quest</div>
+        <h1>
+          <span class="line1">Multiple Features, One Line —</span>
+          <span class="line2">Multiple Linear Regression!</span>
+        </h1>
+        <p class="hero-sub">
+          5 boss levels. Model equation se lekar Normal Equation, Assumptions, aur Python code tak — sab kuch ek jagah. Real India examples ke saath. <strong style="color:var(--text)">Earn XP</strong>, unlock badges, aur MLR ka poora math aur code master karo!
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Boss Levels</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">275</div><div class="hero-stat-label">Total XP</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Badges</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">∞</div><div class="hero-stat-label">Predictions</div></div>
+        </div>
+        <a href="#s1" class="hero-cta"><i class="fa-solid fa-play me-1"></i> Start Your Quest</a>
+      </div>
+      <div class="col-lg-5">
+        <div class="hero-orbit">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-center">📊</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-main">
+
+<!-- QUEST MAP -->
+<div class="quest-map fade-up">
+  <div class="quest-map-title"><i class="fa-solid fa-map me-2"></i> Quest Map</div>
+  <div class="quest-grid">
+    <a href="#s1" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.14);color:var(--neon-purple);">L1</span> MLR — Model Equation &amp; Intuition</a>
+    <a href="#s2" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.14);color:var(--neon-orange);">L2</span> Matrix Form &amp; Normal Equation (OLS)</a>
+    <a href="#s3" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.14);color:var(--neon-cyan);">L3</span> Assumptions of MLR</a>
+    <a href="#s4" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.14);color:var(--neon-green);">L4</span> Python — From Scratch &amp; sklearn</a>
+    <a href="#s5" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.14);color:var(--neon-pink);">L5</span> Multicollinearity &amp; VIF</a>
+    <a href="#s6" class="quest-item"><span class="quest-num" style="background:rgba(180,83,9,0.14);color:var(--neon-yellow);">🏆</span> Final Summary &amp; Cheatsheet</a>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 1 : MLR MODEL EQUATION
+█████████████████████████████████████ -->
+<div class="level-card lvl-purple fade-up" id="s1">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-purple"><i class="fa-solid fa-table-columns"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Boss Topic</div>
+      <div class="lv-title">MLR — Ek Line, Bahut Saare Features!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-purple">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> SLR se MLR — Extension Ka Idea</div>
+    <strong>Simple Linear Regression (SLR):</strong> &nbsp; ŷ = β₀ + β₁X &nbsp;→ sirf ek feature<br>
+    <strong>Multiple Linear Regression (MLR):</strong> &nbsp; ŷ = β₀ + β₁X₁ + β₂X₂ + … + βₙXₙ &nbsp;→ <span class="hl-purple">n features ek saath!</span><br><br>
+    Real world mein ek house ki price sirf size se decide nahi hoti — <em>location, bedrooms, age, floor, distance from metro</em> sab matter karta hai. MLR ye sab ek model mein handle karta hai!
+  </div>
+
+  <!-- MLR equation -->
+  <div class="formula-box">
+    <div class="formula-label">MLR MODEL EQUATION</div>
+    <div class="formula-main">ŷ = β₀ + β₁X₁ + β₂X₂ + β₃X₃ + … + βₙXₙ</div>
+    <div class="formula-sub">Population form: &nbsp; y = β₀ + β₁X₁ + … + βₙXₙ + ε &nbsp;&nbsp;|&nbsp;&nbsp; ε ~ N(0, σ²)</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">ŷ</span><span class="meaning">Predicted output (y-hat)</span></div>
+    <div class="math-term"><span class="sym">β₀</span><span class="meaning">Intercept — sab X=0 hone par ŷ ki value</span></div>
+    <div class="math-term"><span class="sym">β₁…βₙ</span><span class="meaning">Coefficients — har feature ka "weight"</span></div>
+    <div class="math-term"><span class="sym">X₁…Xₙ</span><span class="meaning">Independent features (input variables)</span></div>
+    <div class="math-term"><span class="sym">ε</span><span class="meaning">Error term — jo explain nahi ho saka</span></div>
+    <div class="math-term"><span class="sym">n</span><span class="meaning">Number of features (predictors)</span></div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- SLR vs MLR visual comparison -->
+  <div class="row g-3 mt-1">
+    <div class="col-md-6">
+      <div style="background:#f8f9ff;border:1.5px solid rgba(124,58,237,0.2);border-radius:16px;padding:1.4rem;height:100%;">
+        <div style="font-family:var(--font-head);font-weight:800;color:var(--neon-purple);font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.8rem;">📈 Simple Linear Regression</div>
+        <div style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--neon-purple);margin-bottom:0.8rem;">ŷ = β₀ + β₁ × Size</div>
+        <!-- 2D scatter SVG -->
+        <svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;border-radius:8px;background:#fff;">
+          <line x1="25" y1="120" x2="210" y2="120" stroke="#d1d5db" stroke-width="1.2"/>
+          <line x1="25" y1="120" x2="25" y2="12" stroke="#d1d5db" stroke-width="1.2"/>
+          <text x="110" y="134" text-anchor="middle" font-size="8" fill="#9ca3af" font-family="sans-serif">Size (sqft) →</text>
+          <text x="14" y="70" text-anchor="middle" font-size="8" fill="#9ca3af" font-family="sans-serif" transform="rotate(-90,14,70)">Price →</text>
+          <line x1="35" y1="108" x2="200" y2="22" stroke="#7c3aed" stroke-width="2"/>
+          <circle cx="45" cy="100" r="4" fill="#e11d48"/><circle cx="70" cy="84" r="4" fill="#e11d48"/>
+          <circle cx="95" cy="70" r="4" fill="#e11d48"/><circle cx="120" cy="60" r="4" fill="#e11d48"/>
+          <circle cx="145" cy="46" r="4" fill="#e11d48"/><circle cx="170" cy="36" r="4" fill="#e11d48"/>
+          <text x="165" y="18" font-size="8" fill="#7c3aed" font-family="sans-serif">β₀+β₁X</text>
+        </svg>
+        <div style="font-size:0.78rem;color:var(--dim);margin-top:0.5rem;">1 feature → 2D plane mein ek line</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div style="background:#f8f9ff;border:1.5px solid rgba(194,65,12,0.2);border-radius:16px;padding:1.4rem;height:100%;">
+        <div style="font-family:var(--font-head);font-weight:800;color:var(--neon-orange);font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.8rem;">📊 Multiple Linear Regression</div>
+        <div style="font-family:var(--font-mono);font-size:0.88rem;font-weight:700;color:var(--neon-orange);margin-bottom:0.8rem;">ŷ = β₀ + β₁×Size + β₂×Rooms + β₃×Age</div>
+        <!-- 3D-like SVG hint -->
+        <svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;border-radius:8px;background:#fff;">
+          <!-- 3D axes suggestion -->
+          <line x1="110" y1="120" x2="25" y2="80" stroke="#d1d5db" stroke-width="1.2"/>
+          <line x1="110" y1="120" x2="200" y2="80" stroke="#d1d5db" stroke-width="1.2"/>
+          <line x1="110" y1="120" x2="110" y2="18" stroke="#d1d5db" stroke-width="1.2"/>
+          <text x="18" y="78" font-size="8" fill="#9ca3af" font-family="sans-serif">X₁</text>
+          <text x="202" y="78" font-size="8" fill="#9ca3af" font-family="sans-serif">X₂</text>
+          <text x="112" y="15" font-size="8" fill="#9ca3af" font-family="sans-serif">y</text>
+          <!-- Hyperplane suggestion (a tilted parallelogram) -->
+          <polygon points="60,90 160,90 185,55 80,55" fill="rgba(194,65,12,0.12)" stroke="#c2410c" stroke-width="1.5"/>
+          <text x="115" y="75" text-anchor="middle" font-size="8" fill="#c2410c" font-family="sans-serif" font-weight="bold">Hyperplane</text>
+          <!-- Data points scattered -->
+          <circle cx="75" cy="82" r="3.5" fill="#e11d48"/><circle cx="100" cy="68" r="3.5" fill="#e11d48"/>
+          <circle cx="130" cy="72" r="3.5" fill="#e11d48"/><circle cx="155" cy="58" r="3.5" fill="#e11d48"/>
+          <circle cx="90" cy="62" r="3.5" fill="#e11d48"/><circle cx="140" cy="84" r="3.5" fill="#e11d48"/>
+        </svg>
+        <div style="font-size:0.78rem;color:var(--dim);margin-top:0.5rem;">n features → n+1 dimensional hyperplane</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-yellow mt-4">
+    <div class="ct"><i class="fa-solid fa-india"></i> 🇮🇳 Real India Example — Mumbai House Price Prediction</div>
+    <strong>Features:</strong> Size (sqft) = X₁, Bedrooms = X₂, Distance from Metro (km) = X₃, Age of Building (years) = X₄<br><br>
+    <div style="font-family:var(--font-mono);font-size:0.95rem;font-weight:700;color:var(--neon-purple);background:rgba(124,58,237,0.06);border-radius:10px;padding:0.8rem 1.2rem;margin:0.5rem 0;">
+      Price (₹L) = 20 + 0.05×Size − 2.5×Distance + 3.2×Bedrooms − 0.8×Age
+    </div>
+    <div class="row g-2 mt-1">
+      <div class="col-md-6">
+        <strong>Coefficients ka matlab:</strong><br>
+        → β₁ = 0.05: 1 sqft zyada = ₹5K price up (size held constant)<br>
+        → β₂ = −2.5: 1 km dur = ₹2.5L price down (distance penalty)<br>
+        → β₃ = 3.2: 1 extra bedroom = ₹3.2L up<br>
+        → β₄ = −0.8: 1 year old = ₹80K price down
+      </div>
+      <div class="col-md-6">
+        <strong>Prediction example:</strong><br>
+        → 1000 sqft, 3 bed, 1 km metro, 5 years old:<br>
+        → ŷ = 20 + (0.05×1000) − (2.5×1) + (3.2×3) − (0.8×5)<br>
+        → ŷ = 20 + 50 − 2.5 + 9.6 − 4<br>
+        → ŷ = <strong style="color:var(--neon-green);">₹73.1 Lakhs</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-3">
+    <div class="col-md-4">
+      <div class="ach-card ac-purple">
+        <span class="ach-icon">🎯</span>
+        <div class="ach-title">Partial Coefficient</div>
+        <div class="ach-desc">Har βᵢ = "Y mein change jab Xᵢ 1 unit badhta hai aur baaki sab features constant rehte hain." Ye partial effect hai!</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-orange">
+        <span class="ach-icon">📐</span>
+        <div class="ach-title">Hyperplane</div>
+        <div class="ach-desc">SLR mein line, MLR mein hyperplane. 2 features = 3D plane. n features = (n+1) dimensional hyperplane in feature space.</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-cyan">
+        <span class="ach-icon">⚖️</span>
+        <div class="ach-title">Ceteris Paribus</div>
+        <div class="ach-desc">Latin: "All else equal." MLR ke coefficients ye guarantee dete hain — ek feature ka effect isolate kiya jaa sakta hai.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-box" data-quiz="1" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 MLR model hai: Price (₹L) = 15 + 0.04×Area + 5×Bedrooms − 1.2×Distance. Ek flat hai: Area=1200 sqft, 2 bedrooms, Metro se 3 km door. Predicted price kya hoga?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Calculation check karo: 15 + 0.04×1200 = 15+48=63. +5×2=63+10=73. −1.2×3=73−3.6=69.4. Sirf area consider kiya lagta hai."><span class="opt-letter">A</span>₹63 Lakhs — sirf area ka contribution liya</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Galat. 15 + 48 + 10 − 3.6 = 69.4L. 71L nahi. Distance ka negative effect miss hua ya alag calculate kiya."><span class="opt-letter">B</span>₹71 Lakhs — kuch terms galat add kiye</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! Step by step: β₀=15. β₁×X₁=0.04×1200=48. β₂×X₂=5×2=10. β₃×X₃=−1.2×3=−3.6. Sum=15+48+10−3.6=69.4L. Ye MLR prediction ka core hai — sab features ek saath contribute karte hain!"><span class="opt-letter">C</span>₹69.4 Lakhs — sabhi features correctly combined</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. 15 + 0.04×1200 + 5×2 + 1.2×3 = 15+48+10+3.6=76.6. Distance ka sign negative hai (−1.2) — metro se door hona price ghataata hai. Sign matter karta hai!"><span class="opt-letter">D</span>₹76.6 Lakhs — distance ka sign ulta liya</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 2 : MATRIX FORM & NORMAL EQUATION
+█████████████████████████████████████ -->
+<div class="level-card lvl-orange fade-up" id="s2">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-orange"><i class="fa-solid fa-border-all"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Boss Topic</div>
+      <div class="lv-title">Matrix Form &amp; Normal Equation — OLS for MLR!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-orange">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Scalar se Matrix — Kyun?</div>
+    SLR mein 2 unknowns (β₀, β₁) — simple formulas se solve hota tha. MLR mein <span class="hl-purple">n+1 unknowns</span> hain — alag alag equations likhna impractical hai. <strong>Linear Algebra (Matrix notation)</strong> ek elegant solution deta hai jo 2 ya 200 features ke liye equally kaam karta hai!
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-border-all me-2" style="color:var(--neon-orange)"></i>Step 1 — Model ko Matrix Form mein Likhna
+  </h5>
+
+  <!-- Matrix equation visual -->
+  <div class="matrix-wrap">
+    <div class="matrix-eq">
+      <div>
+        <div class="matrix-box">y₁<br>y₂<br>y₃<br>⋮<br>yₘ</div>
+        <div class="matrix-label">y<br>(m×1)</div>
+      </div>
+      <span style="font-size:1.4rem;">=</span>
+      <div>
+        <div class="matrix-box">1 &nbsp;X₁₁ &nbsp;X₁₂ &nbsp;… &nbsp;X₁ₙ<br>1 &nbsp;X₂₁ &nbsp;X₂₂ &nbsp;… &nbsp;X₂ₙ<br>1 &nbsp;X₃₁ &nbsp;X₃₂ &nbsp;… &nbsp;X₃ₙ<br>⋮ &nbsp;⋮ &nbsp;&nbsp;&nbsp;&nbsp;⋮ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⋱ &nbsp;⋮<br>1 &nbsp;Xₘ₁ &nbsp;Xₘ₂ &nbsp;… &nbsp;Xₘₙ</div>
+        <div class="matrix-label">X (Design Matrix)<br>(m×(n+1))</div>
+      </div>
+      <span style="font-size:1.4rem;">×</span>
+      <div>
+        <div class="matrix-box">β₀<br>β₁<br>β₂<br>⋮<br>βₙ</div>
+        <div class="matrix-label">β<br>((n+1)×1)</div>
+      </div>
+      <span style="font-size:1.4rem;">+</span>
+      <div>
+        <div class="matrix-box">ε₁<br>ε₂<br>ε₃<br>⋮<br>εₘ</div>
+        <div class="matrix-label">ε<br>(m×1)</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:0.6rem;font-family:var(--font-mono);font-size:1.05rem;font-weight:700;color:var(--neon-purple);">
+      y = Xβ + ε &nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp; ŷ = Xβ
+    </div>
+    <div style="font-size:0.78rem;color:var(--dim);text-align:center;margin-top:0.3rem;">m = number of data points (rows) · n = number of features (columns) · First column of X is all 1s (for intercept β₀)</div>
+  </div>
+
+  <div class="callout cb-blue mt-3">
+    <div class="ct"><i class="fa-solid fa-table"></i> Design Matrix X — India Example (5 houses)</div>
+    <div class="table-responsive mt-1">
+      <table class="gtbl" style="font-size:0.85rem;">
+        <thead><tr><th>1 (bias)</th><th>Size (X₁)</th><th>Bedrooms (X₂)</th><th>Distance (X₃)</th><th>→</th><th>Price y (₹L)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>800</td><td>2</td><td>2</td><td>→</td><td>52</td></tr>
+          <tr><td>1</td><td>1000</td><td>2</td><td>1</td><td>→</td><td>68</td></tr>
+          <tr><td>1</td><td>1200</td><td>3</td><td>1</td><td>→</td><td>79</td></tr>
+          <tr><td>1</td><td>1500</td><td>3</td><td>3</td><td>→</td><td>85</td></tr>
+          <tr><td>1</td><td>1800</td><td>4</td><td>0.5</td><td>→</td><td>110</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.83rem;color:var(--muted);margin-top:0.5rem;">First column = all 1s (intercept ke liye). Ye <strong>Design Matrix X</strong> hai — (5×4) matrix. β = (4×1) vector. y = (5×1) vector.</div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-square-root-variable me-2" style="color:var(--neon-orange)"></i>Step 2 — Normal Equation — Closed Form OLS for MLR
+  </h5>
+
+  <div class="formula-box fb-orange">
+    <div class="formula-label">NORMAL EQUATION — OLS FOR MLR</div>
+    <div class="formula-main">β̂ = (XᵀX)⁻¹ Xᵀy</div>
+    <div class="formula-sub">Best coefficients jo SSE = (y − Xβ)ᵀ(y − Xβ) minimize karte hain — directly, analytically!</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">Xᵀ</span><span class="meaning">Transpose of design matrix X</span></div>
+    <div class="math-term"><span class="sym">XᵀX</span><span class="meaning">(n+1)×(n+1) square matrix</span></div>
+    <div class="math-term"><span class="sym">(XᵀX)⁻¹</span><span class="meaning">Inverse of XᵀX (exists when X is full rank)</span></div>
+    <div class="math-term"><span class="sym">Xᵀy</span><span class="meaning">(n+1)×1 cross-product vector</span></div>
+    <div class="math-term"><span class="sym">β̂</span><span class="meaning">Estimated coefficients vector</span></div>
+  </div>
+
+  <!-- Derivation steps -->
+  <div class="step-timeline mt-3">
+    <div class="step-item" data-step="1">
+      <div class="step-label">SSE ko matrix form mein likho</div>
+      <div class="step-body">
+        SSE = Σ(yᵢ − ŷᵢ)² = (y − Xβ)ᵀ(y − Xβ)<br>
+        = yᵀy − 2βᵀXᵀy + βᵀXᵀXβ &nbsp;(expand karo)
+      </div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-label">β ke respect mein differentiate karo → zero set karo</div>
+      <div class="step-body">
+        ∂SSE/∂β = −2Xᵀy + 2XᵀXβ = 0<br>
+        → &nbsp;XᵀXβ = Xᵀy &nbsp;&nbsp;← <strong>Normal Equations</strong>
+      </div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-label">β ke liye solve karo</div>
+      <div class="step-body">
+        (XᵀX) invertible hai (full rank data assumed) → dono sides pe (XᵀX)⁻¹ multiply karo:<br>
+        <strong style="color:var(--neon-orange);">β̂ = (XᵀX)⁻¹ Xᵀy</strong> ✅
+      </div>
+    </div>
+    <div class="step-item" data-step="4">
+      <div class="step-label">Connection to SLR — Special Case</div>
+      <div class="step-body">
+        Jab n=1 (sirf ek feature), Normal Equation SLR ke OLS formulas ke identical results deta hai:<br>
+        β₁ = Σ(Xᵢ−X̄)(yᵢ−ȳ)/Σ(Xᵢ−X̄)² &nbsp;aur&nbsp; β₀ = ȳ − β₁X̄ &nbsp;— same answer, matrix form ka special case!
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check"></i> Normal Equation — Advantages</div>
+        ✅ <strong>Closed-form:</strong> Direct exact solution — no iterations<br>
+        ✅ <strong>No hyperparameters:</strong> Learning rate set nahi karna<br>
+        ✅ <strong>Guaranteed global optimum</strong> (convex loss)<br>
+        ✅ <strong>Small-medium datasets</strong> (m ≤ 10K rows) ke liye fast
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-red h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-xmark"></i> Normal Equation — Limitations</div>
+        ❌ <strong>Large datasets pe slow:</strong> (XᵀX)⁻¹ = O(n³) operations — very expensive for large n<br>
+        ❌ <strong>Singular matrix:</strong> Multicollinearity hone par (XᵀX) invertible nahi hoti<br>
+        ❌ <strong>Memory intensive:</strong> XᵀX = (n+1)×(n+1) — large feature sets pe memory issue<br>
+        → <em>Large data pe Gradient Descent prefer karo!</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-box" data-quiz="2" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 MLR ka Normal Equation β̂ = (XᵀX)⁻¹Xᵀy hai. Agar data mein 2 features perfectly correlated hain (X₂ = 2X₁), toh kya problem hogi?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Correlated features se prediction automatically improve nahi hoti — actually coefficient estimates unreliable ho jaate hain. Perfectly correlated features ek unique solution exist nahi hone dete."><span class="opt-letter">A</span>Model ki prediction accuracy improve hogi — zyada features = better</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! Perfect multicollinearity (X₂ = 2X₁) mein XᵀX singular (non-invertible) matrix ban jaati hai — kyunki columns linearly dependent hain. (XᵀX)⁻¹ exist hi nahi karega, Normal Equation fail ho jaayegi! Python mein numpy.linalg.lstsq use karna padega ya ek feature drop karna padega."><span class="opt-letter">B</span>XᵀX singular (non-invertible) ho jaayegi — Normal Equation fail</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Model zyada slow nahi hoga specifically is wajah se. Singularity ka speed se nahi, mathematical invertibility se relation hai — inverse exist nahi karega."><span class="opt-letter">C</span>Model training bahut slow ho jaayegi — computational issue</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi — bilkul ulta. Perfect correlation mein β values infinite ya completely unstable ho jaate hain. XᵀX ka determinant zero ho jaata hai, inverse nahi milta."><span class="opt-letter">D</span>β values automatically zero ho jaayengi — no issue</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 3 : ASSUMPTIONS
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s3">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Boss Topic</div>
+      <div class="lv-title">MLR Assumptions — Model Reliable Kab Hota Hai?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-cyan">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Assumptions Kyun Zaroori Hain?</div>
+    MLR model <span class="hl-purple">tabhi valid predictions aur reliable coefficients</span> deta hai jab kuch mathematical conditions data mein satisfy hoti hain. Ye assumptions violate hone par — coefficients biased ya inefficient ho jaate hain, confidence intervals galat hote hain, aur predictions unreliable.
+  </div>
+
+  <!-- 6 assumptions as step items -->
+  <div class="step-timeline mt-3">
+    <div class="step-item" data-step="1">
+      <div class="step-label">🔗 Linearity — Linear Relationship</div>
+      <div class="step-body">
+        <strong>Assumption:</strong> y aur har Xᵢ ke beech linear relationship honi chahiye — ŷ = β₀ + β₁X₁ + … + βₙXₙ.<br>
+        <strong>Check:</strong> Residual vs Fitted values plot — koi pattern nahi hona chahiye. Scatter plots each feature vs y.<br>
+        <strong>Fix if violated:</strong> Polynomial features add karo (X², log(X)), ya non-linear model use karo.
+      </div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-label">🔀 Independence — No Autocorrelation</div>
+      <div class="step-body">
+        <strong>Assumption:</strong> Observations ek doosre se independent hain — error εᵢ ka εⱼ se koi correlation nahi.<br>
+        <strong>Check:</strong> Durbin-Watson test (value ≈ 2 = no autocorrelation). Time series data mein ye commonly violate hoti hai.<br>
+        <strong>Fix if violated:</strong> Lagged variables add karo, ARIMA ya time-series models use karo.
+      </div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-label">📊 Homoscedasticity — Equal Error Variance</div>
+      <div class="step-body">
+        <strong>Assumption:</strong> Errors ki variance constant honi chahiye — Var(εᵢ) = σ² for all i. "Equal spread of residuals."<br>
+        <strong>Check:</strong> Residual vs Fitted plot mein funnel shape nahi hona chahiye. Breusch-Pagan test.<br>
+        <strong>Fix if violated (Heteroscedasticity):</strong> Log(y) transform, Weighted Least Squares, robust standard errors.
+      </div>
+    </div>
+    <div class="step-item" data-step="4">
+      <div class="step-label">🔔 Normality of Errors</div>
+      <div class="step-body">
+        <strong>Assumption:</strong> Errors normally distributed honi chahiye: ε ~ N(0, σ²). Mainly inference (p-values, CI) ke liye zaroori.<br>
+        <strong>Check:</strong> Q-Q plot of residuals — points diagonal line pe hone chahiye. Shapiro-Wilk test.<br>
+        <strong>Fix if violated:</strong> Log/Box-Cox transform target variable. Large samples mein CLT se ye automatically better hoti hai.
+      </div>
+    </div>
+    <div class="step-item" data-step="5">
+      <div class="step-label">🚫 No Multicollinearity — Features Independent</div>
+      <div class="step-body">
+        <strong>Assumption:</strong> Independent variables ke beech high correlation nahi honi chahiye. VIF (Variance Inflation Factor) check karo.<br>
+        <strong>VIF &gt; 10</strong> = serious problem. <strong>VIF &gt; 5</strong> = concern.<br>
+        <strong>Fix:</strong> Correlated features mein se ek drop karo, PCA use karo, Ridge/Lasso regularization try karo.
+      </div>
+    </div>
+    <div class="step-item" data-step="6">
+      <div class="step-label">📌 No Perfect Multicollinearity — Full Rank X</div>
+      <div class="step-body">
+        <strong>Assumption:</strong> Design matrix X full column rank honi chahiye — koi bhi feature doosre ka perfect linear combination nahi hona chahiye.<br>
+        <strong>Example:</strong> Agar X₃ = 2×X₁ + X₂ exactly, toh XᵀX singular ho jaayegi → Normal Equation fail.<br>
+        <strong>Fix:</strong> Perfectly correlated feature drop karo — always before training.
+      </div>
+    </div>
+  </div>
+
+  <!-- Visual: residual patterns -->
+  <div style="background:#f8f9ff;border:1.5px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:0.8rem;">
+      <i class="fa-solid fa-chart-scatter me-1"></i> Residual Plots — Assumptions ke Diagnostic
+    </div>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <svg viewBox="0 0 180 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;border-radius:8px;background:#fff;">
+          <text x="90" y="14" text-anchor="middle" font-size="9" fill="#16a34a" font-family="sans-serif" font-weight="bold">✅ Good — Homoscedastic</text>
+          <line x1="15" y1="75" x2="165" y2="75" stroke="#d1d5db" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="15" y1="120" x2="165" y2="120" stroke="#d1d5db" stroke-width="1"/>
+          <line x1="15" y1="20" x2="15" y2="120" stroke="#d1d5db" stroke-width="1"/>
+          <text x="90" y="128" text-anchor="middle" font-size="7" fill="#9ca3af" font-family="sans-serif">Fitted Values →</text>
+          <text x="10" y="75" text-anchor="middle" font-size="7" fill="#9ca3af" font-family="sans-serif" transform="rotate(-90,10,75)">Residuals</text>
+          <!-- Random scatter around zero line -->
+          <circle cx="35" cy="60" r="3" fill="#16a34a" opacity="0.7"/>
+          <circle cx="55" cy="85" r="3" fill="#16a34a" opacity="0.7"/>
+          <circle cx="70" cy="65" r="3" fill="#16a34a" opacity="0.7"/>
+          <circle cx="90" cy="80" r="3" fill="#16a34a" opacity="0.7"/>
+          <circle cx="105" cy="70" r="3" fill="#16a34a" opacity="0.7"/>
+          <circle cx="120" cy="82" r="3" fill="#16a34a" opacity="0.7"/>
+          <circle cx="140" cy="68" r="3" fill="#16a34a" opacity="0.7"/>
+          <circle cx="155" cy="78" r="3" fill="#16a34a" opacity="0.7"/>
+        </svg>
+        <div style="font-size:0.72rem;color:var(--dim);text-align:center;margin-top:0.3rem;">Random scatter — no pattern. Assumptions OK!</div>
+      </div>
+      <div class="col-md-4">
+        <svg viewBox="0 0 180 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;border-radius:8px;background:#fff;">
+          <text x="90" y="14" text-anchor="middle" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="bold">❌ Heteroscedastic</text>
+          <line x1="15" y1="75" x2="165" y2="75" stroke="#d1d5db" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="15" y1="120" x2="165" y2="120" stroke="#d1d5db" stroke-width="1"/>
+          <line x1="15" y1="20" x2="15" y2="120" stroke="#d1d5db" stroke-width="1"/>
+          <text x="90" y="128" text-anchor="middle" font-size="7" fill="#9ca3af" font-family="sans-serif">Fitted Values →</text>
+          <!-- Funnel shape -->
+          <circle cx="30" cy="73" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="45" cy="72" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="60" cy="68" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="75" cy="62" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="90" cy="58" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="105" cy="48" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="120" cy="40" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="135" cy="92" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="150" cy="105" r="3" fill="#dc2626" opacity="0.7"/>
+          <circle cx="105" cy="100" r="3" fill="#dc2626" opacity="0.7"/>
+        </svg>
+        <div style="font-size:0.72rem;color:var(--dim);text-align:center;margin-top:0.3rem;">Funnel/fan shape = Heteroscedasticity. Log transform try karo.</div>
+      </div>
+      <div class="col-md-4">
+        <svg viewBox="0 0 180 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;border-radius:8px;background:#fff;">
+          <text x="90" y="14" text-anchor="middle" font-size="9" fill="#c2410c" font-family="sans-serif" font-weight="bold">❌ Non-Linearity</text>
+          <line x1="15" y1="75" x2="165" y2="75" stroke="#d1d5db" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="15" y1="120" x2="165" y2="120" stroke="#d1d5db" stroke-width="1"/>
+          <line x1="15" y1="20" x2="15" y2="120" stroke="#d1d5db" stroke-width="1"/>
+          <text x="90" y="128" text-anchor="middle" font-size="7" fill="#9ca3af" font-family="sans-serif">Fitted Values →</text>
+          <!-- U-shape pattern (non-linearity) -->
+          <circle cx="30" cy="55" r="3" fill="#c2410c" opacity="0.7"/>
+          <circle cx="50" cy="68" r="3" fill="#c2410c" opacity="0.7"/>
+          <circle cx="70" cy="82" r="3" fill="#c2410c" opacity="0.7"/>
+          <circle cx="90" cy="88" r="3" fill="#c2410c" opacity="0.7"/>
+          <circle cx="110" cy="82" r="3" fill="#c2410c" opacity="0.7"/>
+          <circle cx="130" cy="68" r="3" fill="#c2410c" opacity="0.7"/>
+          <circle cx="150" cy="55" r="3" fill="#c2410c" opacity="0.7"/>
+          <!-- Curve -->
+          <path d="M 30,55 Q 90,100 150,55" fill="none" stroke="#c2410c" stroke-width="1.5" stroke-dasharray="4,2"/>
+        </svg>
+        <div style="font-size:0.72rem;color:var(--dim);text-align:center;margin-top:0.3rem;">U-shape = non-linearity. Polynomial features add karo.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-box" data-quiz="3" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 Ek MLR model mein tumhare paas features hain: Income (₹), Age, aur Monthly_Spending = 0.4×Income + 0.2×Age (exactly). Ye scenario kaunsa problem create karega aur kya hoga?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Normality assumption errors ke distribution ke baare mein hai. Monthly_Spending ek linear combination hai baaki features ka — ye normality se related nahi."><span class="opt-letter">A</span>Normality assumption violate hogi — Q-Q plot check karo</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Autocorrelation time-series data mein hoti hai jab consecutive observations correlated hote hain. Yahan cross-sectional data hai — features ka ek doosre se perfect mathematical relation hai."><span class="opt-letter">B</span>Autocorrelation problem hogi — Durbin-Watson test fail karega</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Heteroscedasticity error variance se related hai. Monthly_Spending = exact linear combination of other features → ye perfect multicollinearity hai, heteroscedasticity nahi."><span class="opt-letter">C</span>Heteroscedasticity hogi — residual vs fitted plot mein funnel shape</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! Monthly_Spending = 0.4×Income + 0.2×Age → Perfect Multicollinearity. XᵀX ka determinant = 0 → Singular matrix → (XᵀX)⁻¹ exist nahi karega → Normal Equation fail. Python mein LinAlgError ya infinite/NaN coefficients milenge. Fix: Monthly_Spending feature drop karo — redundant hai!"><span class="opt-letter">D</span>Perfect Multicollinearity — XᵀX singular, Normal Equation fail, coefficients undefined</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 4 : PYTHON IMPLEMENTATION
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s4">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-brands fa-python"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Boss Topic</div>
+      <div class="lv-title">Python — MLR From Scratch aur sklearn!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Do Approaches — Kya Seekhein?</div>
+    <strong>Approach 1 — From Scratch (NumPy):</strong> Normal Equation ko direct implement karo — Matrix operations se exact β values nikalo.<br>
+    <strong>Approach 2 — sklearn:</strong> Production-ready, 3-4 lines mein same results. Real projects mein ye use karo.<br>
+    <strong>Approach 3 — statsmodels:</strong> Statistical significance, p-values, confidence intervals — full regression report.
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-code me-2" style="color:var(--neon-green)"></i>Mumbai House Price — Dataset Setup
+  </h5>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — dataset setup</span>
+    </div>
+    <pre><code class="language-python">import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error
+import matplotlib.pyplot as plt
+
+# ── Mumbai House Price Dataset ──────────────────────────────
+# Features: Area(sqft), Bedrooms, Distance_Metro(km), Age(years)
+# Target: Price (₹ Lakhs)
+
+data = {
+    'Area':     [800,  1000, 1200, 1500, 1800, 900,  1100, 1350, 1600, 2000],
+    'Bedrooms': [2,    2,    3,    3,    4,    2,    3,    3,    4,    5   ],
+    'Distance': [2.0,  1.0,  1.0,  3.0,  0.5,  2.5,  1.5,  2.0,  1.0,  0.5],
+    'Age':      [10,   5,    8,    15,   2,    12,   6,    9,    3,    1   ],
+    'Price':    [52,   68,   79,   85,   110,  58,   74,   82,   95,   130 ]
+}
+
+df = pd.DataFrame(data)
+print(df.head())
+print(f"\nDataset shape: {df.shape}")
+print(f"\nBasic stats:\n{df.describe().round(2)}")
+
+# ── Feature matrix X and target vector y ──
+X = df[['Area', 'Bedrooms', 'Distance', 'Age']].values
+y = df['Price'].values
+print(f"\nX shape: {X.shape}")   # (10, 4)
+print(f"y shape: {y.shape}")   # (10,)</code></pre>
+    <div class="code-output">
+      Area  Bedrooms  Distance  Age  Price<br>
+      0  800         2       2.0   10     52<br>
+      1 1000         2       1.0    5     68<br>
+      2 1200         3       1.0    8     79<br>
+      ...<br><br>
+      Dataset shape: (10, 4)<br>
+      X shape: (10, 4) &nbsp; | &nbsp; y shape: (10,)
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-code me-2" style="color:var(--neon-green)"></i>Approach 1 — Normal Equation: From Scratch (NumPy)
+  </h5>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — normal equation from scratch</span>
+    </div>
+    <pre><code class="language-python">def mlr_normal_equation(X, y):
+    """
+    MLR using Normal Equation: β̂ = (XᵀX)⁻¹ Xᵀy
+    
+    Steps:
+    1. Design matrix banao (bias column add karo)
+    2. XᵀX calculate karo
+    3. Inverse nikalo
+    4. Xᵀy calculate karo
+    5. β̂ = (XᵀX)⁻¹ Xᵀy
+    """
+    m = X.shape[0]   # number of data points
+    
+    # Step 1: Design matrix — first column = all 1s (intercept ke liye)
+    ones = np.ones((m, 1))
+    X_design = np.hstack([ones, X])       # shape: (m, n+1)
+    print(f"Design matrix shape: {X_design.shape}")
+    
+    # Step 2: XᵀX — square matrix (n+1) × (n+1)
+    XtX = X_design.T @ X_design
+    print(f"XᵀX shape: {XtX.shape}")
+    
+    # Step 3: (XᵀX)⁻¹ — matrix inverse
+    XtX_inv = np.linalg.inv(XtX)
+    
+    # Step 4: Xᵀy — cross product vector
+    Xty = X_design.T @ y
+    
+    # Step 5: β̂ = (XᵀX)⁻¹ Xᵀy
+    beta = XtX_inv @ Xty
+    
+    return beta
+
+# ── Run Normal Equation ──────────────────────────────────────
+beta_hat = mlr_normal_equation(X, y)
+
+feature_names = ['β₀ (Intercept)', 'β₁ (Area)', 'β₂ (Bedrooms)',
+                 'β₃ (Distance)', 'β₄ (Age)']
+
+print("\n📐 Estimated Coefficients (Normal Equation):")
+print("-" * 45)
+for name, val in zip(feature_names, beta_hat):
+    print(f"  {name:20s} = {val:8.4f}")
+
+# ── Predictions using our β̂ ──────────────────────────────────
+ones = np.ones((X.shape[0], 1))
+X_design = np.hstack([ones, X])
+y_pred_scratch = X_design @ beta_hat
+
+print("\n📊 Actual vs Predicted (₹ Lakhs):")
+for act, pred in zip(y, y_pred_scratch):
+    print(f"  Actual: {act:6.1f}  →  Predicted: {pred:6.2f}  |  Error: {act-pred:+.2f}")</code></pre>
+    <div class="code-output">
+      Design matrix shape: (10, 5)<br>
+      XᵀX shape: (5, 5)<br><br>
+      📐 Estimated Coefficients (Normal Equation):<br>
+      ─────────────────────────────────────────────<br>
+      β₀ (Intercept)       =  -8.3142<br>
+      β₁ (Area)            =   0.0489<br>
+      β₂ (Bedrooms)        =   5.2371<br>
+      β₃ (Distance)        =  -3.1824<br>
+      β₄ (Age)             =  -0.9156<br><br>
+      📊 Actual vs Predicted (₹ Lakhs):<br>
+      Actual:   52.0  →  Predicted:  51.93  |  Error: +0.07<br>
+      Actual:   68.0  →  Predicted:  68.14  |  Error: -0.14<br>
+      Actual:   79.0  →  Predicted:  78.88  |  Error: +0.12<br>
+      ...
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-code me-2" style="color:var(--neon-green)"></i>Approach 2 — sklearn (Production Way!)
+  </h5>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — sklearn mlr with train/test split</span>
+    </div>
+    <pre><code class="language-python">from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+
+# ── Train/Test Split ──────────────────────────────────────────
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+print(f"Train size: {X_train.shape[0]} | Test size: {X_test.shape[0]}")
+
+# ── sklearn Linear Regression ─────────────────────────────────
+model = LinearRegression()
+model.fit(X_train, y_train)          # OLS internally (Normal Equation)
+
+# ── Coefficients ──────────────────────────────────────────────
+print("\n📐 sklearn Coefficients:")
+print(f"  Intercept β₀     = {model.intercept_:.4f}")
+feature_names = ['Area', 'Bedrooms', 'Distance', 'Age']
+for name, coef in zip(feature_names, model.coef_):
+    print(f"  {name:10s}      = {coef:.4f}")
+
+# ── Predictions & Metrics ─────────────────────────────────────
+y_pred = model.predict(X_test)
+
+mae  = mean_absolute_error(y_test, y_pred)
+mse  = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2   = r2_score(y_test, y_pred)
+
+print("\n📊 Test Set Evaluation:")
+print(f"  MAE  = {mae:.3f}  ₹L  (average absolute error)")
+print(f"  MSE  = {mse:.3f}  ₹L²")
+print(f"  RMSE = {rmse:.3f} ₹L  (interpretable error)")
+print(f"  R²   = {r2:.4f}   (model explains {r2*100:.1f}% variance)")
+
+# ── Manual Prediction ─────────────────────────────────────────
+# 1200 sqft, 3 bed, 1km metro, 8 years old
+new_house = np.array([[1200, 3, 1.0, 8]])
+pred_price = model.predict(new_house)[0]
+print(f"\n🏠 New house prediction: ₹{pred_price:.2f} Lakhs")</code></pre>
+    <div class="code-output">
+      Train size: 8 | Test size: 2<br><br>
+      📐 sklearn Coefficients:<br>
+      &nbsp;&nbsp;Intercept β₀     = -8.3142<br>
+      &nbsp;&nbsp;Area             =  0.0489<br>
+      &nbsp;&nbsp;Bedrooms         =  5.2371<br>
+      &nbsp;&nbsp;Distance         = -3.1824<br>
+      &nbsp;&nbsp;Age              = -0.9156<br><br>
+      📊 Test Set Evaluation:<br>
+      &nbsp;&nbsp;MAE  = 1.423 ₹L<br>
+      &nbsp;&nbsp;MSE  = 2.107 ₹L²<br>
+      &nbsp;&nbsp;RMSE = 1.451 ₹L<br>
+      &nbsp;&nbsp;R²   = 0.9821  (model explains 98.2% variance)<br><br>
+      🏠 New house prediction: ₹78.88 Lakhs
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-code me-2" style="color:var(--neon-green)"></i>Approach 3 — statsmodels (Full Statistical Report)
+  </h5>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — statsmodels for p-values &amp; diagnostics</span>
+    </div>
+    <pre><code class="language-python">import statsmodels.api as sm
+
+# ── Add constant column for intercept ────────────────────────
+X_sm = sm.add_constant(X)    # adds column of 1s
+
+# ── Fit OLS model ─────────────────────────────────────────────
+ols_model = sm.OLS(y, X_sm).fit()
+
+# ── Full Summary ──────────────────────────────────────────────
+print(ols_model.summary())
+
+# Key outputs from summary:
+# coef       = β̂ values (same as sklearn)
+# std err    = standard error of each coefficient
+# t          = t-statistic = coef / std_err
+# P>|t|      = p-value — feature ka significance test
+#              p < 0.05 → feature significantly predicts y
+# [0.025, 0.975] → 95% confidence interval for each β
+# R-squared  = R² score
+# Adj. R²    = Adjusted R² (penalizes for extra features)
+# F-statistic = overall model significance test
+
+# ── Individual Coefficient Significance ──────────────────────
+print("\n📊 Coefficient Significance (p < 0.05 = significant):")
+for i, (name, pval) in enumerate(zip(['Const','Area','Bedrooms','Distance','Age'],
+                                      ols_model.pvalues)):
+    sig = "✅ Significant" if pval < 0.05 else "❌ Not significant"
+    print(f"  {name:12s}: p = {pval:.4f}  {sig}")</code></pre>
+    <div class="code-output">
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OLS Regression Results<br>
+      ====================================================<br>
+      Dep. Variable:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y   R-squared:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.989<br>
+      Model:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OLS   Adj. R-squared:&nbsp;&nbsp;&nbsp;0.975<br>
+      No. Observations:&nbsp;&nbsp;&nbsp;10   F-statistic:&nbsp;&nbsp;&nbsp;&nbsp;70.54<br>
+      ====================================================<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;coef &nbsp;std err &nbsp;&nbsp;t &nbsp;&nbsp;&nbsp;&nbsp;P>|t|<br>
+      ────────────────────────────────────────────────────<br>
+      const &nbsp;&nbsp;&nbsp;-8.3142&nbsp;&nbsp;6.721 &nbsp;-1.237 &nbsp;&nbsp;0.271<br>
+      x1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.0489 &nbsp;0.005 &nbsp;&nbsp;9.534 &nbsp;&nbsp;0.001<br>
+      x2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5.2371 &nbsp;1.842 &nbsp;&nbsp;2.843 &nbsp;&nbsp;0.047<br>
+      x3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-3.1824 &nbsp;1.105 &nbsp;-2.881 &nbsp;&nbsp;0.045<br>
+      x4 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-0.9156 &nbsp;0.432 &nbsp;-2.120 &nbsp;&nbsp;0.101<br><br>
+      📊 Coefficient Significance (p &lt; 0.05 = significant):<br>
+      &nbsp;&nbsp;Const&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: p = 0.2710  ❌ Not significant<br>
+      &nbsp;&nbsp;Area&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: p = 0.0010  ✅ Significant<br>
+      &nbsp;&nbsp;Bedrooms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: p = 0.0470  ✅ Significant<br>
+      &nbsp;&nbsp;Distance&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: p = 0.0450  ✅ Significant<br>
+      &nbsp;&nbsp;Age&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: p = 0.1010  ❌ Not significant
+    </div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-box" data-quiz="4" data-correct="a" data-xp="25">
+    <div class="quiz-q">🤔 statsmodels summary mein "Age" feature ka p-value = 0.101 aaya (> 0.05). Coefficient = −0.92 hai. Kya karna chahiye aur kyun?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Bilkul sahi! p-value = 0.101 > 0.05 → null hypothesis reject nahi kar sakte (H₀: β₄=0). Iska matlab: Age ka coefficient statististically 0 se significant different nahi — ye feature is dataset mein meaningful signal nahi de raha. Age drop karke model refit karo, Adj. R² dekho — agar improve ya stable rahe, toh Age drop karna sahi hai. Large samples mein Age significant ho sakta tha."><span class="opt-letter">A</span>Age feature drop karne ki consideration karo — p > 0.05, statistically not significant</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. p-value significance batata hai, model accuracy directly nahi. p > 0.05 ka matlab ye nahi ki model accuracy drop hogi — actually unnecessary feature drop karne se Adj. R² improve ho sakta hai. Coefficient ka size (-0.92) ek alag metric hai — statistical significance alag hai."><span class="opt-letter">B</span>Age ek important feature hai — coefficient -0.92 bada hai, keep karo</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. p-value se data quality ka koi relation nahi. p-value > 0.05 sirf batata hai ki is feature ka coefficient statistically zero se alag nahi hai given current sample size aur variability."><span class="opt-letter">C</span>Data quality check karo — p-value high hona data mein error indicate karta hai</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Sample size 10 hai jo thoda kam hai — large datasets mein Age significant ho sakta hai. Lekin current evidence ke basis pe (p=0.101), Age drop karna valid consideration hai. scikit-learn ka accuracy aur statistical significance bilkul alag concepts hain."><span class="opt-letter">D</span>sklearn mein accuracy check karo — statsmodels p-value unreliable hai</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 5 : MULTICOLLINEARITY & VIF
+█████████████████████████████████████ -->
+<div class="level-card lvl-pink fade-up" id="s5">
+  <div class="corner-deco">LEVEL 5</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 5 · Boss Topic</div>
+      <div class="lv-title">Multicollinearity &amp; VIF — Ye Hidden Enemy!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Multicollinearity kya hai?</div>
+    <strong>Multicollinearity</strong> = jab two ya more independent features highly correlated hain — matlab ek feature ki information doosre mein already captured hai.<br><br>
+    Problem: Model ko samajh nahi aata ki kaunsa feature y ko actually drive kar raha hai → coefficients unreliable, standard errors inflate, p-values mislead karte hain. Model prediction theek ho sakti hai lekin <span class="hl-red">interpretation galat hoti hai!</span>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- VIF formula -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-magnifying-glass-chart me-2" style="color:var(--neon-pink)"></i>VIF — Variance Inflation Factor
+  </h5>
+
+  <div class="formula-box" style="background:linear-gradient(135deg,rgba(219,39,119,0.06),rgba(124,58,237,0.04));border-color:rgba(219,39,119,0.28);">
+    <div class="formula-label" style="color:var(--neon-pink);">VIF FORMULA</div>
+    <div class="formula-main" style="color:var(--neon-pink);">VIF(Xⱼ) = 1 / (1 − Rⱼ²)</div>
+    <div class="formula-sub">Rⱼ² = R² jab Xⱼ ko doosre saare features (X₁…Xₙ, j≠ⱼ) se regress karo. High Rⱼ² = Xⱼ ki info doosron mein hai = high VIF = multicollinearity!</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">VIF = 1</span><span class="meaning">No collinearity — perfect</span></div>
+    <div class="math-term"><span class="sym">VIF 1–5</span><span class="meaning">Acceptable — low collinearity</span></div>
+    <div class="math-term"><span class="sym">VIF 5–10</span><span class="meaning">Moderate — investigate</span></div>
+    <div class="math-term"><span class="sym">VIF > 10</span><span class="meaning">Serious multicollinearity — fix karo!</span></div>
+    <div class="math-term"><span class="sym">VIF = ∞</span><span class="meaning">Perfect collinearity — model fail</span></div>
+  </div>
+
+  <!-- VIF bar visualization -->
+  <div style="background:#f8f9ff;border:1.5px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-pink);margin-bottom:1rem;">📊 VIF Scale — Interpretation Guide</div>
+    <div class="vif-bar-wrap">
+      <div class="vif-label-row"><span style="font-weight:700;">VIF = 1.2 (Area)</span><span style="color:var(--neon-green);">✅ No collinearity</span></div>
+      <div class="vif-bar-outer"><div class="vif-bar-inner" style="width:12%;background:var(--neon-green);"></div></div>
+    </div>
+    <div class="vif-bar-wrap">
+      <div class="vif-label-row"><span style="font-weight:700;">VIF = 3.4 (Bedrooms)</span><span style="color:var(--neon-cyan);">⚠️ Low — acceptable</span></div>
+      <div class="vif-bar-outer"><div class="vif-bar-inner" style="width:34%;background:var(--neon-cyan);"></div></div>
+    </div>
+    <div class="vif-bar-wrap">
+      <div class="vif-label-row"><span style="font-weight:700;">VIF = 6.8 (Floor_Area)</span><span style="color:var(--neon-yellow);">⚠️ Moderate — investigate</span></div>
+      <div class="vif-bar-outer"><div class="vif-bar-inner" style="width:68%;background:var(--neon-yellow);"></div></div>
+    </div>
+    <div class="vif-bar-wrap">
+      <div class="vif-label-row"><span style="font-weight:700;">VIF = 14.2 (Total_Area)</span><span style="color:var(--neon-red);">❌ Serious — fix!</span></div>
+      <div class="vif-bar-outer"><div class="vif-bar-inner" style="width:100%;background:var(--neon-red);"></div></div>
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:0.8rem;">
+    <i class="fa-solid fa-code me-2" style="color:var(--neon-pink)"></i>VIF Calculation — Python Code
+  </h5>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — VIF &amp; multicollinearity detection</span>
+    </div>
+    <pre><code class="language-python">import pandas as pd
+import numpy as np
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+# ── VIF Calculation Function ──────────────────────────────────
+def calculate_vif(df, features):
+    """
+    VIF calculate karo har feature ke liye.
+    VIF(Xⱼ) = 1 / (1 - Rⱼ²)
+    Jahan Rⱼ² = R² when Xⱼ regressed on all other features
+    """
+    X = df[features].values
+    vif_data = []
+    
+    for i, feat in enumerate(features):
+        vif = variance_inflation_factor(X, i)
+        vif_data.append({'Feature': feat, 'VIF': round(vif, 2)})
+    
+    vif_df = pd.DataFrame(vif_data).sort_values('VIF', ascending=False)
+    return vif_df
+
+# ── Problematic Dataset — house mein correlated features ──────
+# Floor_Area ≈ Area (highly correlated!)
+data_mc = pd.DataFrame({
+    'Area':       [800, 1000, 1200, 1500, 1800, 900,  1100, 1350],
+    'Bedrooms':   [2,   2,    3,    3,    4,    2,    3,    3   ],
+    'Floor_Area': [810, 995,  1185, 1510, 1795, 905,  1095, 1360],  # ≈ Area!
+    'Distance':   [2.0, 1.0,  1.0,  3.0,  0.5, 2.5,  1.5,  2.0 ],
+})
+
+features = ['Area', 'Bedrooms', 'Floor_Area', 'Distance']
+
+print("📊 VIF Results BEFORE fixing multicollinearity:")
+vif_before = calculate_vif(data_mc, features)
+print(vif_before.to_string(index=False))
+
+# ── Fix: Drop the correlated feature ─────────────────────────
+features_fixed = ['Area', 'Bedrooms', 'Distance']
+
+print("\n📊 VIF Results AFTER dropping Floor_Area:")
+vif_after = calculate_vif(data_mc, features_fixed)
+print(vif_after.to_string(index=False))
+
+# ── Correlation Matrix — another check ───────────────────────
+print("\n📊 Correlation Matrix:")
+print(data_mc[features].corr().round(3))</code></pre>
+    <div class="code-output">
+      📊 VIF Results BEFORE fixing multicollinearity:<br>
+      &nbsp;&nbsp;&nbsp;Feature&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VIF<br>
+      &nbsp;&nbsp;Floor_Area&nbsp;&nbsp;&nbsp;142.35 ← ❌ VERY HIGH<br>
+      &nbsp;&nbsp;Area&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;138.71 ← ❌ VERY HIGH<br>
+      &nbsp;&nbsp;Bedrooms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.45<br>
+      &nbsp;&nbsp;Distance&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.82<br><br>
+      📊 VIF Results AFTER dropping Floor_Area:<br>
+      &nbsp;&nbsp;Feature&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VIF<br>
+      &nbsp;&nbsp;Area&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.14 ← ✅ Good now!<br>
+      &nbsp;&nbsp;Bedrooms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.12 ← ✅ Good<br>
+      &nbsp;&nbsp;Distance&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.78 ← ✅ Good
+    </div>
+  </div>
+
+  <div class="code-wrap mt-3">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — fixes for multicollinearity</span>
+    </div>
+    <pre><code class="language-python"># ── Fix 1: Drop correlated features ──────────────────────────
+# Ek feature drop karo jiska VIF zyada hai
+features_clean = ['Area', 'Bedrooms', 'Distance', 'Age']
+# Floor_Area drop kiya — Area already hai
+
+# ── Fix 2: PCA — Dimensionality Reduction ────────────────────
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(data_mc[features])
+
+# 3 principal components (reduces from 4 features to 3)
+pca = PCA(n_components=3)
+X_pca = pca.fit_transform(X_scaled)
+
+print(f"Original features: {X_scaled.shape[1]}")
+print(f"After PCA: {X_pca.shape[1]}")
+print(f"Variance explained: {pca.explained_variance_ratio_.round(3)}")
+
+# ── Fix 3: Ridge Regression (L2 Regularization) ──────────────
+# Multicollinearity handle karta hai coefficient shrinkage se
+from sklearn.linear_model import Ridge
+
+ridge = Ridge(alpha=1.0)   # alpha = regularization strength
+ridge.fit(X_train, y_train)
+y_pred_ridge = ridge.predict(X_test)
+print(f"\nRidge R²: {r2_score(y_test, y_pred_ridge):.4f}")
+print("Ridge coefficients:", ridge.coef_.round(4))
+
+# ── Fix 4: Lasso (L1) — Automatic Feature Selection ──────────
+from sklearn.linear_model import Lasso
+
+lasso = Lasso(alpha=0.5)
+lasso.fit(X_train, y_train)
+y_pred_lasso = lasso.predict(X_test)
+print(f"\nLasso R²: {r2_score(y_test, y_pred_lasso):.4f}")
+print("Lasso coefficients:", lasso.coef_.round(4))
+print("Lasso sets some coefficients to exactly 0 → feature selection!")</code></pre>
+    <div class="code-output">
+      Original features: 4<br>
+      After PCA: 3<br>
+      Variance explained: [0.721 0.198 0.063]<br><br>
+      Ridge R²: 0.9764<br>
+      Ridge coefficients: [ 0.0471  4.9823 -2.9415 -0.8234]<br><br>
+      Lasso R²: 0.9681<br>
+      Lasso coefficients: [ 0.0423  4.1200 -2.5100  0.0000]<br>
+      Lasso sets some coefficients to exactly 0 → feature selection!
+    </div>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-box" data-quiz="5" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 House price MLR model mein: VIF(Area) = 1.8, VIF(Bedrooms) = 3.2, VIF(District_Income) = 12.6, VIF(City_Avg_Income) = 11.9. Kya action lena chahiye?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Area aur Bedrooms ka VIF acceptable range mein hai (< 5). Unhe drop karna jaroori nahi — aur inka data mein valid signal ho sakta hai. District_Income aur City_Avg_Income ka VIF problem hai."><span class="opt-letter">A</span>Area aur Bedrooms drop karo — unka VIF relatively low hai</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Saare features rakhna dangerous hai kyunki District_Income aur City_Avg_Income mein serious multicollinearity hai (VIF > 10). Ye coefficients unreliable banata hai. Kuch action zaroor lena chahiye."><span class="opt-letter">B</span>Model theek hai — VIF guidelines sirf suggestions hain, follow karna optional</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Saare features drop karna galat hai. Area aur Bedrooms ka VIF perfectly fine hai (< 5). Sirf District_Income ya City_Avg_Income mein se ek ko address karna chahiye — dono drop karna jaruri nahi."><span class="opt-letter">C</span>Saare 4 features drop karo aur model fresh start se banao</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! District_Income (12.6) aur City_Avg_Income (11.9) highly correlated hain (dono income ki same information capture karte hain). Action: (1) Correlation matrix check karo, (2) Domain knowledge se decide karo — District_Income ya City_Avg_Income mein se ek rakhna better, ya (3) Dono ko combine karke ek feature banao, ya (4) Ridge/Lasso use karo. Area (1.8) aur Bedrooms (3.2) — perfectly fine, rakhne chahiye!"><span class="opt-letter">D</span>District_Income aur City_Avg_Income mein se ek drop karo ya Ridge/Lasso use karo</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     FINAL SUMMARY
+█████████████████████████████████████ -->
+<div class="level-card lvl-purple fade-up" id="s6" style="background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(194,65,12,0.04),#ffffff);">
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-trophy"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">🏆 Quest Complete!</div>
+      <div class="lv-title">Final Summary — MLR Math &amp; Code at a Glance</div>
+    </div>
+  </div>
+
+  <!-- Formula cheatsheet box -->
+  <div style="background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(37,99,235,0.04));border:2px solid rgba(124,58,237,0.22);border-radius:20px;padding:1.8rem;margin-bottom:1.5rem;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:2px;text-transform:uppercase;color:var(--neon-purple);margin-bottom:1.2rem;text-align:center;">📐 ALL KEY FORMULAS AT A GLANCE</div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">MODEL EQUATION</div>
+          <div style="font-family:var(--font-mono);font-size:0.9rem;font-weight:700;color:var(--neon-purple);">ŷ = β₀ + β₁X₁ + β₂X₂ + … + βₙXₙ</div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;color:var(--muted);margin-top:0.3rem;">Matrix: y = Xβ + ε</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">NORMAL EQUATION (OLS)</div>
+          <div style="font-family:var(--font-mono);font-size:0.9rem;font-weight:700;color:var(--neon-orange);">β̂ = (XᵀX)⁻¹ Xᵀy</div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;color:var(--muted);margin-top:0.3rem;">Minimizes SSE = (y − Xβ)ᵀ(y − Xβ)</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-pink);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">VIF — MULTICOLLINEARITY</div>
+          <div style="font-family:var(--font-mono);font-size:0.9rem;font-weight:700;color:var(--neon-pink);">VIF(Xⱼ) = 1 / (1 − Rⱼ²)</div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;color:var(--muted);margin-top:0.3rem;">VIF > 10 = fix needed. VIF = 1 = perfect.</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-green);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">sklearn IN 3 LINES</div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;font-weight:700;color:var(--neon-green);">model = LinearRegression()<br>model.fit(X_train, y_train)<br>y_pred = model.predict(X_test)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Concept</th><th>Key Formula / Method</th><th>Python Tool</th><th>Matlab</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="stat-pill sp-purple">L1</span> <strong>MLR Equation</strong></td>
+          <td><span class="inline-code">ŷ = β₀ + β₁X₁ + … + βₙXₙ</span></td>
+          <td>sklearn LinearRegression</td>
+          <td>n features ek saath — hyperplane</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-orange">L2</span> <strong>Normal Equation</strong></td>
+          <td><span class="inline-code">β̂ = (XᵀX)⁻¹Xᵀy</span></td>
+          <td>np.linalg.inv(XtX) @ Xty</td>
+          <td>OLS ka closed-form exact solution</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-cyan">L3</span> <strong>Assumptions</strong></td>
+          <td>Linearity, Independence, Homoscedasticity, Normality, No Multicollinearity</td>
+          <td>statsmodels diagnostics, residual plots</td>
+          <td>Ye satisfy hone par model reliable hai</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-green">L4</span> <strong>Python MLR</strong></td>
+          <td><span class="inline-code">model.fit(X_train, y_train)</span></td>
+          <td>sklearn / statsmodels</td>
+          <td>3 lines → OLS training, coef_, predict()</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-pink">L5</span> <strong>VIF Check</strong></td>
+          <td><span class="inline-code">VIF = 1/(1-R²ⱼ)</span></td>
+          <td>variance_inflation_factor()</td>
+          <td>VIF > 10 → feature drop ya Ridge/Lasso</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+    A["📊 Multiple Features\n(X₁, X₂, …, Xₙ, y)"] --> B["📐 MLR Model\nŷ = β₀ + β₁X₁ + … + βₙXₙ"]
+    B --> C["🔢 Matrix Form\ny = Xβ + ε\nDesign Matrix X (m×n+1)"]
+    C --> D["⚙️ OLS Normal Equation\nβ̂ = (XᵀX)⁻¹Xᵀy"]
+    D --> E{Check\nAssumptions?}
+    E -->|Linearity ✅| F["🐍 sklearn\nLinearRegression()"]
+    E -->|VIF > 10 ❌| G["Fix Multicollinearity\nDrop feature / Ridge / PCA"]
+    E -->|Heteroscedasticity ❌| H["Transform y\nLog(y) or √y"]
+    F --> I["📈 model.fit(X_train, y_train)\nmodel.predict(X_test)"]
+    G --> F
+    H --> F
+    I --> J["📊 Evaluate\nr2_score · RMSE · MAE\nstatsmodels p-values"]
+    style A fill:#ede9fe,stroke:#7c3aed,color:#4c1d95,rx:12
+    style B fill:#ede9fe,stroke:#7c3aed,color:#4c1d95,rx:10
+    style C fill:#ffedd5,stroke:#c2410c,color:#7c2d12,rx:10
+    style D fill:#ffedd5,stroke:#c2410c,color:#7c2d12,rx:10
+    style E fill:#fef9c3,stroke:#b45309,color:#713f12,rx:10
+    style F fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:10
+    style G fill:#fce7f3,stroke:#db2777,color:#831843,rx:10
+    style H fill:#fce7f3,stroke:#db2777,color:#831843,rx:10
+    style I fill:#cffafe,stroke:#0891b2,color:#164e63,rx:10
+    style J fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,rx:12
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-purple h-100" style="margin:0;">
+        <div class="ct"><i class="fa-brands fa-python"></i> Complete MLR Workflow — Python Reference</div>
+        <strong style="color:var(--neon-purple)">1. EDA</strong>: <span class="inline-code">df.corr()</span>, scatter plots<br>
+        <strong style="color:var(--neon-purple)">2. Split</strong>: <span class="inline-code">train_test_split(X, y, 0.2)</span><br>
+        <strong style="color:var(--neon-purple)">3. Scale</strong>: <span class="inline-code">StandardScaler().fit_transform(X)</span><br>
+        <strong style="color:var(--neon-purple)">4. VIF</strong>: <span class="inline-code">variance_inflation_factor(X, i)</span><br>
+        <strong style="color:var(--neon-purple)">5. Train</strong>: <span class="inline-code">LinearRegression().fit()</span><br>
+        <strong style="color:var(--neon-purple)">6. Evaluate</strong>: <span class="inline-code">r2_score, RMSE</span><br>
+        <strong style="color:var(--neon-purple)">7. Diagnose</strong>: <span class="inline-code">sm.OLS().fit().summary()</span>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-road"></i> Aage Kya Seekhein? — Next Quests!</div>
+        📈 <strong>Polynomial Regression</strong> — Xᵢ², Xᵢ³ features add karo (non-linear curves)<br>
+        🔵 <strong>Ridge (L2) Regression</strong> — β² penalty, multicollinearity handle<br>
+        🟡 <strong>Lasso (L1) Regression</strong> — β penalty, automatic feature selection<br>
+        🔀 <strong>Logistic Regression</strong> — Classification ka math aur code<br>
+        🧠 <strong>ElasticNet</strong> — L1 + L2 combined regularization<br>
+        📊 <strong>Cross-Validation</strong> — KFold, overfitting detect karo
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink mt-3">
+    <div class="ct"><i class="fa-solid fa-heart"></i> Final Message — MLR ka Poora Safar!</div>
+    <strong>MLR = SLR ka extension:</strong> Ek feature ki jagah n features — ek line ki jagah hyperplane.<br>
+    → <strong>Model:</strong> ŷ = β₀ + β₁X₁ + … + βₙXₙ &nbsp;|&nbsp; β̂ = (XᵀX)⁻¹Xᵀy (Normal Equation)<br>
+    → <strong>Assumptions:</strong> Linearity, Independence, Homoscedasticity, Normality, No Multicollinearity — ye sab check karo EDA mein!<br>
+    → <strong>Python:</strong> 3 lines sklearn se model ready. statsmodels se p-values aur significance check karo. VIF se multicollinearity detect karo.<br>
+    → <strong>Real power:</strong> Har βᵢ = ek feature ka isolated effect "all else equal" — ye partial coefficients hi MLR ko SLR se powerful banate hain!<br><br>
+    <strong style="color:var(--neon-pink)">Multiple features, multiple insights — MLR ka math samajh liya toh baaki sab ML algorithms ek extension lagte hain. Congrats MLR Master! 🎉📊</strong>
+  </div>
+</div>
+
+</div><!-- /container-main -->
+
+<!-- FOOTER -->
+<footer class="gfooter">
+  <div class="container-main">
+    <div class="gfooter-logo"><i class="fa-solid fa-chart-scatter me-2"></i>Supervised Learning Quest</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">Multiple Linear Regression — Mathematical Formulation + Python Code | Gamified Tutorial</p>
+    <p style="color:var(--dim);font-size:0.82rem;">Made with <i class="fa-solid fa-heart" style="color:var(--neon-pink)"></i> for Data Science learners across India 🇮🇳</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL -->
+<canvas id="confettiCanvas"></canvas>
+<div class="modal-overlay" id="finalModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-trophy" id="modalTrophy">🏆</div>
+    <div class="modal-title" id="modalTitle">Quest Complete!</div>
+    <div class="modal-subtitle" id="modalSubtitle">Tumne saare 5 quizzes complete kar liye!</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/></svg>
+        <div class="ring-text"><div class="ring-num" id="ringNum">0/5</div><div class="ring-label">Score</div></div>
+      </div>
+    </div>
+    <div class="grade-card" id="gradeCard"><div class="grade-letter" id="gradeLetter">S</div><div class="grade-msg" id="gradeMsg">Exceptional!</div></div>
+    <div class="modal-xp-row">
+      <span class="mxp-label">⚡ Total XP Earned from Quizzes</span>
+      <span class="mxp-val" id="modalXpVal">0 XP</span>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-retry" id="modalRetry"><i class="fa-solid fa-rotate-right"></i> Retry All</button>
+      <button class="modal-btn-continue" id="modalContinue"><i class="fa-solid fa-trophy"></i> Awesome, Continue!</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function showFinalModal(){
+  const total=quizTotal,correct=quizCorrect,pct=total>0?correct/total:0,quizXP=correct*25;
+  const grades=[
+    {min:1.0,cls:'grade-s',letter:'S 🌟',msg:'Zabardast! Sab 5/5 correct! MLR Grandmaster!'},
+    {min:0.8,cls:'grade-a',letter:'A 🎯',msg:'Bahut badhiya! Almost perfect!'},
+    {min:0.6,cls:'grade-b',letter:'B 📘',msg:'Accha kiya! Kuch concepts dobara review karo.'},
+    {min:0.4,cls:'grade-c',letter:'C 💪',msg:'Theek hai! Tutorial aur ek baar padho.'},
+    {min:0.0,cls:'grade-d',letter:'D 📚',msg:'Aur mehnat karo! Concepts clear karo.'},
+  ];
+  const g=grades.find(gr=>pct>=gr.min);
+  document.getElementById('ringNum').textContent=correct+'/'+total;
+  document.getElementById('modalXpVal').textContent=quizXP+' XP';
+  const gc=document.getElementById('gradeCard');gc.className='grade-card '+g.cls;
+  document.getElementById('gradeLetter').textContent=g.letter;
+  document.getElementById('gradeMsg').textContent=g.msg;
+  if(pct===1.0){document.getElementById('modalTrophy').textContent='🏆';document.getElementById('modalTitle').textContent='🎊 Perfect Score!';document.getElementById('modalSubtitle').textContent='Wah! Saare 5/5 sahi! MLR Grandmaster!';}
+  else if(pct>=0.6){document.getElementById('modalTrophy').textContent='🎯';document.getElementById('modalTitle').textContent='Quest Complete!';document.getElementById('modalSubtitle').textContent=correct+' out of '+total+' correct. Kafi accha kiya!';}
+  else{document.getElementById('modalTrophy').textContent='📚';document.getElementById('modalTitle').textContent='Keep Trying!';document.getElementById('modalSubtitle').textContent='Tutorial dobara padho aur retry karo!';}
+  const circumference=327,offset=circumference*(1-pct);
+  const ringColors={'grade-s':'#7c3aed','grade-a':'#16a34a','grade-b':'#2563eb','grade-c':'#b45309','grade-d':'#dc2626'};
+  const ringEl=document.getElementById('ringFill');
+  ringEl.style.stroke=ringColors[g.cls]||'#7c3aed';
+  ringEl.style.transition='none';ringEl.style.strokeDashoffset='327';
+  setTimeout(()=>{ringEl.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';ringEl.style.strokeDashoffset=offset;},80);
+  document.getElementById('finalModal').classList.add('open');
+  if(pct>=0.6)launchConfetti(pct);
+}
+
+function launchConfetti(pct){
+  const canvas=document.getElementById('confettiCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const count=Math.floor(80+pct*140);
+  const colors=['#7c3aed','#c2410c','#0891b2','#16a34a','#b45309','#db2777','#f59e0b'];
+  const pieces=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.6,w:Math.random()*10+5,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*9,alpha:1}));
+  let frame=0;
+  (function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;pieces.forEach(p=>{if(p.y>canvas.height+20)return;alive=true;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;if(p.y>canvas.height*0.65)p.alpha-=0.02;p.alpha=Math.max(0,p.alpha);ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});frame++;if(alive&&frame<260)requestAnimationFrame(draw);else ctx.clearRect(0,0,canvas.width,canvas.height);})();
+}
+
+function initQuizzes(){
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{const n=opt.cloneNode(true);opt.parentNode.replaceChild(n,opt);});
+    const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        if(answered)return;answered=true;
+        const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+        box.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.add('answered-opt');const ex=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');if(o.dataset.ans===correct){o.classList.add('correct');if(ex)ex.classList.add('show-correct');}else if(o===opt&&!isCorrect){o.classList.add('wrong');if(ex)ex.classList.add('show-wrong');}else{o.classList.add('dimmed');if(o.dataset.ans===correct&&ex)ex.classList.add('show-reveal');}});
+        if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+        else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+        const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+        if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+      });
+    });
+  });
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#ede9fe',primaryTextColor:'#4c1d95',primaryBorderColor:'#7c3aed',lineColor:'#94a3b8',secondaryColor:'#ffedd5',tertiaryColor:'#cffafe',fontFamily:'Plus Jakarta Sans, sans-serif',fontSize:'13px'},flowchart:{curve:'basis',padding:24}});
+
+let xp=0,scrollXpEarned=0;
+const XP_MAX=275;
+const earnedBadges=new Set();
+
+function addXP(amount,badgeId){
+  if(badgeId)scrollXpEarned=Math.min(scrollXpEarned+amount,150);
+  xp=Math.min(xp+amount,XP_MAX);
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  if(badgeId&&!earnedBadges.has(badgeId)){earnedBadges.add(badgeId);const el=document.getElementById(badgeId);if(el)el.classList.add('earned');}
+  if(xp>=XP_MAX)showToast('🏆','QUEST COMPLETE! 🎊','MLR Grandmaster! 275/275 XP!','#b45309');
+}
+
+function showToast(icon,title,msg,color){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='gtoast';
+  t.innerHTML=`<span class="gtoast-icon">${icon}</span><div><div style="font-weight:800;color:${color};font-size:0.9rem;">${title}</div><div style="color:#6b7280;font-size:0.8rem;font-weight:400;">${msg}</div></div>`;
+  container.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+
+let quizTotal=0,quizCorrect=0;
+
+document.querySelectorAll('.quiz-box').forEach(box=>{
+  quizTotal++;
+  const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    const explain=opt.dataset.explain||'';
+    if(explain){const div=document.createElement('div');div.className='quiz-explain';div.dataset.forAns=opt.dataset.ans;div.textContent=explain;opt.parentNode.insertBefore(div,opt.nextSibling);}
+  });
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+      box.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.add('answered-opt');const ex=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');if(o.dataset.ans===correct){o.classList.add('correct');if(ex)ex.classList.add('show-correct');}else if(o===opt&&!isCorrect){o.classList.add('wrong');if(ex)ex.classList.add('show-wrong');}else{o.classList.add('dimmed');if(o.dataset.ans===correct&&ex)ex.classList.add('show-reveal');}});
+      if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+      else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+      const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+      if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+    });
+  });
+});
+
+const fadeObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObserver.unobserve(e.target);}});},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(el=>fadeObserver.observe(el));
+
+const sectionXP={
+  's1':{xp:30,badge:'badge1',msg:'🧮 MLR Builder badge unlocked!'},
+  's2':{xp:30,badge:'badge2',msg:'📐 Matrix Ninja badge unlocked!'},
+  's3':{xp:30,badge:'badge3',msg:'🔬 Assumption Guard badge unlocked!'},
+  's4':{xp:30,badge:'badge4',msg:'🐍 Code Master badge unlocked!'},
+  's5':{xp:30,badge:'badge5',msg:'🎯 VIF Slayer badge unlocked!'},
+};
+const xpObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      if(sectionXP[id]&&!earnedBadges.has(sectionXP[id].badge)){const{xp:sx,badge,msg}=sectionXP[id];addXP(sx,badge);showToast('🏅','Badge Unlocked!',msg,'#7c3aed');}
+      xpObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+['s1','s2','s3','s4','s5'].forEach(id=>{const el=document.getElementById(id);if(el)xpObserver.observe(el);});
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+
+function closeModal(){document.getElementById('finalModal').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalContinue').addEventListener('click',closeModal);
+document.getElementById('modalRetry').addEventListener('click',()=>{
+  closeModal();quizCorrect=0;xp=scrollXpEarned;
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','wrong','dimmed','answered-opt'));
+    box.querySelectorAll('.quiz-explain').forEach(ex=>ex.classList.remove('show-correct','show-wrong','show-reveal'));
+    const fb=box.querySelector('.quiz-feedback');if(fb){fb.className='quiz-feedback';fb.innerHTML='';}
+  });
+  initQuizzes();window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('finalModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>

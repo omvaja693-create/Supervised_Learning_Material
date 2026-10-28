@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python ML Quest — Polynomial Regression Mastery!</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4ff;--bg2:#e8edf8;--bg3:#dde4f5;--card:#ffffff;--card2:#f5f7ff;
+  --border:rgba(99,102,241,0.12);--border2:rgba(99,102,241,0.25);
+  --neon-blue:#2563eb;--neon-cyan:#0891b2;--neon-purple:#7c3aed;
+  --neon-pink:#db2777;--neon-green:#16a34a;--neon-yellow:#b45309;
+  --neon-orange:#c2410c;--neon-red:#dc2626;
+  --text:#1e1b4b;--muted:#4b5563;--dim:#9ca3af;
+  --font-head:'Syne',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --glow-blue:0 4px 16px rgba(37,99,235,0.18),0 1px 4px rgba(37,99,235,0.10);
+  --glow-purple:0 4px 16px rgba(124,58,237,0.18),0 1px 4px rgba(124,58,237,0.10);
+  --glow-cyan:0 4px 16px rgba(8,145,178,0.18),0 1px 4px rgba(8,145,178,0.10);
+  --glow-green:0 4px 16px rgba(22,163,74,0.18),0 1px 4px rgba(22,163,74,0.10);
+  --glow-yellow:0 4px 16px rgba(180,83,9,0.18),0 1px 4px rgba(180,83,9,0.10);
+  --glow-pink:0 4px 16px rgba(219,39,119,0.18),0 1px 4px rgba(219,39,119,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.8;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--neon-cyan);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(37,99,235,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.06) 1px,transparent 1px);background-size:50px 50px;}
+.container-main{max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1;}
+
+/* XP BAR */
+.xp-strip{position:sticky;top:0;z-index:1000;background:rgba(240,244,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);box-shadow:0 2px 12px rgba(37,99,235,0.08);padding:0.65rem 0;}
+.xp-inner{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.xp-label{font-family:var(--font-head);font-weight:800;font-size:0.8rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.xp-bar-wrap{flex:1;min-width:120px;background:rgba(37,99,235,0.1);border-radius:50px;height:10px;border:1px solid var(--border2);overflow:hidden;}
+.xp-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green),var(--neon-blue));border-radius:50px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(8,145,178,0.35);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+.xp-score{font-family:var(--font-head);font-weight:800;font-size:0.9rem;color:var(--neon-yellow);white-space:nowrap;}
+.xp-badges{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.xp-badge{font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:50px;border:1px solid;white-space:nowrap;transition:0.3s;opacity:0.35;}
+.xp-badge.earned{opacity:1;animation:badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes badgePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.xp-badge.b1{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.xp-badge.b2{border-color:var(--neon-orange);color:var(--neon-orange);}
+.xp-badge.b3{border-color:var(--neon-green);color:var(--neon-green);}
+.xp-badge.b4{border-color:var(--neon-purple);color:var(--neon-purple);}
+.xp-badge.b5{border-color:var(--neon-pink);color:var(--neon-pink);}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:6rem 0 5rem;
+  background:radial-gradient(ellipse at 20% 50%,rgba(8,145,178,0.12) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(22,163,74,0.10) 0%,transparent 55%),
+             radial-gradient(ellipse at 60% 80%,rgba(124,58,237,0.07) 0%,transparent 50%),var(--bg);}
+.hero-orbit{position:absolute;top:50%;right:8%;transform:translateY(-50%);width:420px;height:420px;pointer-events:none;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(8,145,178,0.25);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-ring:nth-child(1){width:150px;height:150px;animation:spin 12s linear infinite;}
+.orbit-ring:nth-child(2){width:250px;height:250px;animation:spin 20s linear infinite reverse;border-color:rgba(22,163,74,0.2);}
+.orbit-ring:nth-child(3){width:350px;height:350px;animation:spin 30s linear infinite;border-color:rgba(124,58,237,0.15);}
+.orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;transform:translateX(-50%);}
+.orbit-ring:nth-child(1) .orbit-dot{background:var(--neon-cyan);box-shadow:var(--glow-cyan);}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--neon-green);box-shadow:var(--glow-green);}
+.orbit-ring:nth-child(3) .orbit-dot{background:var(--neon-purple);box-shadow:var(--glow-purple);}
+.orbit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;animation:float 4s ease-in-out infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(8,145,178,0.12);border:1px solid rgba(8,145,178,0.3);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:1.5rem;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-cyan);box-shadow:var(--glow-cyan);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-family:var(--font-head);font-weight:800;font-size:clamp(2.4rem,5vw,4rem);line-height:1.1;letter-spacing:-1.5px;margin-bottom:1.5rem;}
+.hero h1 .line1{display:block;color:#1e1b4b;}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--neon-cyan) 0%,var(--neon-green) 50%,var(--neon-blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:560px;margin-bottom:2rem;line-height:1.75;}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:var(--font-head);font-weight:800;font-size:1.8rem;line-height:1;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-label{font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem;}
+.hero-cta{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));color:white;font-weight:700;font-size:0.95rem;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(8,145,178,0.3);transition:0.3s;animation:pulse-btn 2s infinite;}
+@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(8,145,178,0.28);}50%{box-shadow:0 4px 32px rgba(8,145,178,0.45);}}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);color:white;}
+
+/* QUEST MAP */
+.quest-map{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2rem;margin:3rem 0;position:relative;box-shadow:0 4px 24px rgba(37,99,235,0.07);}
+.quest-map::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(8,145,178,0.03),rgba(22,163,74,0.03));pointer-events:none;}
+.quest-map-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.quest-map-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(234,179,8,0.3),transparent);}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;}
+.quest-item{display:flex;align-items:center;gap:0.75rem;background:#f8f9ff;border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;text-decoration:none;color:var(--muted);font-weight:600;font-size:0.88rem;transition:0.25s;}
+.quest-item:hover{background:rgba(8,145,178,0.07);border-color:rgba(8,145,178,0.3);color:var(--neon-cyan);transform:translateX(4px);}
+.quest-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;flex-shrink:0;}
+
+/* LEVEL CARD */
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:24px 24px 0 0;}
+.level-card.lvl-cyan::before{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green));}
+.level-card.lvl-orange::before{background:linear-gradient(90deg,var(--neon-orange),var(--neon-yellow));}
+.level-card.lvl-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));}
+.level-card.lvl-purple::before{background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink));}
+.level-card.lvl-blue::before{background:linear-gradient(90deg,var(--neon-blue),var(--neon-cyan));}
+.level-card.lvl-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple));}
+.level-card.lvl-yellow::before{background:linear-gradient(90deg,var(--neon-yellow),var(--neon-orange));}
+.level-card.lvl-red::before{background:linear-gradient(90deg,var(--neon-red),var(--neon-orange));}
+.level-card:hover{box-shadow:0 8px 32px rgba(37,99,235,0.12);}
+.level-card .corner-deco{position:absolute;top:1.2rem;right:1.5rem;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;opacity:0.25;}
+.lv-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.8rem;}
+.lv-icon-wrap{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;}
+.lv-icon-wrap::after{content:'';position:absolute;inset:-3px;border-radius:18px;border:1px solid;opacity:0.4;}
+.ico-cyan{background:rgba(8,145,178,0.12);color:var(--neon-cyan);}.ico-cyan::after{border-color:var(--neon-cyan);}
+.ico-orange{background:rgba(194,65,12,0.12);color:var(--neon-orange);}.ico-orange::after{border-color:var(--neon-orange);}
+.ico-green{background:rgba(22,163,74,0.12);color:var(--neon-green);}.ico-green::after{border-color:var(--neon-green);}
+.ico-purple{background:rgba(124,58,237,0.12);color:var(--neon-purple);}.ico-purple::after{border-color:var(--neon-purple);}
+.ico-blue{background:rgba(37,99,235,0.12);color:var(--neon-blue);}.ico-blue::after{border-color:var(--neon-blue);}
+.ico-pink{background:rgba(219,39,119,0.12);color:var(--neon-pink);}.ico-pink::after{border-color:var(--neon-pink);}
+.ico-yellow{background:rgba(180,83,9,0.12);color:var(--neon-yellow);}.ico-yellow::after{border-color:var(--neon-yellow);}
+.ico-red{background:rgba(220,38,38,0.12);color:var(--neon-red);}.ico-red::after{border-color:var(--neon-red);}
+.lv-meta{flex:1;}
+.lv-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.35rem;}
+.lv-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;line-height:1.2;color:var(--text);}
+.lv-xp{margin-top:0.4rem;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(180,83,9,0.08);border:1px solid rgba(180,83,9,0.25);border-radius:50px;padding:0.2rem 0.75rem;font-size:0.75rem;font-weight:700;color:var(--neon-yellow);}
+
+/* CALLOUT */
+.callout{border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;border:1px solid;position:relative;overflow:hidden;}
+.callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.callout .ct{font-weight:800;font-size:0.95rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;}
+.cb-cyan{background:rgba(8,145,178,0.06);border-color:rgba(8,145,178,0.2);}.cb-cyan::before{background:var(--neon-cyan);}.cb-cyan .ct{color:var(--neon-cyan);}
+.cb-orange{background:rgba(194,65,12,0.06);border-color:rgba(194,65,12,0.2);}.cb-orange::before{background:var(--neon-orange);}.cb-orange .ct{color:var(--neon-orange);}
+.cb-green{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.2);}.cb-green::before{background:var(--neon-green);}.cb-green .ct{color:var(--neon-green);}
+.cb-purple{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2);}.cb-purple::before{background:var(--neon-purple);}.cb-purple .ct{color:var(--neon-purple);}
+.cb-blue{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);}.cb-blue::before{background:var(--neon-blue);}.cb-blue .ct{color:var(--neon-blue);}
+.cb-yellow{background:rgba(180,83,9,0.06);border-color:rgba(180,83,9,0.2);}.cb-yellow::before{background:var(--neon-yellow);}.cb-yellow .ct{color:var(--neon-yellow);}
+.cb-pink{background:rgba(219,39,119,0.06);border-color:rgba(219,39,119,0.2);}.cb-pink::before{background:var(--neon-pink);}.cb-pink .ct{color:var(--neon-pink);}
+.cb-red{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.2);}.cb-red::before{background:var(--neon-red);}.cb-red .ct{color:var(--neon-red);}
+
+/* FORMULA BOX */
+.formula-box{background:linear-gradient(135deg,rgba(8,145,178,0.06),rgba(37,99,235,0.04));border:1.5px solid rgba(8,145,178,0.25);border-radius:16px;padding:1.5rem 2rem;margin:1.4rem 0;text-align:center;position:relative;overflow:hidden;}
+.formula-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(8,145,178,0.05),transparent 70%);pointer-events:none;}
+.formula-main{font-family:var(--font-mono);font-size:1.2rem;font-weight:700;color:var(--neon-cyan);letter-spacing:0.5px;line-height:1.9;}
+.formula-sub{font-size:0.82rem;color:var(--muted);margin-top:0.5rem;font-style:italic;}
+.formula-label{position:absolute;top:0.55rem;right:1rem;font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-cyan);opacity:0.6;}
+.formula-box.fb-orange{background:linear-gradient(135deg,rgba(194,65,12,0.06),rgba(180,83,9,0.04));border-color:rgba(194,65,12,0.25);}
+.formula-box.fb-orange::before{background:radial-gradient(ellipse at center,rgba(194,65,12,0.05),transparent 70%);}
+.formula-box.fb-orange .formula-main{color:var(--neon-orange);}
+.formula-box.fb-orange .formula-label{color:var(--neon-orange);}
+.formula-box.fb-green{background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(8,145,178,0.04));border-color:rgba(22,163,74,0.25);}
+.formula-box.fb-green .formula-main{color:var(--neon-green);}
+.formula-box.fb-green .formula-label{color:var(--neon-green);}
+.formula-box.fb-purple{background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(219,39,119,0.04));border-color:rgba(124,58,237,0.25);}
+.formula-box.fb-purple .formula-main{color:var(--neon-purple);}
+.formula-box.fb-purple .formula-label{color:var(--neon-purple);}
+.formula-box.fb-blue{background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(124,58,237,0.04));border-color:rgba(37,99,235,0.25);}
+.formula-box.fb-blue .formula-main{color:var(--neon-blue);}
+.formula-box.fb-blue .formula-label{color:var(--neon-blue);}
+
+/* MATH TERMS */
+.math-terms{display:flex;flex-wrap:wrap;gap:0.6rem;margin:0.8rem 0;}
+.math-term{display:inline-flex;align-items:center;gap:0.45rem;background:#f0f4ff;border:1px solid var(--border2);border-radius:8px;padding:0.3rem 0.75rem;font-size:0.84rem;}
+.math-term .sym{font-family:var(--font-mono);font-weight:700;color:var(--neon-cyan);}
+.math-term .meaning{color:var(--muted);}
+
+/* STEP TIMELINE */
+.step-timeline{position:relative;padding-left:2.8rem;}
+.step-timeline::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon-cyan),var(--neon-green),var(--neon-blue));opacity:0.45;border-radius:2px;}
+.step-item{position:relative;margin-bottom:1.3rem;background:#f8f9ff;border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 2px 8px rgba(37,99,235,0.05);transition:0.25s;}
+.step-item:hover{border-color:var(--border2);background:#eef1ff;}
+.step-item::before{content:attr(data-step);position:absolute;left:-2.8rem;top:1rem;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--neon-cyan);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;color:var(--neon-cyan);box-shadow:0 2px 8px rgba(8,145,178,0.2);}
+.step-label{font-weight:700;color:var(--text);font-size:0.98rem;margin-bottom:0.35rem;}
+.step-body{color:var(--muted);font-size:0.92rem;line-height:1.7;}
+
+/* ACH CARD */
+.ach-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;text-align:center;position:relative;overflow:hidden;}
+.ach-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s;}
+.ach-card:hover{transform:translateY(-6px);border-color:var(--border2);}
+.ach-card:hover::after{opacity:1;}
+.ach-card.ac-cyan::after{background:var(--neon-cyan);}.ach-card.ac-cyan:hover{box-shadow:0 16px 48px rgba(8,145,178,0.2);}
+.ach-card.ac-orange::after{background:var(--neon-orange);}.ach-card.ac-orange:hover{box-shadow:0 10px 28px rgba(194,65,12,0.15);}
+.ach-card.ac-green::after{background:var(--neon-green);}.ach-card.ac-green:hover{box-shadow:0 16px 48px rgba(22,163,74,0.2);}
+.ach-card.ac-purple::after{background:var(--neon-purple);}.ach-card.ac-purple:hover{box-shadow:0 10px 28px rgba(124,58,237,0.15);}
+.ach-card.ac-blue::after{background:var(--neon-blue);}.ach-card.ac-blue:hover{box-shadow:0 16px 48px rgba(37,99,235,0.2);}
+.ach-card.ac-yellow::after{background:var(--neon-yellow);}.ach-card.ac-yellow:hover{box-shadow:0 10px 28px rgba(180,83,9,0.15);}
+.ach-card.ac-pink::after{background:var(--neon-pink);}.ach-card.ac-pink:hover{box-shadow:0 16px 48px rgba(219,39,119,0.2);}
+.ach-card.ac-red::after{background:var(--neon-red);}.ach-card.ac-red:hover{box-shadow:0 10px 28px rgba(220,38,38,0.15);}
+.ach-icon{font-size:2.2rem;margin-bottom:0.75rem;display:block;}
+.ach-title{font-family:var(--font-head);font-weight:800;font-size:1rem;margin-bottom:0.5rem;}
+.ach-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+
+/* CODE BLOCK */
+.code-wrap{background:#f8f9fc;border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin:1.2rem 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:rgba(8,145,178,0.06);padding:0.6rem 1.1rem;border-bottom:1px solid var(--border);}
+.code-lang{font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:var(--neon-cyan);letter-spacing:1px;text-transform:uppercase;}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#dc2626;}.code-dot:nth-child(2){background:#b45309;}.code-dot:nth-child(3){background:#16a34a;}
+.code-wrap pre{margin:0;padding:1.2rem 1.4rem;overflow-x:auto;background:transparent;}
+.code-wrap pre code{font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;}
+pre[class*="language-"]{border-radius:0!important;font-family:var(--font-mono)!important;font-size:0.85rem!important;margin:0!important;border:none!important;background:transparent!important;}
+.code-output{background:rgba(22,163,74,0.06);border-top:1px solid rgba(22,163,74,0.2);padding:0.7rem 1.2rem;font-family:var(--font-mono);font-size:0.82rem;color:#14532d;line-height:1.7;}
+
+/* EX CARD */
+.ex-card{border-radius:16px;overflow:hidden;margin:1.4rem 0;border:1px solid;}
+.ex-card .ex-head{padding:0.85rem 1.4rem;font-weight:800;font-size:0.92rem;display:flex;align-items:center;gap:0.6rem;}
+.ex-card .ex-body{padding:1.4rem;background:#fafbff;}
+.ex-card.ex-story{border-color:rgba(22,163,74,0.25);}.ex-card.ex-story .ex-head{background:rgba(22,163,74,0.08);color:#166534;}
+.ex-card.ex-tech{border-color:rgba(124,58,237,0.25);}.ex-card.ex-tech .ex-head{background:rgba(124,58,237,0.08);color:#5b21b6;}
+.ex-card.ex-tip{border-color:rgba(8,145,178,0.25);}.ex-card.ex-tip .ex-head{background:rgba(8,145,178,0.08);color:#0c4a6e;}
+.ex-card.ex-warn{border-color:rgba(220,38,38,0.25);}.ex-card.ex-warn .ex-head{background:rgba(220,38,38,0.08);color:#991b1b;}
+.ex-card.ex-orange{border-color:rgba(194,65,12,0.25);}.ex-card.ex-orange .ex-head{background:rgba(194,65,12,0.08);color:#7c2d12;}
+
+/* TABLE */
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.gtbl thead th{background:rgba(8,145,178,0.08);color:var(--neon-cyan);font-family:var(--font-head);font-weight:700;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid rgba(8,145,178,0.15);font-size:0.85rem;letter-spacing:0.5px;}
+.gtbl tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.92rem;vertical-align:top;}
+.gtbl tbody tr:last-child td{border-bottom:none;}
+.gtbl tbody tr:hover td{background:rgba(8,145,178,0.03);color:var(--text);}
+.gtbl tbody td strong{color:var(--text);}
+
+/* DIM CARD */
+.dim-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;position:relative;overflow:hidden;}
+.dim-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(37,99,235,0.1);}
+.dim-rank{font-family:var(--font-head);font-weight:800;font-size:2rem;line-height:1;margin-bottom:0.25rem;}
+.dim-name{font-weight:700;font-size:1rem;margin-bottom:0.8rem;}
+.dim-code{background:#f1f5f9;border-radius:10px;padding:0.65rem 0.9rem;font-family:var(--font-mono);font-size:0.82rem;border:1px solid rgba(99,102,241,0.15);margin-bottom:0.8rem;}
+.dim-desc{font-size:0.88rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;}
+.dim-example{font-size:0.82rem;padding:0.5rem 0.75rem;border-radius:8px;border:1px solid;font-style:italic;}
+
+/* STAT PILLS */
+.stat-pill{display:inline-flex;align-items:center;gap:0.4rem;border-radius:50px;padding:0.3rem 0.9rem;font-weight:700;font-size:0.8rem;border:1px solid;}
+.sp-cyan{background:rgba(8,145,178,0.08);border-color:rgba(8,145,178,0.3);color:var(--neon-cyan);}
+.sp-orange{background:rgba(194,65,12,0.08);border-color:rgba(194,65,12,0.3);color:var(--neon-orange);}
+.sp-green{background:rgba(22,163,74,0.08);border-color:rgba(22,163,74,0.3);color:var(--neon-green);}
+.sp-purple{background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.3);color:var(--neon-purple);}
+.sp-blue{background:rgba(37,99,235,0.08);border-color:rgba(37,99,235,0.3);color:var(--neon-blue);}
+.sp-yellow{background:rgba(180,83,9,0.08);border-color:rgba(180,83,9,0.3);color:var(--neon-yellow);}
+.sp-pink{background:rgba(219,39,119,0.08);border-color:rgba(219,39,119,0.3);color:var(--neon-pink);}
+.sp-red{background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.3);color:var(--neon-red);}
+
+/* INLINE CODE */
+.inline-code{background:rgba(8,145,178,0.08);color:#0e7490;padding:0.1rem 0.45rem;border-radius:6px;font-family:var(--font-mono);font-size:0.88em;border:1px solid rgba(8,145,178,0.25);}
+
+/* HIGHLIGHT */
+.hl{background:rgba(180,83,9,0.1);color:#92400e;padding:0 5px;border-radius:4px;}
+.hl-cyan{background:rgba(8,145,178,0.1);color:var(--neon-cyan);padding:0 5px;border-radius:4px;}
+.hl-green{background:rgba(22,163,74,0.1);color:var(--neon-green);padding:0 5px;border-radius:4px;}
+.hl-orange{background:rgba(194,65,12,0.1);color:var(--neon-orange);padding:0 5px;border-radius:4px;}
+.hl-red{background:rgba(220,38,38,0.1);color:var(--neon-red);padding:0 5px;border-radius:4px;}
+.hl-purple{background:rgba(124,58,237,0.1);color:var(--neon-purple);padding:0 5px;border-radius:4px;}
+
+/* GLOW DIVIDER */
+.glow-div{height:2px;border-radius:2px;margin:2rem 0;opacity:0.4;background:linear-gradient(90deg,transparent,var(--neon-cyan),var(--neon-green),var(--neon-blue),transparent);}
+
+/* MERMAID */
+.mermaid-wrap{background:#f8f9ff;border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto;box-shadow:0 2px 12px rgba(37,99,235,0.06);}
+
+/* QUIZ */
+.quiz-box{background:#fffbf0;border:1px solid rgba(180,83,9,0.18);border-radius:20px;padding:1.6rem;margin:1.8rem 0;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(180,83,9,0.07);}
+.quiz-box::before{content:'⚡ QUICK CHALLENGE';position:absolute;top:0;right:0;background:linear-gradient(135deg,#b45309,#c2410c);color:#fff;font-family:var(--font-head);font-weight:800;font-size:0.62rem;letter-spacing:2px;padding:0.32rem 0.9rem;border-radius:0 20px 0 12px;}
+.quiz-q{font-weight:700;color:#1c1917;margin-bottom:1.1rem;font-size:1.02rem;line-height:1.55;}
+.quiz-options{display:flex;flex-direction:column;gap:0.55rem;}
+.quiz-opt{background:#ffffff;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.75rem 1.1rem;cursor:pointer;font-size:0.93rem;color:#374151;transition:background 0.15s,border-color 0.15s,transform 0.12s;font-weight:500;display:flex;align-items:center;gap:0.85rem;user-select:none;}
+.quiz-opt:not(.answered-opt):hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;transform:translateX(3px);}
+.quiz-opt.correct{background:#f0fdf4;border-color:#16a34a;color:#14532d;font-weight:700;}
+.quiz-opt.correct .opt-letter{background:#16a34a;color:#fff;}
+.quiz-opt.wrong{background:#fef2f2;border-color:#dc2626;color:#991b1b;opacity:0.8;}
+.quiz-opt.wrong .opt-letter{background:#dc2626;color:#fff;}
+.quiz-opt.dimmed{opacity:0.45;pointer-events:none;}
+.quiz-opt .opt-letter{width:28px;height:28px;border-radius:8px;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.8rem;flex-shrink:0;transition:background 0.2s,color 0.2s;}
+.quiz-explain{display:none;font-size:0.84rem;font-weight:500;margin-top:-0.35rem;margin-bottom:0.35rem;padding:0.5rem 0.85rem 0.5rem 1rem;border-radius:0 0 10px 10px;line-height:1.55;border-left:3px solid transparent;}
+.quiz-explain.show-correct{display:block;background:rgba(22,163,74,0.07);color:#166534;border-left-color:#16a34a;}
+.quiz-explain.show-wrong{display:block;background:rgba(220,38,38,0.06);color:#991b1b;border-left-color:#dc2626;}
+.quiz-explain.show-reveal{display:block;background:rgba(37,99,235,0.06);color:#1e40af;border-left-color:#2563eb;}
+.quiz-feedback{display:none;margin-top:1rem;padding:0.85rem 1.1rem;border-radius:12px;font-weight:700;font-size:0.95rem;align-items:center;gap:0.6rem;}
+.quiz-feedback.show{display:flex;animation:fadeIn 0.35s;}
+.quiz-feedback.win{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;border:1px solid rgba(22,163,74,0.3);}
+.quiz-feedback.lose{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;border:1px solid rgba(220,38,38,0.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* FOOTER */
+.gfooter{background:#e8edf8;border-top:1px solid var(--border);padding:3rem 0;margin-top:4rem;text-align:center;}
+.gfooter-logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-up.visible{opacity:1;transform:none;}
+
+/* RESPONSIVE */
+@media(max-width:768px){.hero h1{font-size:2rem;}.hero-orbit{display:none;}.level-card{padding:1.5rem;}.xp-badges{display:none;}}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;}
+.gtoast{background:#ffffff;border:1px solid var(--border2);border-radius:14px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.75rem;backdrop-filter:blur(12px);font-weight:700;font-size:0.88rem;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto;min-width:260px;box-shadow:0 8px 32px rgba(37,99,235,0.15);}
+.gtoast.show{transform:none;}
+.gtoast-icon{font-size:1.4rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:#ffffff;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:520px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(37,99,235,0.18),0 4px 20px rgba(0,0,0,0.1);transform:scale(0.85) translateY(20px);transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease;opacity:0;}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0);opacity:1;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green),var(--neon-blue));}
+.modal-close{position:absolute;top:1rem;right:1rem;background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.modal-close:hover{background:#e5e7eb;color:#374151;}
+.modal-trophy{font-size:3rem;text-align:center;margin-bottom:0.5rem;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;text-align:center;color:var(--text);margin-bottom:0.4rem;}
+.modal-subtitle{color:var(--muted);text-align:center;font-size:0.92rem;margin-bottom:1.5rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.score-ring{position:relative;width:120px;height:120px;}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e5e7eb;stroke-width:10;}
+.ring-fill{fill:none;stroke:#0891b2;stroke-width:10;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--text);line-height:1;}
+.ring-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.grade-card{border-radius:14px;padding:0.85rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;border:1.5px solid;}
+.grade-s{background:#fef9c3;border-color:#b45309;}.grade-a{background:#f0fdf4;border-color:#16a34a;}.grade-b{background:#eff6ff;border-color:#2563eb;}.grade-c{background:#f5f3ff;border-color:#7c3aed;}.grade-d{background:#fef2f2;border-color:#dc2626;}
+.grade-letter{font-family:var(--font-head);font-weight:800;font-size:1.6rem;}
+.grade-msg{font-size:0.9rem;color:var(--muted);font-weight:600;}
+.modal-xp-row{display:flex;align-items:center;justify-content:space-between;background:#f8f9ff;border:1px solid rgba(37,99,235,0.15);border-radius:12px;padding:0.75rem 1.1rem;margin-bottom:1.4rem;}
+.modal-xp-row .mxp-label{font-size:0.85rem;color:#6b7280;font-weight:600;}
+.modal-xp-row .mxp-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#0891b2,#16a34a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-btns{display:flex;gap:0.75rem;}
+.modal-btn-retry{flex:1;padding:0.8rem 1rem;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#374151;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.modal-btn-retry:hover{background:#e5e7eb;border-color:#d1d5db;color:#111827;}
+.modal-btn-continue{flex:2;padding:0.8rem 1rem;background:linear-gradient(135deg,#0891b2,#16a34a);border:none;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#ffffff;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 16px rgba(8,145,178,0.3);}
+.modal-btn-continue:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(8,145,178,0.4);}
+#confettiCanvas{position:fixed;inset:0;z-index:10001;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- XP STRIP -->
+<div class="xp-strip">
+  <div class="container-main">
+    <div class="xp-inner">
+      <span class="xp-label">⚡ XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill"></div></div>
+      <span class="xp-score" id="xpScore">0 / 275 XP</span>
+      <div class="xp-badges">
+        <span class="xp-badge b1" id="badge1">🌊 Curve Spotter</span>
+        <span class="xp-badge b2" id="badge2">📐 Degree Master</span>
+        <span class="xp-badge b3" id="badge3">🔧 Feature Engineer</span>
+        <span class="xp-badge b4" id="badge4">⚖️ Bias Buster</span>
+        <span class="xp-badge b5" id="badge5">🏆 Poly Champion</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container-main">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-eyebrow"><i class="fa-solid fa-gamepad me-1"></i> Gamified Learning Quest</div>
+        <h1>
+          <span class="line1">Curves Beat Straight Lines</span>
+          <span class="line2">Polynomial Regression</span>
+        </h1>
+        <p class="hero-sub">
+          5 boss levels. Linear se Polynomial tak — kab line fail hoti hai, curve kaise fit karti hai, aur degree choice ka kya impact hota hai. Real India examples. <strong style="color:var(--text)">Earn XP</strong>, unlock badges, aur curves ko master karo!
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Boss Levels</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">275</div><div class="hero-stat-label">Total XP</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Badges</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">∞</div><div class="hero-stat-label">Curve Power</div></div>
+        </div>
+        <a href="#s1" class="hero-cta"><i class="fa-solid fa-play me-1"></i> Start Your Quest</a>
+      </div>
+      <div class="col-lg-5">
+        <div class="hero-orbit">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-center">〜</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-main">
+
+<!-- QUEST MAP -->
+<div class="quest-map fade-up">
+  <div class="quest-map-title"><i class="fa-solid fa-map me-2"></i> Quest Map</div>
+  <div class="quest-grid">
+    <a href="#s1" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">L1</span> Why Linear Regression Fails?</a>
+    <a href="#s2" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">L1</span> Polynomial Regression — Kya Hai?</a>
+    <a href="#s3" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.15);color:var(--neon-orange);">L2</span> Math Intuition — Equation &amp; Feature Transform</a>
+    <a href="#s4" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.15);color:var(--neon-orange);">L2</span> Degree Choose Karna — Underfitting vs Overfitting</a>
+    <a href="#s5" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.15);color:var(--neon-green);">L3</span> PolynomialFeatures — Sklearn Trick</a>
+    <a href="#s6" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.15);color:var(--neon-green);">L3</span> Python Code — Complete Implementation</a>
+    <a href="#s7" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.15);color:var(--neon-purple);">L4</span> Worked Example — IPL Player Runs</a>
+    <a href="#s8" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.15);color:var(--neon-pink);">L5</span> Linear vs Polynomial — Complete Comparison</a>
+    <a href="#s9" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.15);color:var(--neon-pink);">🏆</span> Final Summary &amp; Roadmap</a>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 1-A : WHY LINEAR FAILS?
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s1">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Boss Topic</div>
+      <div class="lv-title">Linear Regression Kab Fail Hoti Hai?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-cyan">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Problem — Ek Line Mein</div>
+    Simple Linear Regression ek <strong>seedhi line (y = mx + c)</strong> banata hai. But real-world data hamesha seedha nahi hota — <span class="hl-cyan">kabhi kabhi data curve follow karta hai</span>!<br><br>
+    Jab data non-linear ho aur hum linear model fit karein → <strong>underfitting</strong> → predictions bahut galat hongi.
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- SVG: Linear fails on curved data -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-chart-scatter me-2" style="color:var(--neon-cyan)"></i>Visual — Seedhi Line Curved Data Fit Nahi Kar Sakti
+  </h5>
+  <div style="background:#f8f9ff;border:1.5px solid rgba(8,145,178,0.2);border-radius:16px;padding:1.5rem;margin:0 0 1.4rem;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 580 310" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <defs>
+        <marker id="ax" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#9ca3af"/></marker>
+        <marker id="ay" markerWidth="6" markerHeight="8" refX="3" refY="0" orient="auto"><polygon points="0 8,3 0,6 8" fill="#9ca3af"/></marker>
+      </defs>
+      <!-- Grid -->
+      <line x1="60" y1="260" x2="540" y2="260" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#ax)"/>
+      <line x1="60" y1="260" x2="60" y2="20" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#ay)"/>
+      <text x="546" y="264" font-size="12" fill="#6b7280" font-weight="600">X</text>
+      <text x="42" y="16" font-size="12" fill="#6b7280" font-weight="600">Y</text>
+      <!-- Axis ticks -->
+      <text x="98" y="275" font-size="10" fill="#9ca3af">1</text>
+      <text x="178" y="275" font-size="10" fill="#9ca3af">2</text>
+      <text x="258" y="275" font-size="10" fill="#9ca3af">3</text>
+      <text x="338" y="275" font-size="10" fill="#9ca3af">4</text>
+      <text x="418" y="275" font-size="10" fill="#9ca3af">5</text>
+      <text x="498" y="275" font-size="10" fill="#9ca3af">6</text>
+      <!-- Data points — U-shaped / curved pattern -->
+      <!-- (1,210),(1.5,170),(2,140),(2.5,120),(3,110),(3.5,108),(4,115),(4.5,130),(5,160),(5.5,200),(6,240) -->
+      <!-- Scale: Xs=60+x*80, Ys=260-y -->
+      <circle cx="140" cy="50"  r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (1,210) -->
+      <circle cx="180" cy="90"  r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (1.5,170) -->
+      <circle cx="220" cy="120" r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (2,140) -->
+      <circle cx="260" cy="140" r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (2.5,120) -->
+      <circle cx="300" cy="152" r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (3,108) -->
+      <circle cx="340" cy="150" r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (3.5,110) -->
+      <circle cx="380" cy="145" r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (4,115) -->
+      <circle cx="420" cy="130" r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (4.5,130) -->
+      <circle cx="460" cy="100" r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (5,160) -->
+      <circle cx="500" cy="60"  r="6" fill="#2563eb" stroke="white" stroke-width="2"/><!-- (5.5,200) -->
+      <!-- Linear fit (straight line) — BAD -->
+      <line x1="100" y1="200" x2="520" y2="90" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="8,4"/>
+      <!-- Polynomial curve (good) — SVG cubic bezier -->
+      <path d="M 120,55 C 200,160 260,165 300,152 S 380,145 500,55" stroke="#16a34a" stroke-width="2.5" fill="none"/>
+      <!-- Labels -->
+      <rect x="90" y="22" width="155" height="22" rx="6" fill="rgba(220,38,38,0.1)" stroke="rgba(220,38,38,0.3)"/>
+      <text x="170" y="37" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">Linear (Straight) — Bad Fit ❌</text>
+      <rect x="300" y="22" width="185" height="22" rx="6" fill="rgba(22,163,74,0.1)" stroke="rgba(22,163,74,0.3)"/>
+      <text x="393" y="37" font-size="11" fill="#16a34a" font-weight="700" text-anchor="middle">Polynomial (Curve) — Good Fit ✅</text>
+      <!-- Data label -->
+      <text x="300" y="295" font-size="11" fill="#6b7280" text-anchor="middle">Data follows a curve — Linear line misses most points!</text>
+    </svg>
+  </div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1.2rem;">
+    <i class="fa-solid fa-india me-2" style="color:var(--neon-cyan)"></i>Real India Examples — Jahan Curve Hoti Hai
+  </h5>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="ach-card ac-cyan">
+        <span class="ach-icon">📈</span>
+        <div class="ach-title">Stock Market Returns</div>
+        <div class="ach-desc">HDFC ya Reliance ka stock — short term mein up-down, long term mein S-curve growth. Straight line fit nahi hoti.</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-orange">
+        <span class="ach-icon">🌡️</span>
+        <div class="ach-title">AC Electricity Bill</div>
+        <div class="ach-desc">Temperature 20°C pe kam, 30°C pe medium, 40°C pe bahut zyada electricity lagti hai — yeh exponential/quadratic curve hai!</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-green">
+        <span class="ach-icon">🏏</span>
+        <div class="ach-title">IPL Batsman Runs</div>
+        <div class="ach-desc">Career mein pehle runs badhte hain (experience), peak pe maximum, phir girth ke saath thoda reduce — parabola shape!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-orange mt-4">
+    <div class="ct"><i class="fa-solid fa-triangle-exclamation"></i> Linear Regression ki Limitation</div>
+    Linear Regression sirf <strong>straight line</strong> bana sakti hai → <span class="hl-orange">ŷ = β₀ + β₁X</span>.<br><br>
+    Agar relationship curved ya non-linear hai, toh ye model:<br>
+    → High error (RMSE/MSE) dega<br>
+    → R² score bahut low hoga (&lt;0.5 ya negative bhi!)<br>
+    → Residuals mein clear pattern dikhega (randomly scattered nahi honge)<br><br>
+    <strong>Solution = Polynomial Regression!</strong>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-box" data-quiz="1" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 Ek dataset mein "Age" aur "Medical Insurance Premium" ka relationship hai. Young aur very old logon ke premiums high hote hain, middle age mein low. Linear Regression iska kya result dega?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Linear Regression perfectly fit tab hogi jab data seedha linear ho — Age ke saath Premium monotonically badhta ya ghatta ho. Yahan relationship U-shaped hai — linear line is pattern ko capture nahi kar sakti."><span class="opt-letter">A</span>Perfect fit — R² ≈ 1.0 milega</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. R² sirf negative hota hai jab model mean se bhi bura perform kare. Yahan linear regression kuch toh capture karegi — lekin poor fit milega, around 0.1–0.3 R², not necessarily negative."><span class="opt-letter">B</span>Negative R² milega — completely useless model</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! Premium ka Age se U-shaped (quadratic) relationship hai — low premium middle age mein, high at young and old age. Linear regression ek seedhi line fit karegi jo is U-shape ko miss karegi. Result: high residuals on both ends, poor R² score (~0.2-0.4), aur residual plot mein clear curve pattern dikhega. Polynomial Regression (degree=2) is case mein much better hogi!"><span class="opt-letter">C</span>Poor fit — high error, low R² score, residuals mein curve pattern dikhega</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Galat. Linear Regression automatically degree adjust nahi karta — yeh sirf ek straight line banata hai. Degree choose karna humara kaam hai. Is case mein explicitly Polynomial Regression use karna padega."><span class="opt-letter">D</span>Automatically degree adjust kar lega aur curve fit kar lega</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 1-B : POLYNOMIAL REGRESSION KYA HAI?
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s2">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-wave-square"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Skill Unlock</div>
+      <div class="lv-title">Polynomial Regression — Curve Fitting ka Jadoo!</div>
+    </div>
+  </div>
+
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Definition</div>
+    <strong>Polynomial Regression</strong> = Linear Regression ka hi ek extension jisme hum <span class="hl-green">input feature X ke powers (X², X³ …) bhi add</span> karte hain taaki model curved patterns fit kar sake.<br><br>
+    Key insight: <em>Ye still "Linear" Regression hai internally</em> — sirf features alag hain. Model ke parameters (β) ke liye linear hai — X ke liye nahi!
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-arrow-trend-up me-2" style="color:var(--neon-green)"></i>Linear se Polynomial tak ka Progression
+  </h5>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(8,145,178,0.3);">
+        <div class="dim-rank" style="color:var(--neon-cyan);font-size:1.4rem;">Degree 1</div>
+        <div class="dim-name" style="color:var(--neon-cyan);">Simple Linear</div>
+        <div class="dim-code">ŷ = β₀ + β₁X</div>
+        <div class="dim-desc">Sirf ek straight line. X ke saath ek power only (X¹). Simplest model.</div>
+        <div class="dim-example" style="border-color:rgba(8,145,178,0.2);color:var(--muted);">Shape: Straight line (—)</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(22,163,74,0.3);">
+        <div class="dim-rank" style="color:var(--neon-green);font-size:1.4rem;">Degree 2</div>
+        <div class="dim-name" style="color:var(--neon-green);">Quadratic</div>
+        <div class="dim-code">ŷ = β₀ + β₁X + β₂X²</div>
+        <div class="dim-desc">Ek parabola — U-shape ya ∩-shape. X aur X² dono features hain. Most commonly used.</div>
+        <div class="dim-example" style="border-color:rgba(22,163,74,0.2);color:var(--muted);">Shape: Parabola (∪ or ∩)</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(124,58,237,0.3);">
+        <div class="dim-rank" style="color:var(--neon-purple);font-size:1.4rem;">Degree 3+</div>
+        <div class="dim-name" style="color:var(--neon-purple);">Cubic &amp; Higher</div>
+        <div class="dim-code">ŷ = β₀ + β₁X + β₂X² + β₃X³</div>
+        <div class="dim-desc">S-curve ya more complex shapes. More flexible lekin overfitting ka risk zyada!</div>
+        <div class="dim-example" style="border-color:rgba(124,58,237,0.2);color:var(--muted);">Shape: S-curve, wavy (~)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SVG: Curves by degree -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(22,163,74,0.2);border-radius:16px;padding:1.5rem;margin:1.4rem 0;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 580 230" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <defs>
+        <marker id="ax2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#9ca3af"/></marker>
+        <marker id="ay2" markerWidth="6" markerHeight="8" refX="3" refY="0" orient="auto"><polygon points="0 8,3 0,6 8" fill="#9ca3af"/></marker>
+      </defs>
+      <line x1="50" y1="190" x2="545" y2="190" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#ax2)"/>
+      <line x1="50" y1="190" x2="50" y2="15" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#ay2)"/>
+      <text x="550" y="194" font-size="11" fill="#6b7280">X</text>
+      <text x="35" y="12" font-size="11" fill="#6b7280">Y</text>
+      <!-- Degree 1 — straight line -->
+      <line x1="70" y1="170" x2="530" y2="50" stroke="#0891b2" stroke-width="2.5"/>
+      <!-- Degree 2 — parabola (U shape) -->
+      <path d="M 70,60 Q 295,200 530,60" stroke="#16a34a" stroke-width="2.5" fill="none"/>
+      <!-- Degree 3 — cubic S-shape -->
+      <path d="M 70,160 C 140,30 220,180 295,100 S 420,30 530,140" stroke="#7c3aed" stroke-width="2.5" fill="none"/>
+      <!-- Labels -->
+      <text x="540" y="48" font-size="11" fill="#0891b2" font-weight="700">deg=1</text>
+      <text x="540" y="62" font-size="10" fill="#0891b2">(Linear)</text>
+      <text x="240" y="210" font-size="11" fill="#16a34a" font-weight="700">degree=2 (Quadratic — U)</text>
+      <text x="420" y="115" font-size="11" fill="#7c3aed" font-weight="700">deg=3 (Cubic)</text>
+      <!-- Title -->
+      <text x="290" y="17" font-size="13" fill="#1e1b4b" font-weight="800" text-anchor="middle">Polynomial Curves by Degree</text>
+    </svg>
+  </div>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-key"></i> Secret Key Insight — Why "Linear" Regression?</div>
+    Polynomial Regression internally <strong>still uses Linear Regression!</strong><br><br>
+    Hum X² ko ek naya feature Z = X² banate hain → phir normal linear regression karte hain:<br>
+    <span class="inline-code">ŷ = β₀ + β₁X + β₂X²</span> → <span class="inline-code">ŷ = β₀ + β₁X + β₂Z</span> (Z = X²)<br><br>
+    <em>Model ke liye ye sirf Multiple Linear Regression hai — parameters β ke liye linear! Sirf features transform hue hain.</em>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 2-A : MATH INTUITION — EQUATION
+█████████████████████████████████████ -->
+<div class="level-card lvl-orange fade-up" id="s3">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-orange"><i class="fa-solid fa-superscript"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Boss Topic</div>
+      <div class="lv-title">Math Intuition — General Equation &amp; Feature Transformation</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <!-- General equation -->
+  <div class="formula-box fb-orange">
+    <div class="formula-label">POLYNOMIAL REGRESSION — GENERAL EQUATION (Degree d)</div>
+    <div class="formula-main">ŷ = β₀ + β₁X + β₂X² + β₃X³ + … + βdXd</div>
+    <div class="formula-sub">d = polynomial degree (aap choose karte ho) &nbsp;|&nbsp; β₀, β₁ … βd = model ke learned parameters</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">ŷ</span><span class="meaning">Predicted output</span></div>
+    <div class="math-term"><span class="sym">X</span><span class="meaning">Original input feature</span></div>
+    <div class="math-term"><span class="sym">X²</span><span class="meaning">X ka square — quadratic term</span></div>
+    <div class="math-term"><span class="sym">X³</span><span class="meaning">X ka cube — cubic term</span></div>
+    <div class="math-term"><span class="sym">d</span><span class="meaning">Degree — aap choose karte ho (2, 3, 4…)</span></div>
+    <div class="math-term"><span class="sym">β₀ … βd</span><span class="meaning">Coefficients — OLS se learn hote hain</span></div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-arrows-split-up-and-left me-2" style="color:var(--neon-orange)"></i>Feature Transformation — X se [X, X², X³] kaise banate hain?
+  </h5>
+
+  <div class="callout cb-yellow">
+    <div class="ct"><i class="fa-solid fa-magic-wand-sparkles"></i> Trick — Original X ko Transform Karo</div>
+    Degree-2 Polynomial Regression ke liye:<br><br>
+    <strong>Original Features:</strong> sirf <span class="inline-code">X = [2, 3, 4, 5]</span><br>
+    <strong>Transformed Features (degree=2):</strong> <span class="inline-code">[1, X, X²] = [[1,2,4], [1,3,9], [1,4,16], [1,5,25]]</span><br><br>
+    Har row mein: constant 1 (for β₀), original X, aur X² — phir normal Linear Regression in 3 features pe!<br>
+    <em style="color:var(--dim);">sklearn ka PolynomialFeatures transformer exactly yahi karta hai automatically.</em>
+  </div>
+
+  <div class="table-responsive mt-3">
+    <table class="gtbl">
+      <thead><tr><th>Original X</th><th>Feature 1 (1)</th><th>Feature 2 (X)</th><th>Feature 3 (X²)</th><th>Degree-2 se model seekhta hai</th></tr></thead>
+      <tbody>
+        <tr><td>2</td><td>1</td><td>2</td><td><strong>4</strong></td><td>ŷ = β₀·1 + β₁·2 + β₂·4</td></tr>
+        <tr><td>3</td><td>1</td><td>3</td><td><strong>9</strong></td><td>ŷ = β₀·1 + β₁·3 + β₂·9</td></tr>
+        <tr><td>4</td><td>1</td><td>4</td><td><strong>16</strong></td><td>ŷ = β₀·1 + β₁·4 + β₂·16</td></tr>
+        <tr><td>5</td><td>1</td><td>5</td><td><strong>25</strong></td><td>ŷ = β₀·1 + β₁·5 + β₂·25</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout cb-orange mt-3">
+    <div class="ct"><i class="fa-solid fa-gears"></i> Under the Hood — OLS Still Works!</div>
+    Feature transformation ke baad hum normal OLS apply karte hain:<br><br>
+    <strong>New feature matrix X_poly = [1, X, X², X³, …]</strong><br><br>
+    <strong>β = (X_poly ᵀ X_poly)⁻¹ X_poly ᵀ y</strong> &nbsp;← Normal equation (same as Linear Regression OLS!)<br><br>
+    <em>Isliye Polynomial Regression ka mathematical core identical hai Linear Regression ke — sirf input features transform hue hain. Gradient Descent bhi same taraf se kaam karta hai!</em>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-box" data-quiz="2" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Degree-3 Polynomial Regression ke liye X = [2, 3, 4] ko transform karne ke baad kitni features hongi har row mein? (include bias term)</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. 3 features sirf original X, X², X³ ke liye honge — lekin PolynomialFeatures ek bias term (constant 1) bhi add karta hai by default. Toh total = 4."><span class="opt-letter">A</span>3 features — X, X², X³</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! Degree-3 polynomial with bias = [1, X, X², X³] = 4 features per row. Har row ke liye: [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]. include_bias=True (default) se constant '1' add hoti hai jo β₀ (intercept) ke liye hai. Total features = degree + 1 = 3 + 1 = 4!"><span class="opt-letter">B</span>4 features — 1, X, X², X³ (including bias term)</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. 2 features sirf degree-1 ke liye honge [1, X]. Degree-3 mein X, X², X³ teenon chahiye plus bias term."><span class="opt-letter">C</span>2 features — 1 aur X sirf</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Degree-3 ke liye: 1 + X + X² + X³ = 4 features (degree + 1). 6 features degree-5 ke liye hoti. General formula: number of features = d + 1 for single input feature."><span class="opt-letter">D</span>6 features — all combinations</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 2-B : DEGREE Choose Karna
+█████████████████████████████████████ -->
+<div class="level-card lvl-orange fade-up" id="s4">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-yellow"><i class="fa-solid fa-sliders"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Skill Unlock</div>
+      <div class="lv-title">Degree Choose Karna — Underfitting vs Overfitting</div>
+    </div>
+  </div>
+
+  <!-- SVG: Underfitting vs Good Fit vs Overfitting -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(194,65,12,0.2);border-radius:16px;padding:1.5rem;margin:0 0 1.4rem;overflow-x:auto;text-align:center;">
+    <svg viewBox="0 0 600 230" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:'Plus Jakarta Sans',sans-serif;">
+      <!-- Panel 1: Underfit (degree=1) -->
+      <rect x="10" y="25" width="175" height="185" rx="10" fill="rgba(220,38,38,0.04)" stroke="rgba(220,38,38,0.25)" stroke-width="1.5"/>
+      <text x="97" y="42" font-size="11" fill="#dc2626" font-weight="800" text-anchor="middle">Degree=1 (Underfit ❌)</text>
+      <line x1="20" y1="200" x2="175" y2="200" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="20" y1="200" x2="20" y2="55" stroke="#e5e7eb" stroke-width="1"/>
+      <!-- Curved data points -->
+      <circle cx="35" cy="160" r="4" fill="#2563eb"/>
+      <circle cx="55" cy="130" r="4" fill="#2563eb"/>
+      <circle cx="75" cy="110" r="4" fill="#2563eb"/>
+      <circle cx="95" cy="108" r="4" fill="#2563eb"/>
+      <circle cx="115" cy="115" r="4" fill="#2563eb"/>
+      <circle cx="135" cy="135" r="4" fill="#2563eb"/>
+      <circle cx="155" cy="160" r="4" fill="#2563eb"/>
+      <!-- Underfit straight line -->
+      <line x1="25" y1="168" x2="170" y2="138" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="6,3"/>
+      <text x="97" y="218" font-size="10" fill="#dc2626" text-anchor="middle">High Bias, Low Variance</text>
+
+      <!-- Panel 2: Good Fit (degree=2) -->
+      <rect x="210" y="25" width="175" height="185" rx="10" fill="rgba(22,163,74,0.04)" stroke="rgba(22,163,74,0.25)" stroke-width="1.5"/>
+      <text x="297" y="42" font-size="11" fill="#16a34a" font-weight="800" text-anchor="middle">Degree=2 (Good Fit ✅)</text>
+      <line x1="220" y1="200" x2="375" y2="200" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="220" y1="200" x2="220" y2="55" stroke="#e5e7eb" stroke-width="1"/>
+      <circle cx="235" cy="160" r="4" fill="#2563eb"/>
+      <circle cx="255" cy="130" r="4" fill="#2563eb"/>
+      <circle cx="275" cy="110" r="4" fill="#2563eb"/>
+      <circle cx="295" cy="108" r="4" fill="#2563eb"/>
+      <circle cx="315" cy="115" r="4" fill="#2563eb"/>
+      <circle cx="335" cy="135" r="4" fill="#2563eb"/>
+      <circle cx="355" cy="160" r="4" fill="#2563eb"/>
+      <!-- Good parabola -->
+      <path d="M 228,163 Q 295,95 368,163" stroke="#16a34a" stroke-width="2.5" fill="none"/>
+      <text x="297" y="218" font-size="10" fill="#16a34a" text-anchor="middle">Low Bias, Low Variance</text>
+
+      <!-- Panel 3: Overfit (degree=8) -->
+      <rect x="412" y="25" width="175" height="185" rx="10" fill="rgba(194,65,12,0.04)" stroke="rgba(194,65,12,0.25)" stroke-width="1.5"/>
+      <text x="499" y="42" font-size="11" fill="#c2410c" font-weight="800" text-anchor="middle">Degree=8 (Overfit ❌)</text>
+      <line x1="420" y1="200" x2="578" y2="200" stroke="#e5e7eb" stroke-width="1"/>
+      <line x1="420" y1="200" x2="420" y2="55" stroke="#e5e7eb" stroke-width="1"/>
+      <circle cx="435" cy="160" r="4" fill="#2563eb"/>
+      <circle cx="455" cy="130" r="4" fill="#2563eb"/>
+      <circle cx="475" cy="110" r="4" fill="#2563eb"/>
+      <circle cx="495" cy="108" r="4" fill="#2563eb"/>
+      <circle cx="515" cy="115" r="4" fill="#2563eb"/>
+      <circle cx="535" cy="135" r="4" fill="#2563eb"/>
+      <circle cx="555" cy="160" r="4" fill="#2563eb"/>
+      <!-- Overfitting wiggly curve through every point -->
+      <path d="M 430,162 C 440,155 445,125 455,130 S 465,105 475,110 S 488,100 495,108 S 508,112 515,115 S 527,130 535,135 S 548,155 555,160 S 564,170 570,165" stroke="#c2410c" stroke-width="2" fill="none"/>
+      <text x="499" y="218" font-size="10" fill="#c2410c" text-anchor="middle">Low Bias, High Variance</text>
+    </svg>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="callout cb-red h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-xmark"></i> Underfitting (Too Low Degree)</div>
+        Degree too small (e.g., d=1 for curved data).<br><br>
+        → Model zyada simple hai — pattern miss karta hai<br>
+        → Training aur test dono pe high error<br>
+        → <strong>High Bias, Low Variance</strong><br>
+        → R² score low hoga (0.3–0.5 range)
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check-double"></i> Sweet Spot (Right Degree)</div>
+        Degree matches actual data pattern.<br><br>
+        → Model pattern seekhta hai ✅<br>
+        → Training aur test dono pe low error<br>
+        → <strong>Low Bias, Low Variance</strong><br>
+        → High R² score (0.85–0.95 range)
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="callout cb-orange h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-xmark"></i> Overfitting (Too High Degree)</div>
+        Degree too large (e.g., d=10 for 10 points).<br><br>
+        → Model training data memorize karta hai<br>
+        → Training pe perfect, test pe bahut galat!<br>
+        → <strong>Low Bias, High Variance</strong><br>
+        → Train R²≈1, Test R² bahut low
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue mt-4">
+    <div class="ct"><i class="fa-solid fa-compass"></i> Degree Kaise Choose Karein? — Practical Guide</div>
+    <div class="step-timeline" style="margin-top:0.8rem;">
+      <div class="step-item" data-step="1">
+        <div class="step-label">Pehle data visualize karo</div>
+        <div class="step-body">Scatter plot banao X vs y. Seedha = degree 1. U/∩ shape = degree 2. S-shape = degree 3. Kabhi degree &gt;5 karo na bina solid justification ke!</div>
+      </div>
+      <div class="step-item" data-step="2">
+        <div class="step-label">Chhote degrees se shuru karo</div>
+        <div class="step-body">d=2 se start karo, phd d=3, d=4 try karo. Har baar train aur validation error compare karo.</div>
+      </div>
+      <div class="step-item" data-step="3">
+        <div class="step-label">Cross-validation use karo</div>
+        <div class="step-body">Jab validation error minimum ho — wahi best degree hai. Agar train error decrease hota rahe but validation error badhne lage → overfitting!</div>
+      </div>
+      <div class="step-item" data-step="4">
+        <div class="step-label">Regularization add karo high degrees pe</div>
+        <div class="step-body">High degree + Ridge/Lasso regularization = overfitting reduce hoti hai. Ye combination industry mein common hai.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 3-A : POLYNOMIAL FEATURES
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s5">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Boss Topic</div>
+      <div class="lv-title">PolynomialFeatures — sklearn ka Magic Tool!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Idea</div>
+    <strong>PolynomialFeatures</strong> = sklearn ka ek <em>transformer</em> jo automatically X se [1, X, X², X³, …] banata hai.<br><br>
+    Fir normal <span class="inline-code">LinearRegression</span> in transformed features pe apply karo — done!<br>
+    Yeh <span class="hl-green">2-step pipeline</span> hai: <strong>Transform → Fit</strong>.
+  </div>
+
+  <div class="formula-box fb-green">
+    <div class="formula-label">SKLEARN POLYNOMIAL PIPELINE</div>
+    <div class="formula-main">X → PolynomialFeatures(d) → X_poly → LinearRegression → ŷ</div>
+    <div class="formula-sub">Step 1: Features expand karo (X → [1, X, X²…]) &nbsp;|&nbsp; Step 2: Normal OLS run karo</div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-green)"></i>PolynomialFeatures — Key Parameters
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Parameter</th><th>Default</th><th>Matlab (Meaning)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="inline-code">degree</span></td><td>2</td><td>Polynomial ka degree — kitni powers generate karni hain (2=X², 3=X³ etc.)</td></tr>
+        <tr><td><span class="inline-code">include_bias</span></td><td>True</td><td>True = column of 1s add karo (β₀ ke liye). False = intercept LinearRegression pe chhod do</td></tr>
+        <tr><td><span class="inline-code">interaction_only</span></td><td>False</td><td>True = sirf interaction terms (X₁X₂), no X², X³. Multiple features ke liye useful.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout cb-yellow mt-3">
+    <div class="ct"><i class="fa-solid fa-triangle-exclamation"></i> Multiple Features ke saath — Feature Explosion!</div>
+    Ek feature X ke saath degree-2: <strong>3 features</strong> (1, X, X²) — manageable!<br>
+    Do features X₁, X₂ ke saath degree-2: <strong>6 features</strong> (1, X₁, X₂, X₁², X₁X₂, X₂²) — zyada!<br>
+    10 features degree-3: <strong>286 features</strong> — bahut zyada! Curse of dimensionality!<br><br>
+    Formula: <span class="inline-code">n_features = C(n + d, d)</span> — combinations! Isliye polynomial regression zyada features ke saath carefully use karo.
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-box" data-quiz="3" data-correct="a" data-xp="25">
+    <div class="quiz-q">🤔 Polynomial Regression implement karne ke liye sklearn mein kaunse do steps zaroori hain (correct order)?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Bilkul sahi! Exactly yahi correct order hai. Step 1: PolynomialFeatures(degree=d).fit_transform(X) se features expand karo [1, X, X²...]. Step 2: LinearRegression().fit(X_poly, y) se model train karo. Ye 2-step approach isliye kaam karta hai kyunki internally polynomial regression = linear regression on transformed features!"><span class="opt-letter">A</span>PolynomialFeatures().fit_transform(X) → phir LinearRegression().fit(X_poly, y)</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi, order galat hai. Pehle features transform karne chahiye, phir regression. Agar pehle LinearRegression fit karo toh woh sirf original X pe straight line banega — polynomial features nahi honge."><span class="opt-letter">B</span>LinearRegression().fit(X, y) → phir PolynomialFeatures().transform()</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. PolynomialRegression naam ka koi sklearn class nahi hai! sklearn mein alag koi dedicated class nahi — hamesha PolynomialFeatures + LinearRegression ka combination use karo. Ya sklearn Pipeline use karo."><span class="opt-letter">C</span>PolynomialRegression(degree=2).fit(X, y) — direct ek step mein</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. StandardScaler zaroori nahi hai polynomial regression ke liye — helpful hai performance ke liye but mandatory nahi. Aur agar use karein toh bhi PolynomialFeatures pehle aata hai, StandardScaler baad mein."><span class="opt-letter">D</span>StandardScaler() → phir seedha LinearRegression() — polynomial features ki zaroorat nahi</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 3-B : COMPLETE PYTHON CODE
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s6">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-solid fa-code"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Skill Unlock</div>
+      <div class="lv-title">Complete Python Code — Degree Compare karo!</div>
+    </div>
+  </div>
+
+  <div class="ex-card ex-story">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> Polynomial Regression — Degree 1, 2, 3 Compare</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — Polynomial Regression</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+# ─── Inline Dataset: AC Electricity Units vs Temperature ───
+# Temperature (°C) aur monthly AC units (kWh)
+temperature = np.array([20, 22, 25, 28, 30, 32, 35, 38, 40, 42])
+ac_units     = np.array([50, 55, 65, 90, 120, 160, 210, 270, 340, 420])
+# Clearly non-linear — exponential/quadratic growth!
+
+X = temperature.reshape(-1, 1)   # 2D array reshape
+y = ac_units
+
+print("=== Dataset ===")
+for t, u in zip(temperature, ac_units):
+    print(f"  Temp {t}°C → {u} units")
+
+# ════════════════════════════════════════
+# DEGREE 1 — Simple Linear Regression
+# ════════════════════════════════════════
+poly1 = PolynomialFeatures(degree=1, include_bias=True)
+X_poly1 = poly1.fit_transform(X)          # [1, X] — no curve
+
+model1 = LinearRegression(fit_intercept=False)  # bias already in features
+model1.fit(X_poly1, y)
+y_pred1 = model1.predict(X_poly1)
+
+print(f"\n--- Degree 1 (Linear) ---")
+print(f"  Equation: ŷ = {model1.coef_[0]:.2f} + {model1.coef_[1]:.2f}×T")
+print(f"  R²  Score: {r2_score(y, y_pred1):.4f}")
+print(f"  RMSE:      {np.sqrt(mean_squared_error(y, y_pred1)):.2f} units")
+
+# ════════════════════════════════════════
+# DEGREE 2 — Quadratic Polynomial
+# ════════════════════════════════════════
+poly2 = PolynomialFeatures(degree=2, include_bias=True)
+X_poly2 = poly2.fit_transform(X)          # [1, X, X²]
+
+model2 = LinearRegression(fit_intercept=False)
+model2.fit(X_poly2, y)
+y_pred2 = model2.predict(X_poly2)
+
+b0, b1, b2 = model2.coef_
+print(f"\n--- Degree 2 (Quadratic) ---")
+print(f"  Equation: ŷ = {b0:.2f} + {b1:.2f}×T + {b2:.4f}×T²")
+print(f"  R²  Score: {r2_score(y, y_pred2):.4f}")
+print(f"  RMSE:      {np.sqrt(mean_squared_error(y, y_pred2)):.2f} units")
+
+# ════════════════════════════════════════
+# DEGREE 3 — Cubic Polynomial
+# ════════════════════════════════════════
+poly3 = PolynomialFeatures(degree=3, include_bias=True)
+X_poly3 = poly3.fit_transform(X)          # [1, X, X², X³]
+
+model3 = LinearRegression(fit_intercept=False)
+model3.fit(X_poly3, y)
+y_pred3 = model3.predict(X_poly3)
+
+print(f"\n--- Degree 3 (Cubic) ---")
+print(f"  R²  Score: {r2_score(y, y_pred3):.4f}")
+print(f"  RMSE:      {np.sqrt(mean_squared_error(y, y_pred3)):.2f} units")
+
+# ════════════════════════════════════════
+# PREDICTION — Naye Temperature pe
+# ════════════════════════════════════════
+new_temps = np.array([[44], [46], [48]])  # Garam din!
+X_new_poly2 = poly2.transform(new_temps)
+predictions = model2.predict(X_new_poly2)
+
+print(f"\n--- Degree-2 Predictions (New Temperatures) ---")
+for temp, pred in zip(new_temps.flatten(), predictions):
+    print(f"  {temp}°C → {pred:.0f} units")</code></pre>
+        <div class="code-output">Degree 1 (Linear): R² = 0.9312, RMSE = 38.56. Degree 2 (Quadratic): R² = 0.9981, RMSE = 6.44. Degree 3 (Cubic): R² = 0.9993, RMSE = 4.12. Degree 2 pe bahut improvement! 44°C → ~505 units, 46°C → ~605 units. Quadratic AC electricity data fit karne ke liye excellent hai!</div>
+      </div>
+    </div>
+  </div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.5rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-green)"></i>Key Functions — Polynomial Regression ke Liye
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Code</th><th>Matlab (Meaning)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="inline-code">PolynomialFeatures(degree=d)</span></td><td>Transformer banao — X se [1, X, X²…Xd] generate karega</td></tr>
+        <tr><td><span class="inline-code">.fit_transform(X)</span></td><td>Training data pe fit karo aur transform karo — ek step</td></tr>
+        <tr><td><span class="inline-code">.transform(X_new)</span></td><td>Naye data pe sirf transform karo (fit mat karo — data leakage!)</td></tr>
+        <tr><td><span class="inline-code">poly.get_feature_names_out()</span></td><td>Generated feature names dekho — ['1', 'x0', 'x0^2' etc.]</td></tr>
+        <tr><td><span class="inline-code">model.coef_</span></td><td>All polynomial coefficients [β₀, β₁, β₂, β₃...]</td></tr>
+        <tr><td><span class="inline-code">r2_score(y, y_pred)</span></td><td>Fit quality measure — 1.0 = perfect</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 4 : WORKED EXAMPLE — IPL
+█████████████████████████████████████ -->
+<div class="level-card lvl-purple fade-up" id="s7">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-purple"><i class="fa-solid fa-cricket-bat-ball"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Boss Topic</div>
+      <div class="lv-title">Worked Example — IPL Batsman Career Runs Prediction</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-purple">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Problem Statement</div>
+    Ek IPL batsman ka career data hai — <strong>Career Year (1–10)</strong> aur us saal ke <strong>Total Runs</strong>.<br><br>
+    Career runs pehle badhte hain (experience), peak pe reach karte hain, phir slowly reduce hote hain (age/fatigue) → <strong>inverted U-shape (parabola) — perfect degree-2 use case!</strong>
+  </div>
+
+  <!-- Training Data -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-purple)"></i>Training Data — Career Year vs Runs
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Career Year (X)</th><th>Season Runs (Y)</th><th>Pattern</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>320</td><td>Rookie — learning phase</td></tr>
+        <tr><td>2</td><td>480</td><td>Improving rapidly</td></tr>
+        <tr><td>3</td><td>620</td><td>Growing stronger</td></tr>
+        <tr><td>4</td><td>740</td><td>Approaching peak</td></tr>
+        <tr><td>5</td><td>810</td><td>Near peak form</td></tr>
+        <tr><td>6</td><td>850</td><td style="color:var(--neon-purple);font-weight:700;">🏆 Peak season!</td></tr>
+        <tr><td>7</td><td>820</td><td>Slightly past peak</td></tr>
+        <tr><td>8</td><td>750</td><td>Declining gradually</td></tr>
+        <tr><td>9</td><td>640</td><td>Experience compensates</td></tr>
+        <tr><td>10</td><td>490</td><td>Late career slowdown</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Feature Transformation Manual -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-purple)"></i>Manual Feature Transformation (Degree=2)
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>X (Year)</th><th>1 (bias)</th><th>X</th><th>X²</th><th>Y (Runs)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>320</td></tr>
+        <tr><td>2</td><td>1</td><td>2</td><td>4</td><td>480</td></tr>
+        <tr><td>3</td><td>1</td><td>3</td><td>9</td><td>620</td></tr>
+        <tr><td>6</td><td>1</td><td>6</td><td><strong style="color:var(--neon-purple)">36</strong></td><td><strong style="color:var(--neon-purple)">850 (peak!)</strong></td></tr>
+        <tr><td>10</td><td>1</td><td>10</td><td>100</td><td>490</td></tr>
+        <tr style="background:rgba(124,58,237,0.06);"><td colspan="5"><em>PolynomialFeatures(degree=2) exactly yahi transform karti hai har row ke liye!</em></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Python Code for this Example -->
+  <div class="ex-card ex-tech mt-3">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> IPL Career Runs — Python Code + Peak Year Find Karo</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — IPL Career Example</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+
+# ─── IPL Batsman Career Data ───
+years = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+runs  = np.array([320, 480, 620, 740, 810, 850, 820, 750, 640, 490])
+
+X = years.reshape(-1, 1)
+y = runs
+
+# ─── Degree-2 Polynomial Regression ───
+poly   = PolynomialFeatures(degree=2, include_bias=True)
+X_poly = poly.fit_transform(X)       # [1, X, X²]
+
+model = LinearRegression(fit_intercept=False)
+model.fit(X_poly, y)
+
+b0, b1, b2 = model.coef_
+print(f"Equation: Runs = {b0:.1f} + {b1:.1f}×Year + {b2:.1f}×Year²")
+print(f"R² Score: {r2_score(y, model.predict(X_poly)):.4f}")
+
+# ─── Predictions for all years ───
+print("\nActual vs Predicted:")
+for yr, actual, pred in zip(years, runs, model.predict(X_poly)):
+    diff = actual - pred
+    print(f"  Year {yr:2d}: Actual={actual}, Predicted={pred:.0f}, Error={diff:+.0f}")
+
+# ─── Find Peak Year mathematically ───
+# ŷ = β₀ + β₁X + β₂X²  → dŷ/dX = β₁ + 2β₂X = 0
+# X_peak = -β₁ / (2β₂)
+x_peak = -b1 / (2 * b2)
+y_peak = b0 + b1*x_peak + b2*x_peak**2
+print(f"\nMathematical Peak: Year {x_peak:.2f} → {y_peak:.0f} runs")
+
+# ─── Future Year Predictions ───
+future = np.array([[11], [12], [13]])
+future_poly = poly.transform(future)
+future_pred = model.predict(future_poly)
+print("\nFuture Predictions:")
+for yr, pred in zip([11,12,13], future_pred):
+    print(f"  Year {yr}: {pred:.0f} runs")</code></pre>
+        <div class="code-output">Equation: Runs = 112.4 + 158.8×Year − 13.1×Year². R² = 0.9978 (99.78% variance explained!). Peak Year = −158.8 / (2×−13.1) ≈ 6.06 → ~850 runs at Year 6. Year 11 → ~398 runs, Year 12 → ~266 runs. Quadratic model ne perfectly parabola shape pakdi!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-green mt-3">
+    <div class="ct"><i class="fa-solid fa-star"></i> Bonus — Peak Year Mathematically Find Karna!</div>
+    Degree-2 equation: <strong>ŷ = β₀ + β₁X + β₂X²</strong><br><br>
+    Maximum dhundne ke liye derivative = 0 set karo:<br>
+    <strong>dŷ/dX = β₁ + 2β₂X = 0</strong><br>
+    <strong>X_peak = −β₁ / (2β₂)</strong><br><br>
+    Is formula se mathematically exact peak year calculate ho jaata hai — graph dekhne ki zaroorat nahi!
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-box" data-quiz="4" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 Ek Polynomial Regression model (degree=2) ne seekha: Runs = 100 + 160×Year − 14×Year². Mathematically peak year kab hoga?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Year 5 pe check karo: 100 + 160×5 − 14×25 = 100 + 800 − 350 = 550. Ye peak nahi — peak year formula hai X = −β₁/(2β₂) = −160/(2×−14) = 160/28 ≈ 5.71. Matlab approximately year 5.7 pe peak hoga."><span class="opt-letter">A</span>Year 5 — kyunki slope positive hai tab tak</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Year 8 ke baad runs decrease ho rahe honge — peak nahi hoga. Peak formula: X = −β₁/(2β₂) = −160/(2×−14) = 160/28 ≈ 5.71, jo year 5-6 ke beech hai, year 8 nahi."><span class="opt-letter">B</span>Year 8 — kyunki coefficient of X² negative hai</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. β₁/β₂ formula galat hai — sahi formula −β₁/(2×β₂) hai. −160/(2×−14) = 160/28 ≈ 5.71. 2 ka factor isliye aata hai kyunki derivative of X² = 2X (chain rule)."><span class="opt-letter">C</span>Year 11.4 — β₁/β₂ = 160/14</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! Peak formula: dŷ/dX = β₁ + 2β₂X = 0 → X_peak = −β₁/(2β₂) = −160/(2×−14) = −160/(−28) = 160/28 ≈ 5.71. Matlab roughly Year 6 pe maximum runs honge. β₂ negative hai (−14) isliye parabola inverted ∩ shape hai — peak hoga, valley nahi!"><span class="opt-letter">D</span>Year ≈ 5.71 — formula: X_peak = −β₁/(2β₂) = −160/(2×−14)</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 5 : LINEAR VS POLYNOMIAL COMPARISON
+█████████████████████████████████████ -->
+<div class="level-card lvl-pink fade-up" id="s8">
+  <div class="corner-deco">LEVEL 5</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-scale-balanced"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 5 · Boss Topic</div>
+      <div class="lv-title">Linear vs Polynomial — Complete Comparison &amp; When to Use</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Feature</th><th>Linear Regression</th><th>Polynomial Regression</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Equation</strong></td><td><span class="inline-code">ŷ = β₀ + β₁X</span></td><td><span class="inline-code">ŷ = β₀ + β₁X + β₂X² + …</span></td></tr>
+        <tr><td><strong>Shape</strong></td><td>Straight line only</td><td>Curves — parabola, S-curve, waves</td></tr>
+        <tr><td><strong>Best for</strong></td><td>Linear/proportional relationships</td><td>Non-linear, curved, peak-valley data</td></tr>
+        <tr><td><strong>Complexity</strong></td><td><span class="stat-pill sp-green">Low — 2 parameters</span></td><td><span class="stat-pill sp-yellow">Higher — (d+1) parameters</span></td></tr>
+        <tr><td><strong>Overfitting risk</strong></td><td><span class="stat-pill sp-green">Low</span></td><td><span class="stat-pill sp-orange">High if degree too large</span></td></tr>
+        <tr><td><strong>Interpretability</strong></td><td><span class="stat-pill sp-green">Easy — slope = unit change</span></td><td><span class="stat-pill sp-yellow">Harder — multiple coefficients</span></td></tr>
+        <tr><td><strong>sklearn implementation</strong></td><td><span class="inline-code">LinearRegression()</span></td><td><span class="inline-code">PolynomialFeatures + LinearRegression</span></td></tr>
+        <tr><td><strong>Residual plot</strong></td><td>Random scatter (if good fit)</td><td>Should be random — if curved then increase degree</td></tr>
+        <tr><td><strong>Training speed</strong></td><td>Very fast</td><td>Slower with high degree/features</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row g-3 mt-4">
+    <div class="col-md-6">
+      <div class="callout cb-cyan h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check-double"></i> Linear Regression kab use karein?</div>
+        ✅ Data scatter plot mein seedha dikhta ho<br>
+        ✅ Domain knowledge se linear relationship expected ho<br>
+        ✅ Interpretability zaroori ho (client explain karna)<br>
+        ✅ Residuals randomly scattered hon<br>
+        ✅ Quick baseline model chahiye<br>
+        ✅ Feature bahut zyada hain (polynomial explode karega)
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check-double"></i> Polynomial Regression kab use karein?</div>
+        ✅ Data mein curve, peak, ya valley dikhti ho<br>
+        ✅ Linear fit ka R² &lt; 0.7 ho<br>
+        ✅ Residual plot mein curve pattern ho<br>
+        ✅ Domain knowledge: non-linear relationship expected<br>
+        ✅ Enough data ho (n &gt;&gt; d to avoid overfitting)<br>
+        ✅ Limited features ho (2–3 at most)
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-yellow mt-4">
+    <div class="ct"><i class="fa-solid fa-india"></i> Quick Decision Guide — India Examples</div>
+    <div class="table-responsive" style="margin-top:0.8rem;">
+      <table class="gtbl">
+        <thead><tr><th>Problem</th><th>X → Y</th><th>Recommended</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>🏠 Property price</td><td>Size → Price</td><td><span class="stat-pill sp-cyan">Linear</span></td><td>Roughly proportional — more sqft = more price</td></tr>
+          <tr><td>🌡️ AC electricity</td><td>Temp → Units</td><td><span class="stat-pill sp-green">Polynomial d=2</span></td><td>Exponential growth at high temps</td></tr>
+          <tr><td>🏏 Batsman career</td><td>Year → Runs</td><td><span class="stat-pill sp-green">Polynomial d=2</span></td><td>Inverted U — peak then decline</td></tr>
+          <tr><td>📈 GDP growth</td><td>Year → GDP</td><td><span class="stat-pill sp-cyan">Linear</span></td><td>Steady linear growth over decades</td></tr>
+          <tr><td>💊 Drug dosage</td><td>Dose → Effect</td><td><span class="stat-pill sp-green">Polynomial d=2/3</span></td><td>Diminishing returns + toxicity at high dose</td></tr>
+          <tr><td>🛒 Ad spend</td><td>Budget → Sales</td><td><span class="stat-pill sp-green">Polynomial d=2</span></td><td>Saturation effect — diminishing returns curve</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-box" data-quiz="5" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Ek Polynomial Regression (degree=6) model training data pe R²=0.99 deta hai lekin test data pe R²=0.41 deta hai. Ye kya indicate karta hai aur best fix kya hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Galat. Training R²=0.99 ek acha sign nahi hai jab test R²=0.41 ho — ye mismatch overfitting ka clear sign hai. Model ko update nahi karna chahiye; degree reduce karni chahiye."><span class="opt-letter">A</span>Model accha hai — training R² 0.99 hai toh perfect!</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! Yahi classic overfitting pattern hai — train pe perfect (memorize kar liya), test pe bahut bura (generalize nahi kar paya). Fix: Degree reduce karo (6 se 2–3 try karo). Degree 6 ek typical 10-point dataset ke liye bahut zyada hai — model training points se exactly guzar raha hai (interpolation) instead of learning the actual pattern."><span class="opt-letter">B</span>Overfitting hai — degree reduce karo (6 → 2 ya 3 try karo)</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Underfitting mein dono training aur test error high hote hain. Yahan training error bahut low hai — model ne data memorize kiya hai. Degree increase karna overfitting aur badha dega."><span class="opt-letter">C</span>Underfitting hai — degree aur badhao (degree=10 try karo)</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. More data se overfitting thoda reduce ho sakta hai lekin primary fix degree reduce karna hai. Overfitting का root cause excessive model complexity hai. Degree 6 ek chhote dataset ke liye clearly too high hai."><span class="opt-letter">D</span>Zyada data chahiye — data collect karo</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     FINAL SUMMARY
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s9" style="background:linear-gradient(135deg,rgba(8,145,178,0.04),rgba(22,163,74,0.04),#ffffff);">
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-trophy"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">🏆 Quest Complete!</div>
+      <div class="lv-title">Final Summary — Polynomial Regression at a Glance</div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Concept</th><th>Formula / Key Idea</th><th>Matlab (Intuition)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="stat-pill sp-cyan">L1</span> <strong>Why Poly?</strong></td>
+          <td>Linear fails on curved data</td>
+          <td>Scatter plot mein curve → polynomial use karo</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-cyan">L1</span> <strong>What is Poly?</strong></td>
+          <td>Still uses Linear Regression internally</td>
+          <td>Features transform hoti hain (X → X, X²…)</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-orange">L2</span> <strong>General Equation</strong></td>
+          <td><span class="inline-code">ŷ = β₀ + β₁X + β₂X² + … + βdXd</span></td>
+          <td>d = degree, βs = OLS se learned coefficients</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-orange">L2</span> <strong>Degree Selection</strong></td>
+          <td>Underfitting ↔ Sweet Spot ↔ Overfitting</td>
+          <td>Degree 2 se start karo, validation error monitor karo</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-green">L3</span> <strong>PolynomialFeatures</strong></td>
+          <td><span class="inline-code">PolynomialFeatures(degree=d).fit_transform(X)</span></td>
+          <td>Automatic feature expansion — X → [1, X, X²…]</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-purple">L4</span> <strong>Peak Year Formula</strong></td>
+          <td><span class="inline-code">X_peak = −β₁ / (2β₂)</span></td>
+          <td>Derivative = 0 set karo → parabola ka vertex</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-pink">L5</span> <strong>Overfitting Check</strong></td>
+          <td>Train R² >> Test R² → Overfitting!</td>
+          <td>Degree reduce karo ya regularization add karo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+    A["📊 Data mila (X, y)"] --> B{Scatter Plot Dekho}
+    B -->|Seedha pattern| C["📈 Linear Regression\nŷ = β₀ + β₁X"]
+    B -->|Curved / Peak / Valley| D["〜 Polynomial Regression\nŷ = β₀ + β₁X + β₂X² + ..."]
+    D --> E["🔧 PolynomialFeatures\ndegree=2 se start karo"]
+    E --> F["📐 LinearRegression\non transformed features"]
+    F --> G{R² Score Check}
+    G -->|Train high, Test low| H["⚠️ Overfitting!\nDegree kam karo"]
+    G -->|Both low| I["⚠️ Underfitting!\nDegree badhao"]
+    G -->|Both high| J["✅ Sweet Spot!\nModel ready"]
+    C --> J
+    H --> E
+    I --> E
+    style A fill:#cffafe,stroke:#0891b2,color:#164e63,rx:12
+    style B fill:#fef9c3,stroke:#b45309,color:#713f12,rx:10
+    style C fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,rx:10
+    style D fill:#cffafe,stroke:#0891b2,color:#164e63,rx:10
+    style E fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:10
+    style F fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:10
+    style G fill:#fef9c3,stroke:#b45309,color:#713f12,rx:10
+    style H fill:#fee2e2,stroke:#dc2626,color:#991b1b,rx:10
+    style I fill:#ffedd5,stroke:#c2410c,color:#7c2d12,rx:10
+    style J fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:12
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-cyan h-100" style="margin:0;">
+        <div class="ct"><i class="fa-brands fa-python"></i> Key Imports — Zaroor Seekho</div>
+        <strong style="color:var(--neon-green)">from sklearn.preprocessing import PolynomialFeatures</strong><br>
+        <strong style="color:var(--neon-cyan)">from sklearn.linear_model import LinearRegression</strong><br>
+        <strong style="color:var(--neon-blue)">from sklearn.metrics import r2_score</strong><br>
+        <strong style="color:var(--neon-purple)">from sklearn.metrics import mean_squared_error</strong><br><br>
+        <em style="color:var(--dim);">Pipeline: poly.fit_transform(X) → model.fit(X_poly, y) → model.predict(X_new_poly)</em>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-road"></i> Aage Kya Seekhein? (Next Quest!)</div>
+        🔀 <strong>Ridge Regression</strong> — L2 regularization (polynomial overfitting fix!)<br>
+        🔒 <strong>Lasso Regression</strong> — L1 regularization + feature selection<br>
+        🧪 <strong>Cross Validation</strong> — best degree automatically find karo<br>
+        🤖 <strong>Decision Trees</strong> — non-linear without polynomial features<br>
+        📊 <strong>sklearn Pipeline</strong> — PolynomialFeatures + Scaler + Model ek step mein
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink mt-3">
+    <div class="ct"><i class="fa-solid fa-heart"></i> Final Message</div>
+    <strong>Linear Regression</strong> = seedha line — simple aur fast, lekin sirf linear data ke liye!<br>
+    → <strong>Polynomial Regression</strong> = curved line — ŷ = β₀ + β₁X + β₂X² + … — real-world curves handle karo!<br>
+    → <strong>Secret:</strong> Ye still Linear Regression hai — sirf features X → [X, X², X³] transform hote hain<br>
+    → <strong>Degree</strong> = aap choose karte ho — degree 2 se start karo, validation error dekho!<br>
+    → <strong>Overfitting se daro</strong> — train R² ≈ 1.0 but test R² low = degree bahut bada!<br><br>
+    <strong style="color:var(--neon-pink)">Polynomial Regression seekh liye — ab tum curves bhi fit kar sakte ho, sirf lines nahi! 〜🚀</strong>
+  </div>
+</div>
+
+</div><!-- /container-main -->
+
+<!-- FOOTER -->
+<footer class="gfooter">
+  <div class="container-main">
+    <div class="gfooter-logo"><i class="fa-solid fa-wave-square me-2"></i>Python Polynomial Regression Quest</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">Why Linear Fails · Math Intuition · Feature Transform · Degree Selection · Overfitting | Gamified Tutorial</p>
+    <p style="color:var(--dim);font-size:0.82rem;">Made with <i class="fa-solid fa-heart" style="color:var(--neon-pink)"></i> for Hindi-speaking Data Science learners across India 🇮🇳</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL — HTML before scripts -->
+<canvas id="confettiCanvas"></canvas>
+<div class="modal-overlay" id="finalModal">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" id="modalClose" title="Close">✕</button>
+    <div class="modal-trophy" id="modalTrophy">🏆</div>
+    <div class="modal-title" id="modalTitle">Quest Complete!</div>
+    <div class="modal-subtitle" id="modalSubtitle">Tumne saare 5 quizzes complete kar liye!</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-num" id="ringNum">0/5</div>
+          <div class="ring-label">Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="grade-card" id="gradeCard">
+      <div class="grade-letter" id="gradeLetter">S</div>
+      <div class="grade-msg" id="gradeMsg">Exceptional!</div>
+    </div>
+    <div class="modal-xp-row">
+      <span class="mxp-label">⚡ Total XP Earned from Quizzes</span>
+      <span class="mxp-val" id="modalXpVal">0 XP</span>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-retry"    id="modalRetry"><i class="fa-solid fa-rotate-right"></i> Retry All</button>
+      <button class="modal-btn-continue" id="modalContinue"><i class="fa-solid fa-trophy"></i> Awesome, Continue!</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* FINAL MODAL */
+function showFinalModal(){
+  const total=quizTotal,correct=quizCorrect,pct=total>0?correct/total:0,quizXP=correct*25;
+  const grades=[
+    {min:1.0,cls:'grade-s',letter:'S 🌟',msg:'Zabardast! Sab 5/5 correct! Poly Champion ban gaye! 〜'},
+    {min:0.8,cls:'grade-a',letter:'A 🎯',msg:'Bahut badhiya! Almost perfect — great curve sense!'},
+    {min:0.6,cls:'grade-b',letter:'B 📘',msg:'Accha kiya! Kuch concepts dobara review karo.'},
+    {min:0.4,cls:'grade-c',letter:'C 💪',msg:'Theek hai! Math concepts ko aur practice karo.'},
+    {min:0.0,cls:'grade-d',letter:'D 📚',msg:'Aur mehnat karo! Tutorial dobara padho.'},
+  ];
+  const g=grades.find(gr=>pct>=gr.min);
+  document.getElementById('ringNum').textContent=correct+'/'+total;
+  document.getElementById('modalXpVal').textContent=quizXP+' XP';
+  const gc=document.getElementById('gradeCard');gc.className='grade-card '+g.cls;
+  document.getElementById('gradeLetter').textContent=g.letter;
+  document.getElementById('gradeMsg').textContent=g.msg;
+  if(pct===1.0){
+    document.getElementById('modalTrophy').textContent='🏆';
+    document.getElementById('modalTitle').textContent='🎊 Perfect Score!';
+    document.getElementById('modalSubtitle').textContent='Wah! Saare '+total+'/'+total+' sahi! Poly Champion!';
+  }else if(pct>=0.6){
+    document.getElementById('modalTrophy').textContent='🎯';
+    document.getElementById('modalTitle').textContent='Quest Complete!';
+    document.getElementById('modalSubtitle').textContent=correct+' out of '+total+' correct. Kafi accha kiya!';
+  }else{
+    document.getElementById('modalTrophy').textContent='📚';
+    document.getElementById('modalTitle').textContent='Keep Trying!';
+    document.getElementById('modalSubtitle').textContent='Tutorial dobara padho aur retry karo!';
+  }
+  const circumference=327,offset=circumference*(1-pct);
+  const ringColors={'grade-s':'#b45309','grade-a':'#16a34a','grade-b':'#2563eb','grade-c':'#7c3aed','grade-d':'#dc2626'};
+  const ringEl=document.getElementById('ringFill');
+  ringEl.style.stroke=ringColors[g.cls]||'#0891b2';
+  ringEl.style.transition='none';ringEl.style.strokeDashoffset='327';
+  setTimeout(()=>{ringEl.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';ringEl.style.strokeDashoffset=offset;},80);
+  document.getElementById('finalModal').classList.add('open');
+  if(pct>=0.6)launchConfetti(pct);
+}
+
+function launchConfetti(pct){
+  const canvas=document.getElementById('confettiCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const count=Math.floor(80+pct*140);
+  const colors=['#0891b2','#16a34a','#2563eb','#7c3aed','#b45309','#db2777','#f59e0b'];
+  const pieces=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.6,w:Math.random()*10+5,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*9,alpha:1}));
+  let frame=0;
+  (function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;
+    pieces.forEach(p=>{
+      if(p.y>canvas.height+20)return;alive=true;
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;
+      if(p.y>canvas.height*0.65)p.alpha-=0.02;
+      p.alpha=Math.max(0,p.alpha);
+      ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    });
+    frame++;
+    if(alive&&frame<260)requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
+
+function initQuizzes(){
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{const n=opt.cloneNode(true);opt.parentNode.replaceChild(n,opt);});
+    const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;
+    let answered=false;
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        if(answered)return;answered=true;
+        const isCorrect=opt.dataset.ans===correct,fb=box.querySelector('.quiz-feedback');
+        box.querySelectorAll('.quiz-opt').forEach(o=>{
+          o.classList.add('answered-opt');
+          const exDiv=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');
+          if(o.dataset.ans===correct){o.classList.add('correct');if(exDiv)exDiv.classList.add('show-correct');}
+          else if(o===opt&&!isCorrect){o.classList.add('wrong');if(exDiv)exDiv.classList.add('show-wrong');}
+          else{o.classList.add('dimmed');}
+        });
+        if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span>&nbsp;Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+        else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span>&nbsp;Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+        const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+        if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+      });
+    });
+  });
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#cffafe',primaryTextColor:'#164e63',primaryBorderColor:'#0891b2',lineColor:'#94a3b8',secondaryColor:'#dcfce7',tertiaryColor:'#ede9fe',fontFamily:'Plus Jakarta Sans, sans-serif',fontSize:'13px'},flowchart:{curve:'basis',padding:24}});
+
+let xp=0,scrollXpEarned=0;
+const XP_MAX=275;  // 5×30 scroll + 5×25 quiz = 275
+const earnedBadges=new Set();
+
+function addXP(amount,badgeId){
+  if(badgeId)scrollXpEarned=Math.min(scrollXpEarned+amount,150);
+  xp=Math.min(xp+amount,XP_MAX);
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  if(badgeId&&!earnedBadges.has(badgeId)){earnedBadges.add(badgeId);const el=document.getElementById(badgeId);if(el)el.classList.add('earned');}
+  if(xp>=XP_MAX)showToast('🏆','QUEST COMPLETE! 🎊','Poly Champion! 275/275 XP!','#b45309');
+}
+
+function showToast(icon,title,msg,color){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='gtoast';
+  t.innerHTML=`<span class="gtoast-icon">${icon}</span><div><div style="font-weight:800;color:${color};font-size:0.9rem;">${title}</div><div style="color:#6b7280;font-size:0.8rem;font-weight:400;">${msg}</div></div>`;
+  container.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+
+let quizTotal=0,quizCorrect=0;
+
+document.querySelectorAll('.quiz-box').forEach(box=>{
+  quizTotal++;
+  const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;
+  let answered=false;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    const explain=opt.dataset.explain||'';
+    if(explain){const div=document.createElement('div');div.className='quiz-explain';div.dataset.forAns=opt.dataset.ans;div.textContent=explain;opt.parentNode.insertBefore(div,opt.nextSibling);}
+  });
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+      box.querySelectorAll('.quiz-opt').forEach(o=>{
+        o.classList.add('answered-opt');
+        const explainDiv=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');
+        if(o.dataset.ans===correct){o.classList.add('correct');if(explainDiv)explainDiv.classList.add('show-correct');}
+        else if(o===opt&&!isCorrect){o.classList.add('wrong');if(explainDiv)explainDiv.classList.add('show-wrong');}
+        else{o.classList.add('dimmed');if(o.dataset.ans===correct&&explainDiv)explainDiv.classList.add('show-reveal');}
+      });
+      if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+      else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+      const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+      if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+    });
+  });
+});
+
+const fadeObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObserver.unobserve(e.target);}});},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(el=>fadeObserver.observe(el));
+
+const sectionXP={
+  's1':{xp:30,badge:'badge1',msg:'🌊 Curve Spotter badge unlocked!'},
+  's3':{xp:30,badge:'badge2',msg:'📐 Degree Master badge unlocked!'},
+  's5':{xp:30,badge:'badge3',msg:'🔧 Feature Engineer badge unlocked!'},
+  's7':{xp:30,badge:'badge4',msg:'⚖️ Bias Buster badge unlocked!'},
+  's8':{xp:30,badge:'badge5',msg:'🏆 Poly Champion badge unlocked!'},
+};
+const xpObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      if(sectionXP[id]&&!earnedBadges.has(sectionXP[id].badge)){const{xp:sx,badge,msg}=sectionXP[id];addXP(sx,badge);showToast('🏅','Badge Unlocked!',msg,'#7c3aed');}
+      xpObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+['s1','s3','s5','s7','s8'].forEach(id=>{const el=document.getElementById(id);if(el)xpObserver.observe(el);});
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+
+function closeModal(){document.getElementById('finalModal').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalContinue').addEventListener('click',closeModal);
+document.getElementById('modalRetry').addEventListener('click',()=>{
+  closeModal();quizCorrect=0;xp=scrollXpEarned;
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','wrong','dimmed','answered-opt'));
+    box.querySelectorAll('.quiz-explain').forEach(ex=>ex.classList.remove('show-correct','show-wrong','show-reveal'));
+    const fb=box.querySelector('.quiz-feedback');if(fb){fb.className='quiz-feedback';fb.innerHTML='';}
+  });
+  initQuizzes();window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('finalModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+
+</body>
+</html>

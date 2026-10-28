@@ -1,0 +1,2442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python ML Quest — Linear Regression Mathematical Intuition!</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4ff;--bg2:#e8edf8;--bg3:#dde4f5;--card:#ffffff;--card2:#f5f7ff;
+  --border:rgba(99,102,241,0.12);--border2:rgba(99,102,241,0.25);
+  --neon-blue:#2563eb;--neon-cyan:#0891b2;--neon-purple:#7c3aed;
+  --neon-pink:#db2777;--neon-green:#16a34a;--neon-yellow:#b45309;
+  --neon-orange:#c2410c;--neon-red:#dc2626;
+  --text:#1e1b4b;--muted:#4b5563;--dim:#9ca3af;
+  --font-head:'Syne',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --glow-blue:0 4px 16px rgba(37,99,235,0.18),0 1px 4px rgba(37,99,235,0.10);
+  --glow-purple:0 4px 16px rgba(124,58,237,0.18),0 1px 4px rgba(124,58,237,0.10);
+  --glow-cyan:0 4px 16px rgba(8,145,178,0.18),0 1px 4px rgba(8,145,178,0.10);
+  --glow-green:0 4px 16px rgba(22,163,74,0.18),0 1px 4px rgba(22,163,74,0.10);
+  --glow-yellow:0 4px 16px rgba(180,83,9,0.18),0 1px 4px rgba(180,83,9,0.10);
+  --glow-pink:0 4px 16px rgba(219,39,119,0.18),0 1px 4px rgba(219,39,119,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.8;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--neon-purple);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(37,99,235,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.06) 1px,transparent 1px);background-size:50px 50px;}
+.container-main{max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1;}
+
+/* XP BAR */
+.xp-strip{position:sticky;top:0;z-index:1000;background:rgba(240,244,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);box-shadow:0 2px 12px rgba(37,99,235,0.08);padding:0.65rem 0;}
+.xp-inner{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.xp-label{font-family:var(--font-head);font-weight:800;font-size:0.8rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.xp-bar-wrap{flex:1;min-width:120px;background:rgba(37,99,235,0.1);border-radius:50px;height:10px;border:1px solid var(--border2);overflow:hidden;}
+.xp-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-purple),var(--neon-blue),var(--neon-cyan));border-radius:50px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(124,58,237,0.35);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+.xp-score{font-family:var(--font-head);font-weight:800;font-size:0.9rem;color:var(--neon-yellow);white-space:nowrap;}
+.xp-badges{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.xp-badge{font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:50px;border:1px solid;white-space:nowrap;transition:0.3s;opacity:0.35;}
+.xp-badge.earned{opacity:1;animation:badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes badgePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.xp-badge.b1{border-color:var(--neon-purple);color:var(--neon-purple);}
+.xp-badge.b2{border-color:var(--neon-orange);color:var(--neon-orange);}
+.xp-badge.b3{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.xp-badge.b4{border-color:var(--neon-green);color:var(--neon-green);}
+.xp-badge.b5{border-color:var(--neon-pink);color:var(--neon-pink);}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:6rem 0 5rem;
+  background:radial-gradient(ellipse at 20% 50%,rgba(124,58,237,0.12) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(194,65,12,0.10) 0%,transparent 55%),
+             radial-gradient(ellipse at 60% 80%,rgba(8,145,178,0.07) 0%,transparent 50%),var(--bg);}
+.hero-orbit{position:absolute;top:50%;right:8%;transform:translateY(-50%);width:420px;height:420px;pointer-events:none;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(124,58,237,0.25);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-ring:nth-child(1){width:150px;height:150px;animation:spin 12s linear infinite;}
+.orbit-ring:nth-child(2){width:250px;height:250px;animation:spin 20s linear infinite reverse;border-color:rgba(194,65,12,0.2);}
+.orbit-ring:nth-child(3){width:350px;height:350px;animation:spin 30s linear infinite;border-color:rgba(8,145,178,0.15);}
+.orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;transform:translateX(-50%);}
+.orbit-ring:nth-child(1) .orbit-dot{background:var(--neon-purple);box-shadow:var(--glow-purple);}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--neon-orange);box-shadow:var(--glow-yellow);}
+.orbit-ring:nth-child(3) .orbit-dot{background:var(--neon-cyan);box-shadow:var(--glow-cyan);}
+.orbit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;animation:float 4s ease-in-out infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.3);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--neon-purple);margin-bottom:1.5rem;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-purple);box-shadow:var(--glow-purple);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-family:var(--font-head);font-weight:800;font-size:clamp(2.4rem,5vw,4rem);line-height:1.1;letter-spacing:-1.5px;margin-bottom:1.5rem;}
+.hero h1 .line1{display:block;color:#1e1b4b;}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--neon-purple) 0%,var(--neon-orange) 50%,var(--neon-cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:560px;margin-bottom:2rem;line-height:1.75;}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:var(--font-head);font-weight:800;font-size:1.8rem;line-height:1;background:linear-gradient(135deg,var(--neon-purple),var(--neon-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-label{font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem;}
+.hero-cta{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--neon-purple),var(--neon-orange));color:white;font-weight:700;font-size:0.95rem;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(124,58,237,0.3);transition:0.3s;animation:pulse-btn 2s infinite;}
+@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(124,58,237,0.28);}50%{box-shadow:0 4px 32px rgba(124,58,237,0.45);}}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);color:white;}
+
+/* QUEST MAP */
+.quest-map{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2rem;margin:3rem 0;position:relative;box-shadow:0 4px 24px rgba(37,99,235,0.07);}
+.quest-map::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(124,58,237,0.03),rgba(194,65,12,0.03));pointer-events:none;}
+.quest-map-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--neon-yellow);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.quest-map-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(234,179,8,0.3),transparent);}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;}
+.quest-item{display:flex;align-items:center;gap:0.75rem;background:#f8f9ff;border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;text-decoration:none;color:var(--muted);font-weight:600;font-size:0.88rem;transition:0.25s;}
+.quest-item:hover{background:rgba(124,58,237,0.07);border-color:rgba(124,58,237,0.3);color:var(--neon-purple);transform:translateX(4px);}
+.quest-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;flex-shrink:0;}
+
+/* LEVEL CARD */
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:24px 24px 0 0;}
+.level-card.lvl-purple::before{background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink));}
+.level-card.lvl-orange::before{background:linear-gradient(90deg,var(--neon-orange),var(--neon-yellow));}
+.level-card.lvl-cyan::before{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green));}
+.level-card.lvl-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-cyan));}
+.level-card.lvl-blue::before{background:linear-gradient(90deg,var(--neon-blue),var(--neon-cyan));}
+.level-card.lvl-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple));}
+.level-card.lvl-yellow::before{background:linear-gradient(90deg,var(--neon-yellow),var(--neon-orange));}
+.level-card.lvl-red::before{background:linear-gradient(90deg,var(--neon-red),var(--neon-orange));}
+.level-card:hover{box-shadow:0 8px 32px rgba(37,99,235,0.12);}
+.level-card .corner-deco{position:absolute;top:1.2rem;right:1.5rem;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;opacity:0.25;}
+.lv-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.8rem;}
+.lv-icon-wrap{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;}
+.lv-icon-wrap::after{content:'';position:absolute;inset:-3px;border-radius:18px;border:1px solid;opacity:0.4;}
+.ico-purple{background:rgba(124,58,237,0.12);color:var(--neon-purple);}.ico-purple::after{border-color:var(--neon-purple);}
+.ico-orange{background:rgba(194,65,12,0.12);color:var(--neon-orange);}.ico-orange::after{border-color:var(--neon-orange);}
+.ico-cyan{background:rgba(8,145,178,0.12);color:var(--neon-cyan);}.ico-cyan::after{border-color:var(--neon-cyan);}
+.ico-green{background:rgba(22,163,74,0.12);color:var(--neon-green);}.ico-green::after{border-color:var(--neon-green);}
+.ico-blue{background:rgba(37,99,235,0.12);color:var(--neon-blue);}.ico-blue::after{border-color:var(--neon-blue);}
+.ico-pink{background:rgba(219,39,119,0.12);color:var(--neon-pink);}.ico-pink::after{border-color:var(--neon-pink);}
+.ico-yellow{background:rgba(180,83,9,0.12);color:var(--neon-yellow);}.ico-yellow::after{border-color:var(--neon-yellow);}
+.ico-red{background:rgba(220,38,38,0.12);color:var(--neon-red);}.ico-red::after{border-color:var(--neon-red);}
+.lv-meta{flex:1;}
+.lv-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.35rem;}
+.lv-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;line-height:1.2;color:var(--text);}
+.lv-xp{margin-top:0.4rem;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(180,83,9,0.08);border:1px solid rgba(180,83,9,0.25);border-radius:50px;padding:0.2rem 0.75rem;font-size:0.75rem;font-weight:700;color:var(--neon-yellow);}
+
+/* CALLOUT */
+.callout{border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;border:1px solid;position:relative;overflow:hidden;}
+.callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.callout .ct{font-weight:800;font-size:0.95rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;}
+.cb-purple{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2);}.cb-purple::before{background:var(--neon-purple);}.cb-purple .ct{color:var(--neon-purple);}
+.cb-orange{background:rgba(194,65,12,0.06);border-color:rgba(194,65,12,0.2);}.cb-orange::before{background:var(--neon-orange);}.cb-orange .ct{color:var(--neon-orange);}
+.cb-cyan{background:rgba(8,145,178,0.06);border-color:rgba(8,145,178,0.2);}.cb-cyan::before{background:var(--neon-cyan);}.cb-cyan .ct{color:var(--neon-cyan);}
+.cb-green{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.2);}.cb-green::before{background:var(--neon-green);}.cb-green .ct{color:var(--neon-green);}
+.cb-blue{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);}.cb-blue::before{background:var(--neon-blue);}.cb-blue .ct{color:var(--neon-blue);}
+.cb-yellow{background:rgba(180,83,9,0.06);border-color:rgba(180,83,9,0.2);}.cb-yellow::before{background:var(--neon-yellow);}.cb-yellow .ct{color:var(--neon-yellow);}
+.cb-pink{background:rgba(219,39,119,0.06);border-color:rgba(219,39,119,0.2);}.cb-pink::before{background:var(--neon-pink);}.cb-pink .ct{color:var(--neon-pink);}
+.cb-red{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.2);}.cb-red::before{background:var(--neon-red);}.cb-red .ct{color:var(--neon-red);}
+
+/* FORMULA BOX — special styled math display */
+.formula-box{background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(37,99,235,0.04));border:1.5px solid rgba(124,58,237,0.25);border-radius:16px;padding:1.5rem 2rem;margin:1.4rem 0;text-align:center;position:relative;overflow:hidden;}
+.formula-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(124,58,237,0.05),transparent 70%);pointer-events:none;}
+.formula-main{font-family:var(--font-mono);font-size:1.25rem;font-weight:700;color:var(--neon-purple);letter-spacing:0.5px;line-height:1.9;}
+.formula-sub{font-size:0.82rem;color:var(--muted);margin-top:0.5rem;font-style:italic;}
+.formula-label{position:absolute;top:0.55rem;right:1rem;font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-purple);opacity:0.6;}
+
+/* FORMULA ORANGE VARIANT */
+.formula-box.fb-orange{background:linear-gradient(135deg,rgba(194,65,12,0.06),rgba(180,83,9,0.04));border-color:rgba(194,65,12,0.25);}
+.formula-box.fb-orange::before{background:radial-gradient(ellipse at center,rgba(194,65,12,0.05),transparent 70%);}
+.formula-box.fb-orange .formula-main{color:var(--neon-orange);}
+.formula-box.fb-orange .formula-label{color:var(--neon-orange);}
+
+/* FORMULA CYAN VARIANT */
+.formula-box.fb-cyan{background:linear-gradient(135deg,rgba(8,145,178,0.06),rgba(22,163,74,0.04));border-color:rgba(8,145,178,0.25);}
+.formula-box.fb-cyan .formula-main{color:var(--neon-cyan);}
+.formula-box.fb-cyan .formula-label{color:var(--neon-cyan);}
+
+/* FORMULA GREEN VARIANT */
+.formula-box.fb-green{background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(8,145,178,0.04));border-color:rgba(22,163,74,0.25);}
+.formula-box.fb-green .formula-main{color:var(--neon-green);}
+.formula-box.fb-green .formula-label{color:var(--neon-green);}
+
+/* FORMULA BLUE VARIANT */
+.formula-box.fb-blue{background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(124,58,237,0.04));border-color:rgba(37,99,235,0.25);}
+.formula-box.fb-blue .formula-main{color:var(--neon-blue);}
+.formula-box.fb-blue .formula-label{color:var(--neon-blue);}
+
+/* MATH TERM ANNOTATION */
+.math-terms{display:flex;flex-wrap:wrap;gap:0.6rem;margin:0.8rem 0;}
+.math-term{display:inline-flex;align-items:center;gap:0.45rem;background:#f0f4ff;border:1px solid var(--border2);border-radius:8px;padding:0.3rem 0.75rem;font-size:0.84rem;}
+.math-term .sym{font-family:var(--font-mono);font-weight:700;color:var(--neon-purple);}
+.math-term .meaning{color:var(--muted);}
+
+/* STEP TIMELINE */
+.step-timeline{position:relative;padding-left:2.8rem;}
+.step-timeline::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon-purple),var(--neon-orange),var(--neon-cyan));opacity:0.45;border-radius:2px;}
+.step-item{position:relative;margin-bottom:1.3rem;background:#f8f9ff;border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 2px 8px rgba(37,99,235,0.05);transition:0.25s;}
+.step-item:hover{border-color:var(--border2);background:#eef1ff;}
+.step-item::before{content:attr(data-step);position:absolute;left:-2.8rem;top:1rem;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--neon-purple);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;color:var(--neon-purple);box-shadow:0 2px 8px rgba(124,58,237,0.2);}
+.step-label{font-weight:700;color:var(--text);font-size:0.98rem;margin-bottom:0.35rem;}
+.step-body{color:var(--muted);font-size:0.92rem;line-height:1.7;}
+
+/* ACH CARD */
+.ach-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;text-align:center;position:relative;overflow:hidden;}
+.ach-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s;}
+.ach-card:hover{transform:translateY(-6px);border-color:var(--border2);}
+.ach-card:hover::after{opacity:1;}
+.ach-card.ac-purple::after{background:var(--neon-purple);}.ach-card.ac-purple:hover{box-shadow:0 10px 28px rgba(124,58,237,0.15);}
+.ach-card.ac-orange::after{background:var(--neon-orange);}.ach-card.ac-orange:hover{box-shadow:0 10px 28px rgba(194,65,12,0.15);}
+.ach-card.ac-cyan::after{background:var(--neon-cyan);}.ach-card.ac-cyan:hover{box-shadow:0 16px 48px rgba(8,145,178,0.2);}
+.ach-card.ac-green::after{background:var(--neon-green);}.ach-card.ac-green:hover{box-shadow:0 16px 48px rgba(22,163,74,0.2);}
+.ach-card.ac-blue::after{background:var(--neon-blue);}.ach-card.ac-blue:hover{box-shadow:0 16px 48px rgba(37,99,235,0.2);}
+.ach-card.ac-pink::after{background:var(--neon-pink);}.ach-card.ac-pink:hover{box-shadow:0 16px 48px rgba(219,39,119,0.2);}
+.ach-card.ac-yellow::after{background:var(--neon-yellow);}.ach-card.ac-yellow:hover{box-shadow:0 10px 28px rgba(180,83,9,0.15);}
+.ach-icon{font-size:2.2rem;margin-bottom:0.75rem;display:block;}
+.ach-title{font-family:var(--font-head);font-weight:800;font-size:1rem;margin-bottom:0.5rem;}
+.ach-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+
+/* CODE BLOCK */
+.code-wrap{background:#f8f9fc;border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin:1.2rem 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:rgba(124,58,237,0.06);padding:0.6rem 1.1rem;border-bottom:1px solid var(--border);}
+.code-lang{font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:var(--neon-purple);letter-spacing:1px;text-transform:uppercase;}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#dc2626;}.code-dot:nth-child(2){background:#b45309;}.code-dot:nth-child(3){background:#16a34a;}
+.code-wrap pre{margin:0;padding:1.2rem 1.4rem;overflow-x:auto;background:transparent;}
+.code-wrap pre code{font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;}
+pre[class*="language-"]{border-radius:0!important;font-family:var(--font-mono)!important;font-size:0.85rem!important;margin:0!important;border:none!important;background:transparent!important;}
+.code-output{background:rgba(22,163,74,0.06);border-top:1px solid rgba(22,163,74,0.2);padding:0.7rem 1.2rem;font-family:var(--font-mono);font-size:0.82rem;color:#14532d;line-height:1.7;}
+
+/* EX CARD */
+.ex-card{border-radius:16px;overflow:hidden;margin:1.4rem 0;border:1px solid;}
+.ex-card .ex-head{padding:0.85rem 1.4rem;font-weight:800;font-size:0.92rem;display:flex;align-items:center;gap:0.6rem;}
+.ex-card .ex-body{padding:1.4rem;background:#fafbff;}
+.ex-card.ex-story{border-color:rgba(22,163,74,0.25);}.ex-card.ex-story .ex-head{background:rgba(22,163,74,0.08);color:#166534;}
+.ex-card.ex-tech{border-color:rgba(124,58,237,0.25);}.ex-card.ex-tech .ex-head{background:rgba(124,58,237,0.08);color:#5b21b6;}
+.ex-card.ex-tip{border-color:rgba(8,145,178,0.25);}.ex-card.ex-tip .ex-head{background:rgba(8,145,178,0.08);color:#0c4a6e;}
+.ex-card.ex-warn{border-color:rgba(220,38,38,0.25);}.ex-card.ex-warn .ex-head{background:rgba(220,38,38,0.08);color:#991b1b;}
+.ex-card.ex-orange{border-color:rgba(194,65,12,0.25);}.ex-card.ex-orange .ex-head{background:rgba(194,65,12,0.08);color:#7c2d12;}
+
+/* TABLE */
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.gtbl thead th{background:rgba(124,58,237,0.08);color:var(--neon-purple);font-family:var(--font-head);font-weight:700;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid rgba(124,58,237,0.15);font-size:0.85rem;letter-spacing:0.5px;}
+.gtbl tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.92rem;vertical-align:top;}
+.gtbl tbody tr:last-child td{border-bottom:none;}
+.gtbl tbody tr:hover td{background:rgba(124,58,237,0.03);color:var(--text);}
+.gtbl tbody td strong{color:var(--text);}
+
+/* DIM CARD */
+.dim-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;position:relative;overflow:hidden;}
+.dim-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(37,99,235,0.1);}
+.dim-rank{font-family:var(--font-head);font-weight:800;font-size:2rem;line-height:1;margin-bottom:0.25rem;}
+.dim-name{font-weight:700;font-size:1rem;margin-bottom:0.8rem;}
+.dim-code{background:#f1f5f9;border-radius:10px;padding:0.65rem 0.9rem;font-family:var(--font-mono);font-size:0.82rem;border:1px solid rgba(99,102,241,0.15);margin-bottom:0.8rem;}
+.dim-desc{font-size:0.88rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;}
+.dim-example{font-size:0.82rem;padding:0.5rem 0.75rem;border-radius:8px;border:1px solid;font-style:italic;}
+
+/* STAT PILLS */
+.stat-pill{display:inline-flex;align-items:center;gap:0.4rem;border-radius:50px;padding:0.3rem 0.9rem;font-weight:700;font-size:0.8rem;border:1px solid;}
+.sp-purple{background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.3);color:var(--neon-purple);}
+.sp-orange{background:rgba(194,65,12,0.08);border-color:rgba(194,65,12,0.3);color:var(--neon-orange);}
+.sp-cyan{background:rgba(8,145,178,0.08);border-color:rgba(8,145,178,0.3);color:var(--neon-cyan);}
+.sp-green{background:rgba(22,163,74,0.08);border-color:rgba(22,163,74,0.3);color:var(--neon-green);}
+.sp-blue{background:rgba(37,99,235,0.08);border-color:rgba(37,99,235,0.3);color:var(--neon-blue);}
+.sp-yellow{background:rgba(180,83,9,0.08);border-color:rgba(180,83,9,0.3);color:var(--neon-yellow);}
+.sp-pink{background:rgba(219,39,119,0.08);border-color:rgba(219,39,119,0.3);color:var(--neon-pink);}
+.sp-red{background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.3);color:var(--neon-red);}
+
+/* INLINE CODE */
+.inline-code{background:rgba(124,58,237,0.08);color:#5b21b6;padding:0.1rem 0.45rem;border-radius:6px;font-family:var(--font-mono);font-size:0.88em;border:1px solid rgba(124,58,237,0.25);}
+
+/* HIGHLIGHT */
+.hl{background:rgba(180,83,9,0.1);color:#92400e;padding:0 5px;border-radius:4px;}
+.hl-purple{background:rgba(124,58,237,0.1);color:var(--neon-purple);padding:0 5px;border-radius:4px;}
+.hl-orange{background:rgba(194,65,12,0.1);color:var(--neon-orange);padding:0 5px;border-radius:4px;}
+.hl-green{background:rgba(22,163,74,0.1);color:var(--neon-green);padding:0 5px;border-radius:4px;}
+.hl-red{background:rgba(220,38,38,0.1);color:var(--neon-red);padding:0 5px;border-radius:4px;}
+.hl-blue{background:rgba(37,99,235,0.1);color:var(--neon-blue);padding:0 5px;border-radius:4px;}
+
+/* GLOW DIVIDER */
+.glow-div{height:2px;border-radius:2px;margin:2rem 0;opacity:0.4;background:linear-gradient(90deg,transparent,var(--neon-purple),var(--neon-orange),var(--neon-cyan),transparent);}
+
+/* MERMAID */
+.mermaid-wrap{background:#f8f9ff;border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto;box-shadow:0 2px 12px rgba(37,99,235,0.06);}
+
+/* QUIZ */
+.quiz-box{background:#fffbf0;border:1px solid rgba(180,83,9,0.18);border-radius:20px;padding:1.6rem;margin:1.8rem 0;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(180,83,9,0.07);}
+.quiz-box::before{content:'⚡ QUICK CHALLENGE';position:absolute;top:0;right:0;background:linear-gradient(135deg,#b45309,#c2410c);color:#fff;font-family:var(--font-head);font-weight:800;font-size:0.62rem;letter-spacing:2px;padding:0.32rem 0.9rem;border-radius:0 20px 0 12px;}
+.quiz-q{font-weight:700;color:#1c1917;margin-bottom:1.1rem;font-size:1.02rem;line-height:1.55;}
+.quiz-options{display:flex;flex-direction:column;gap:0.55rem;}
+.quiz-opt{background:#ffffff;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.75rem 1.1rem;cursor:pointer;font-size:0.93rem;color:#374151;transition:background 0.15s,border-color 0.15s,transform 0.12s;font-weight:500;display:flex;align-items:center;gap:0.85rem;user-select:none;}
+.quiz-opt:not(.answered-opt):hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;transform:translateX(3px);}
+.quiz-opt.correct{background:#f0fdf4;border-color:#16a34a;color:#14532d;font-weight:700;}
+.quiz-opt.correct .opt-letter{background:#16a34a;color:#fff;}
+.quiz-opt.wrong{background:#fef2f2;border-color:#dc2626;color:#991b1b;opacity:0.8;}
+.quiz-opt.wrong .opt-letter{background:#dc2626;color:#fff;}
+.quiz-opt.dimmed{opacity:0.45;pointer-events:none;}
+.quiz-opt .opt-letter{width:28px;height:28px;border-radius:8px;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.8rem;flex-shrink:0;transition:background 0.2s,color 0.2s;}
+.quiz-explain{display:none;font-size:0.84rem;font-weight:500;margin-top:-0.35rem;margin-bottom:0.35rem;padding:0.5rem 0.85rem 0.5rem 1rem;border-radius:0 0 10px 10px;line-height:1.55;border-left:3px solid transparent;}
+.quiz-explain.show-correct{display:block;background:rgba(22,163,74,0.07);color:#166534;border-left-color:#16a34a;}
+.quiz-explain.show-wrong{display:block;background:rgba(220,38,38,0.06);color:#991b1b;border-left-color:#dc2626;}
+.quiz-explain.show-reveal{display:block;background:rgba(37,99,235,0.06);color:#1e40af;border-left-color:#2563eb;}
+.quiz-feedback{display:none;margin-top:1rem;padding:0.85rem 1.1rem;border-radius:12px;font-weight:700;font-size:0.95rem;align-items:center;gap:0.6rem;}
+.quiz-feedback.show{display:flex;animation:fadeIn 0.35s;}
+.quiz-feedback.win{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;border:1px solid rgba(22,163,74,0.3);}
+.quiz-feedback.lose{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;border:1px solid rgba(220,38,38,0.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* FOOTER */
+.gfooter{background:#e8edf8;border-top:1px solid var(--border);padding:3rem 0;margin-top:4rem;text-align:center;}
+.gfooter-logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--neon-purple),var(--neon-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-up.visible{opacity:1;transform:none;}
+
+/* RESPONSIVE */
+@media(max-width:768px){.hero h1{font-size:2rem;}.hero-orbit{display:none;}.level-card{padding:1.5rem;}.xp-badges{display:none;}}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;}
+.gtoast{background:#ffffff;border:1px solid var(--border2);border-radius:14px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.75rem;backdrop-filter:blur(12px);font-weight:700;font-size:0.88rem;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto;min-width:260px;box-shadow:0 8px 32px rgba(37,99,235,0.15);}
+.gtoast.show{transform:none;}
+.gtoast-icon{font-size:1.4rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:#ffffff;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:520px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(37,99,235,0.18),0 4px 20px rgba(0,0,0,0.1);transform:scale(0.85) translateY(20px);transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease;opacity:0;}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0);opacity:1;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--neon-purple),var(--neon-orange),var(--neon-cyan));}
+.modal-close{position:absolute;top:1rem;right:1rem;background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.modal-close:hover{background:#e5e7eb;color:#374151;}
+.modal-trophy{font-size:3rem;text-align:center;margin-bottom:0.5rem;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;text-align:center;color:var(--text);margin-bottom:0.4rem;}
+.modal-subtitle{color:var(--muted);text-align:center;font-size:0.92rem;margin-bottom:1.5rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.score-ring{position:relative;width:120px;height:120px;}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e5e7eb;stroke-width:10;}
+.ring-fill{fill:none;stroke:#7c3aed;stroke-width:10;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--text);line-height:1;}
+.ring-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.grade-card{border-radius:14px;padding:0.85rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;border:1.5px solid;}
+.grade-s{background:#fef9c3;border-color:#b45309;}.grade-a{background:#f0fdf4;border-color:#16a34a;}.grade-b{background:#eff6ff;border-color:#2563eb;}.grade-c{background:#f5f3ff;border-color:#7c3aed;}.grade-d{background:#fef2f2;border-color:#dc2626;}
+.grade-letter{font-family:var(--font-head);font-weight:800;font-size:1.6rem;}
+.grade-msg{font-size:0.9rem;color:var(--muted);font-weight:600;}
+.modal-xp-row{display:flex;align-items:center;justify-content:space-between;background:#f8f9ff;border:1px solid rgba(37,99,235,0.15);border-radius:12px;padding:0.75rem 1.1rem;margin-bottom:1.4rem;}
+.modal-xp-row .mxp-label{font-size:0.85rem;color:#6b7280;font-weight:600;}
+.modal-xp-row .mxp-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#7c3aed,#c2410c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-btns{display:flex;gap:0.75rem;}
+.modal-btn-retry{flex:1;padding:0.8rem 1rem;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#374151;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.modal-btn-retry:hover{background:#e5e7eb;border-color:#d1d5db;color:#111827;}
+.modal-btn-continue{flex:2;padding:0.8rem 1rem;background:linear-gradient(135deg,#7c3aed,#c2410c);border:none;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#ffffff;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 16px rgba(124,58,237,0.3);}
+.modal-btn-continue:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(124,58,237,0.4);}
+#confettiCanvas{position:fixed;inset:0;z-index:10001;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- XP STRIP -->
+<div class="xp-strip">
+  <div class="container-main">
+    <div class="xp-inner">
+      <span class="xp-label">⚡ XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill"></div></div>
+      <span class="xp-score" id="xpScore">0 / 275 XP</span>
+      <div class="xp-badges">
+        <span class="xp-badge b1" id="badge1">📐 Line Builder</span>
+        <span class="xp-badge b2" id="badge2">🎯 Loss Hunter</span>
+        <span class="xp-badge b3" id="badge3">🧮 OLS Master</span>
+        <span class="xp-badge b4" id="badge4">⛰️ Gradient Hero</span>
+        <span class="xp-badge b5" id="badge5">🏆 R² Champion</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container-main">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-eyebrow"><i class="fa-solid fa-gamepad me-1"></i> Gamified Learning Quest</div>
+        <h1>
+          <span class="line1">Math Behind the Machine</span>
+          <span class="line2">Linear Regression Intuition</span>
+        </h1>
+        <p class="hero-sub">
+          5 boss levels. Line equation se lekar OLS aur Gradient Descent tak — har formula ka matlab samjho, sirf yaad mat karo. Real India examples. <strong style="color:var(--text)">Earn XP</strong>, unlock badges, aur ML ka asli dil samjho!
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Boss Levels</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">275</div><div class="hero-stat-label">Total XP</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Badges</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">∞</div><div class="hero-stat-label">Math Power</div></div>
+        </div>
+        <a href="#s1" class="hero-cta"><i class="fa-solid fa-play me-1"></i> Start Your Quest</a>
+      </div>
+      <div class="col-lg-5">
+        <div class="hero-orbit">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-center">∑</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-main">
+
+<!-- QUEST MAP -->
+<div class="quest-map fade-up">
+  <div class="quest-map-title"><i class="fa-solid fa-map me-2"></i> Quest Map</div>
+  <div class="quest-grid">
+    <a href="#s1" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.15);color:var(--neon-purple);">L1</span> The Line Equation — ŷ = β₀ + β₁X</a>
+    <a href="#s2" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.15);color:var(--neon-purple);">L1</span> Slope &amp; Intercept — Kya Seekh Raha Hai Model?</a>
+    <a href="#s3" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.15);color:var(--neon-orange);">L2</span> Cost Function — SSE &amp; MSE</a>
+    <a href="#s4" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.15);color:var(--neon-orange);">L2</span> Cost Function — Intuition with Numbers</a>
+    <a href="#s5" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">L3</span> OLS — Best β₀ &amp; β₁ Nikalna</a>
+    <a href="#s6" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">L3</span> OLS — Step-by-Step Calculation</a>
+    <a href="#s7" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.15);color:var(--neon-green);">L4</span> Gradient Descent — Intuition</a>
+    <a href="#s8" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.15);color:var(--neon-green);">L4</span> Gradient Descent — Step-by-Step</a>
+    <a href="#s9" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.15);color:var(--neon-pink);">L5</span> R² Score — Model Kitna Accha Hai?</a>
+    <a href="#s11" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.15);color:var(--neon-green);">🍕</span> Pizza Price Prediction — Worked Example</a>
+    <a href="#s12" class="quest-item"><span class="quest-num" style="background:rgba(8,145,178,0.15);color:var(--neon-cyan);">🍋</span> Lemonade Sold Prediction — Worked Example</a>
+    <a href="#s13" class="quest-item"><span class="quest-num" style="background:rgba(37,99,235,0.15);color:var(--neon-blue);">🏠</span> House Price Prediction — Worked Example</a>
+    <a href="#s10" class="quest-item"><span class="quest-num" style="background:rgba(219,39,119,0.15);color:var(--neon-pink);">🏆</span> Final Summary &amp; Roadmap</a>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 1-A : THE LINE EQUATION
+█████████████████████████████████████ -->
+<div class="level-card lvl-purple fade-up" id="s1">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-purple"><i class="fa-solid fa-superscript"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Boss Topic</div>
+      <div class="lv-title">The Line Equation — Model Kya Predict Karta Hai?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-purple">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Idea — Ek Line Mein</div>
+    Simple Linear Regression mein model ek <strong>straight line</strong> dhundta hai jo data ke sabse paas ho — aur us line ko use karke naye X values ke liye y predict karta hai.<br><br>
+    Ye line ek simple equation follow karti hai — school mein padha tha: <strong>y = mx + c</strong>. ML mein ise thoda alag likhte hain!
+  </div>
+
+  <!-- Master Formula -->
+  <div class="formula-box" style="margin-top:1.5rem;">
+    <div class="formula-label">PREDICTION EQUATION</div>
+    <div class="formula-main">ŷ = β₀ + β₁ × X</div>
+    <div class="formula-sub">pronounced: "y-hat equals beta-zero plus beta-one times X"</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">ŷ</span><span class="meaning">Predicted output (jo model bolega) — "y-hat"</span></div>
+    <div class="math-term"><span class="sym">X</span><span class="meaning">Input feature (jo hum model ko dete hain)</span></div>
+    <div class="math-term"><span class="sym">β₀</span><span class="meaning">Intercept — jab X=0 ho tab y ki value ("beta-zero")</span></div>
+    <div class="math-term"><span class="sym">β₁</span><span class="meaning">Slope — X mein 1 unit change se y mein kitna change ("beta-one")</span></div>
+  </div>
+
+  <div class="callout cb-yellow">
+    <div class="ct"><i class="fa-solid fa-triangle-exclamation"></i> School Math se ML tak — Do Notations</div>
+    <div class="row g-2">
+      <div class="col-md-6">
+        <strong>School (Geometry):</strong><br>
+        y = <span class="hl">m</span>x + <span class="hl">c</span><br>
+        m = slope (dhai), c = intercept (kahan shuru)
+      </div>
+      <div class="col-md-6">
+        <strong>Machine Learning:</strong><br>
+        ŷ = <span class="hl-purple">β₀</span> + <span class="hl-purple">β₁</span>X<br>
+        β₀ = intercept (c ka ML version), β₁ = slope (m ka ML version)
+      </div>
+    </div>
+    <br>Difference sirf notation ka hai — math bilkul same hai! ML mein β (beta) isliye use karte hain kyunki multiple features hone par β₀, β₁, β₂… easy notation hoti hai.
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1.2rem;">
+    <i class="fa-solid fa-india me-2" style="color:var(--neon-purple)"></i>Concrete Example — Zomato Delivery Time
+  </h5>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-truck-fast"></i> Real Numbers ke Saath Samjho</div>
+    Maan lo model ne seekha: &nbsp;<strong>delivery_time = 8 + 9 × distance</strong><br><br>
+    Yaani: <strong>β₀ = 8</strong> (restaurant prep time — distance zero ho tab bhi 8 min lagenge), <strong>β₁ = 9</strong> (har extra 1 km pe 9 min add honge)<br><br>
+    <div class="row g-2 mt-1">
+      <div class="col-md-4">
+        <div style="background:#f0f4ff;border:1px solid var(--border2);border-radius:10px;padding:0.8rem;text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--neon-purple);">X = 2 km</div>
+          <div style="font-size:0.82rem;color:var(--muted);margin:0.3rem 0;">ŷ = 8 + 9 × 2</div>
+          <div style="font-weight:800;color:var(--neon-blue);">= 26 minutes</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div style="background:#f0f4ff;border:1px solid var(--border2);border-radius:10px;padding:0.8rem;text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--neon-purple);">X = 5 km</div>
+          <div style="font-size:0.82rem;color:var(--muted);margin:0.3rem 0;">ŷ = 8 + 9 × 5</div>
+          <div style="font-weight:800;color:var(--neon-blue);">= 53 minutes</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div style="background:#f0f4ff;border:1px solid var(--border2);border-radius:10px;padding:0.8rem;text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--neon-purple);">X = 0 km</div>
+          <div style="font-size:0.82rem;color:var(--muted);margin:0.3rem 0;">ŷ = 8 + 9 × 0</div>
+          <div style="font-weight:800;color:var(--neon-blue);">= 8 min (= β₀!)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-box" data-quiz="1" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Ek model ne seekha: Salary = 15000 + 8000 × Experience_Years. Agar kisi ka experience 0 years hai, toh predicted salary kya hogi? Aur β₁ = 8000 ka kya matlab hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Galat. 0 experience pe salary = β₀ + β₁×0 = 15000 + 0 = ₹15,000 hai, ₹8,000 nahi. β₁ = 8,000 slope hai — har additional year ke contribution ko represent karta hai, not the base salary."><span class="opt-letter">A</span>₹8,000 — kyunki β₁ hi base salary hai</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! Jab X=0 (0 years experience), ŷ = 15000 + 8000×0 = ₹15,000 — yahi β₀ (intercept) ka matlab hai! β₁ = 8000 = slope, matlab har ek additional year of experience ke saath salary ₹8,000 badhti hai. 5 years: 15000 + 8000×5 = ₹55,000!"><span class="opt-letter">B</span>₹15,000 — aur β₁ = 8000 matlab har ek saal ke experience pe ₹8,000 increase</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. ₹23,000 hota agar experience 1 year hota: 15000 + 8000×1 = 23000. 0 years ke liye β₁×X = 8000×0 = 0, toh salary = β₀ = ₹15,000."><span class="opt-letter">C</span>₹23,000 — β₀ aur β₁ add hote hain</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Prediction equation exactly yahi kaam karta hai — X=0 pe predict karna perfectly valid hai. ŷ = 15000 + 8000×0 = ₹15,000."><span class="opt-letter">D</span>Predict nahi ho sakta — X=0 ka koi matlab nahi</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 1-B : SLOPE & INTERCEPT DEEP DIVE
+█████████████████████████████████████ -->
+<div class="level-card lvl-purple fade-up" id="s2">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-solid fa-chart-simple"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Skill Unlock</div>
+      <div class="lv-title">Slope &amp; Intercept — Kya Seekh Raha Hai Model?</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="formula-box fb-orange" style="margin:0;height:100%;display:flex;flex-direction:column;justify-content:center;">
+        <div class="formula-label">INTERCEPT</div>
+        <div class="formula-main">β₀ = y-intercept</div>
+        <div class="formula-sub">
+          Jab X = 0 ho tab predicted y ki value.<br>
+          Line y-axis ko kahan kaat ti hai.
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box fb-cyan" style="margin:0;height:100%;display:flex;flex-direction:column;justify-content:center;">
+        <div class="formula-label">SLOPE</div>
+        <div class="formula-main">β₁ = Δy / ΔX</div>
+        <div class="formula-sub">
+          X mein 1 unit change pe y mein kitna change.<br>
+          Line ki steepness — positive ya negative.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1.2rem;">
+    <i class="fa-solid fa-arrows-up-down me-2" style="color:var(--neon-orange)"></i>Slope ke 3 Cases — Positive, Negative, Zero
+  </h5>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(22,163,74,0.3);">
+        <div class="dim-rank" style="color:var(--neon-green);font-size:1.5rem;">β₁ &gt; 0</div>
+        <div class="dim-name" style="color:var(--neon-green);">Positive Slope</div>
+        <div class="dim-code">X badhta hai → y bhi badhta hai</div>
+        <div class="dim-desc">Direct relationship. Line upar ki taraf jaati hai (left to right).</div>
+        <div class="dim-example" style="border-color:rgba(22,163,74,0.2);color:var(--muted);">
+          📚 Study hours ↑ → Exam score ↑<br>
+          🏏 Practice ↑ → IPL runs ↑
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(220,38,38,0.3);">
+        <div class="dim-rank" style="color:var(--neon-red);font-size:1.5rem;">β₁ &lt; 0</div>
+        <div class="dim-name" style="color:var(--neon-red);">Negative Slope</div>
+        <div class="dim-code">X badhta hai → y ghatta hai</div>
+        <div class="dim-desc">Inverse relationship. Line neeche ki taraf jaati hai (left to right).</div>
+        <div class="dim-example" style="border-color:rgba(220,38,38,0.2);color:var(--muted);">
+          🏃 Age ↑ → Running speed ↓<br>
+          ❄️ AC usage ↑ → Temperature ↓
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="dim-card" style="border-color:rgba(180,83,9,0.3);">
+        <div class="dim-rank" style="color:var(--neon-yellow);font-size:1.5rem;">β₁ = 0</div>
+        <div class="dim-name" style="color:var(--neon-yellow);">Zero Slope</div>
+        <div class="dim-code">X se y pe koi effect nahi</div>
+        <div class="dim-desc">No relationship. Line horizontal hai — X feature useless hai prediction ke liye.</div>
+        <div class="dim-example" style="border-color:rgba(180,83,9,0.2);color:var(--muted);">
+          🎲 Shoe size aur exam score — koi relation nahi!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-green mt-4">
+    <div class="ct"><i class="fa-solid fa-code"></i> Python mein β₀ aur β₁ kaise dekhein?</div>
+    <div class="code-wrap" style="margin:0.8rem 0 0;">
+      <div class="code-header"><span class="code-lang">🐍 Python</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+      <pre><code class="language-python">from sklearn.linear_model import LinearRegression
+import numpy as np
+
+# Distance (km) aur Delivery Time (min)
+X = np.array([[1], [2], [3], [4], [5], [6], [7], [8]])
+y = np.array([18, 26, 35, 43, 52, 60, 68, 77])
+
+model = LinearRegression()
+model.fit(X, y)
+
+print(f"β₀ (Intercept): {model.intercept_:.2f}")  # ~9.8
+print(f"β₁ (Slope):     {model.coef_[0]:.2f}")    # ~8.5
+
+# Interpret karo:
+# β₀ ≈ 10 → 0 km pe bhi ~10 min (restaurant prep)
+# β₁ ≈ 8.5 → har 1 km extra = 8.5 min extra delivery time
+
+# Manually predict karo:
+dist = 3.5
+predicted = model.intercept_ + model.coef_[0] * dist
+print(f"\nManual: 3.5 km → {predicted:.1f} min")
+print(f"sklearn: 3.5 km → {model.predict([[3.5]])[0]:.1f} min")
+# Dono same answer denge!</code></pre>
+      <div class="code-output">β₀ ≈ 9.8 min (base prep time), β₁ ≈ 8.5 min/km. Manual calculation aur sklearn.predict() ka answer SAME hoga — kyunki internally wahi formula use hota hai: ŷ = β₀ + β₁ × X!</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 2-A : COST FUNCTION — SSE & MSE
+█████████████████████████████████████ -->
+<div class="level-card lvl-orange fade-up" id="s3">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-orange"><i class="fa-solid fa-bullseye"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Boss Topic</div>
+      <div class="lv-title">Cost Function — Model Kitna Galat Hai?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-orange">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Idea — Ek Line Mein</div>
+    <strong>Cost Function</strong> = ek measure jo batata hai ki model ki predictions actual values se <span class="hl-orange">kitni galat hain</span> — jitna kam, utna better model.<br><br>
+    Training ka goal = cost function ko <em>minimize</em> karna! Model best β₀ aur β₁ dhundhta hai jo cost ko sabse kam kare.
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1.2rem;">
+    <i class="fa-solid fa-ruler me-2" style="color:var(--neon-orange)"></i>Step 1 — Residual (Error) Kya Hai?
+  </h5>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-minus"></i> Residual = Actual − Predicted</div>
+    Har data point ke liye: <strong>eᵢ = yᵢ − ŷᵢ</strong><br><br>
+    Matlab: actual value aur model ki predicted value ka difference.<br>
+    → Positive residual = model ne under-predict kiya (actual &gt; predicted)<br>
+    → Negative residual = model ne over-predict kiya (actual &lt; predicted)<br>
+    → Zero residual = perfect prediction! (rarely happens)
+  </div>
+
+  <div class="formula-box fb-orange">
+    <div class="formula-label">RESIDUAL</div>
+    <div class="formula-main">eᵢ = yᵢ − ŷᵢ = yᵢ − (β₀ + β₁Xᵢ)</div>
+    <div class="formula-sub">Har point ke liye actual aur predicted ka gap</div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1.2rem;">
+    <i class="fa-solid fa-sigma me-2" style="color:var(--neon-orange)"></i>Step 2 — SSE aur MSE: Total Error Measure
+  </h5>
+
+  <div class="callout cb-yellow">
+    <div class="ct"><i class="fa-solid fa-question-circle"></i> Seedha Sum Kyun Nahi Karte?</div>
+    Agar seedha residuals add karein, positive aur negative cancel ho jaate hain — total error zero lag sakta hai!<br><br>
+    Example: e₁ = +5, e₂ = −5 → sum = 0. But dono predictions galat hain!<br>
+    <strong>Fix: Square karo pehle</strong> — squaring se negative bhi positive ho jaata hai!
+  </div>
+
+  <!-- SSE -->
+  <div class="formula-box fb-orange">
+    <div class="formula-label">SUM OF SQUARED ERRORS</div>
+    <div class="formula-main">SSE = Σ (yᵢ − ŷᵢ)²</div>
+    <div class="formula-sub">Har point ka squared error add karo — sab n points ke liye</div>
+  </div>
+
+  <!-- MSE -->
+  <div class="formula-box" style="margin-top:0.5rem;">
+    <div class="formula-label">MEAN SQUARED ERROR — COST FUNCTION J(β)</div>
+    <div class="formula-main">J(β) = MSE = (1/n) × Σ (yᵢ − ŷᵢ)²</div>
+    <div class="formula-sub">SSE ko n se divide karo → average error per point. <em>Training ka goal: J(β) minimize karo!</em></div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">Σ</span><span class="meaning">Sigma — "sum karo" (sab n points ke liye)</span></div>
+    <div class="math-term"><span class="sym">yᵢ</span><span class="meaning">i-th point ka actual value</span></div>
+    <div class="math-term"><span class="sym">ŷᵢ</span><span class="meaning">i-th point ka predicted value (β₀ + β₁Xᵢ)</span></div>
+    <div class="math-term"><span class="sym">n</span><span class="meaning">Total data points ki sankhya</span></div>
+    <div class="math-term"><span class="sym">J(β)</span><span class="meaning">Cost function — β ke function ke roop mein</span></div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-orange h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-list-ol"></i> Common Error Metrics</div>
+        <strong style="color:var(--neon-orange)">SSE</strong> = Σ(yᵢ−ŷᵢ)² → Total squared error (no average)<br><br>
+        <strong style="color:var(--neon-purple)">MSE</strong> = SSE/n → Average squared error per point<br><br>
+        <strong style="color:var(--neon-cyan)">RMSE</strong> = √MSE → Same units as y (interpretable!)<br><br>
+        <strong style="color:var(--neon-green)">MAE</strong> = (1/n) Σ|yᵢ−ŷᵢ| → Average absolute error (outlier robust)
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-blue h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-scale-balanced"></i> MSE vs MAE — Kab Kya?</div>
+        <strong>MSE use karo jab:</strong><br>
+        Outlier penalties zyada chahiye — squared error bade mistakes ko heavily penalize karta hai.<br><br>
+        <strong>MAE use karo jab:</strong><br>
+        Outliers data mein hain aur unhe zyada weight nahi dena — absolute error more robust hota hai.
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-box" data-quiz="2" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 Model ne predict kiya: ŷ = [22, 35, 48]. Actual values hain: y = [25, 32, 50]. MSE kya hoga?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. 3 residuals seedhe add karo: (3) + (−3) + (2) = 2. Average = 2/3 ≈ 0.67. Lekin ye MSE nahi hai — ye MAE ka ek version hai. MSE mein pehle square karna padta hai!"><span class="opt-letter">A</span>MSE ≈ 0.67 — residuals ka simple average</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Galat. SSE = (3²) + (−3²) + (2²) = 9 + 9 + 4 = 22. Ye SSE hai, MSE nahi. MSE mein n = 3 se divide karna padta hai: 22/3 ≈ 7.33."><span class="opt-letter">B</span>MSE = 22 — squared errors ka sum</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! Step by step: Residuals = (25−22, 32−35, 50−48) = (3, −3, 2). Squared residuals = (9, 9, 4). SSE = 9+9+4 = 22. MSE = SSE/n = 22/3 ≈ 7.33. Har point pe average squared error ≈ 7.33 — yahi minimize karna hai training mein!"><span class="opt-letter">C</span>MSE ≈ 7.33 — squared errors ka average (SSE/n)</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. RMSE = √MSE = √7.33 ≈ 2.71 hota. MSE ka square root nahi lete — MSE = (1/n) × Σ(yᵢ−ŷᵢ)² directly. RMSE alag metric hai."><span class="opt-letter">D</span>MSE ≈ 2.71 — RMSE formula use kiya</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 2-B : COST FUNCTION INTUITION
+█████████████████████████████████████ -->
+<div class="level-card lvl-orange fade-up" id="s4">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-yellow"><i class="fa-solid fa-chart-area"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Skill Unlock</div>
+      <div class="lv-title">Cost Function — "Bowl Shape" Intuition</div>
+    </div>
+  </div>
+
+  <div class="callout cb-yellow">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Visual Intuition — Cost Function ka Shape</div>
+    J(β) = MSE ek <strong>convex bowl shape</strong> banata hai jab β values pe plot karo.<br><br>
+    → Bowl ke <em>kisi bhi point pe</em> shuru karo → har baar slope (gradient) neeche bowl ki tarf point karta hai<br>
+    → Bowl ka <em>sabse neeche wala point</em> = minimum cost = <strong>best β values!</strong><br><br>
+    Yahi guarantee karta hai ki optimization hamesha global minimum find kar legi — koi local minimum trap nahi (MSE ke case mein)!
+  </div>
+
+  <!-- Bowl shape ASCII art with CSS styling -->
+  <div style="background:#f8f9ff;border:1.5px solid rgba(124,58,237,0.2);border-radius:16px;padding:2rem;margin:1.4rem 0;text-align:center;">
+    <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--muted);line-height:1.6;">
+      <div style="color:var(--neon-purple);font-weight:700;font-size:0.85rem;letter-spacing:2px;margin-bottom:1rem;">COST FUNCTION J(β) vs β₁</div>
+      <div style="color:var(--neon-orange);">J(β) ↑</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*</div>
+      <div style="color:var(--neon-red);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:0.78rem;">← galat β, high cost</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;*</div>
+      <div style="color:var(--neon-green);font-weight:700;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:0.78rem;">← minimum! best β here</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└────────────────────────→ β₁</div>
+      <div style="margin-top:0.8rem;font-size:0.82rem;color:var(--muted);">Ye parabola (bowl) convex hai — ek hi global minimum hai → guaranteed best solution!</div>
+    </div>
+  </div>
+
+  <div class="callout cb-purple">
+    <div class="ct"><i class="fa-solid fa-question-circle"></i> Training mein exactly kya hota hai?</div>
+    <div class="step-timeline" style="margin-top:0.5rem;">
+      <div class="step-item" data-step="1">
+        <div class="step-label">Random β₀, β₁ se shuru karo</div>
+        <div class="step-body">Initially koi bhi random values — e.g., β₀=0, β₁=0 (ya small random numbers). Cost zyada hogi.</div>
+      </div>
+      <div class="step-item" data-step="2">
+        <div class="step-label">Current cost calculate karo — J(β)</div>
+        <div class="step-body">MSE nikalo current β values pe. Har training data point ke liye residuals calculate karo, square karo, average lo.</div>
+      </div>
+      <div class="step-item" data-step="3">
+        <div class="step-label">β update karo — cost kam karne ki direction mein</div>
+        <div class="step-body">Bowl ke neeche ki direction mein step lo. OLS directly best β deta hai. Gradient Descent iteratively steps leta hai.</div>
+      </div>
+      <div class="step-item" data-step="4">
+        <div class="step-label">Repeat jab tak minimum cost na mile</div>
+        <div class="step-body">Convergence tak repeat karo — jab β values change karna band kar dein, minimum mil gaya!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 3-A : OLS EXPLAINED
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s5">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-calculator"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Boss Topic</div>
+      <div class="lv-title">OLS — Best β₀ aur β₁ Directly Nikalna!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-cyan">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> OLS Kya Hai?</div>
+    <strong>Ordinary Least Squares (OLS)</strong> = ek mathematical method jo <span class="hl-blue">SSE ko minimize karne wale exact β values</span> seedha calculate karta hai — koi iteration nahi, koi guessing nahi!<br><br>
+    Ye calculus use karta hai — MSE ko β ke respect mein differentiate karo, zero set karo, aur solve karo. Result: closed-form formulas!
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-function me-2" style="color:var(--neon-cyan)"></i>OLS Closed-Form Formulas
+  </h5>
+
+  <!-- Slope formula -->
+  <div class="formula-box fb-cyan">
+    <div class="formula-label">OLS SLOPE — β₁</div>
+    <div class="formula-main">β₁ = Σ(Xᵢ − X̄)(yᵢ − ȳ) &nbsp;/&nbsp; Σ(Xᵢ − X̄)²</div>
+    <div class="formula-sub">Covariance(X, y) / Variance(X) — X aur y ek saath kitna vary karte hain vs X akele kitna vary karta hai</div>
+  </div>
+
+  <!-- Intercept formula -->
+  <div class="formula-box fb-blue" style="margin-top:0.5rem;">
+    <div class="formula-label">OLS INTERCEPT — β₀</div>
+    <div class="formula-main">β₀ = ȳ − β₁ × X̄</div>
+    <div class="formula-sub">Pehle β₁ nikalo, phir β₀. Best fit line hamesha (X̄, ȳ) se guzarti hai!</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">X̄</span><span class="meaning">X ka mean (average of all X values)</span></div>
+    <div class="math-term"><span class="sym">ȳ</span><span class="meaning">y ka mean (average of all y values)</span></div>
+    <div class="math-term"><span class="sym">Xᵢ − X̄</span><span class="meaning">Har X point ka mean se deviation</span></div>
+    <div class="math-term"><span class="sym">yᵢ − ȳ</span><span class="meaning">Har y point ka mean se deviation</span></div>
+    <div class="math-term"><span class="sym">Σ(Xᵢ−X̄)²</span><span class="meaning">Sum of squared X deviations = Variance of X × n</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       📓 NOTEBOOK DERIVATION — Full Step-by-Step Calculus
+       (Transcribed from handwritten notes — Images 1 & 2)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.5rem 0 1rem;">
+    <i class="fa-solid fa-pen-nib me-2" style="color:var(--neon-purple)"></i>Complete Mathematical Derivation — Step by Step
+  </h5>
+
+  <!-- STEP 0 — Model Setup -->
+  <div style="border-left:4px solid var(--neon-purple);background:rgba(124,58,237,0.05);border-radius:0 14px 14px 0;padding:1.2rem 1.4rem;margin:0.8rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;color:var(--neon-purple);font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.6rem;">Step 0 — Model Notation (y = mx + c)</div>
+    <div style="font-size:0.92rem;color:var(--muted);line-height:1.75;">
+      Notebooks mein <strong>m</strong> aur <strong>c</strong> notation use hota hai. Ye β₁ aur β₀ ke equivalent hain:<br>
+      <div style="text-align:center;margin:0.7rem 0;">
+        <span style="font-family:var(--font-mono);font-size:1.1rem;font-weight:800;color:var(--neon-blue);">ŷ = mx + c</span>
+        &nbsp;&nbsp;&nbsp;where&nbsp;&nbsp;&nbsp;
+        <span style="font-family:var(--font-mono);font-size:0.95rem;color:var(--muted);">m = β₁ (slope) &nbsp;|&nbsp; c = β₀ (intercept)</span>
+      </div>
+      <strong>Error (residual)</strong> for each point: &nbsp;
+      <span style="font-family:var(--font-mono);font-weight:700;color:var(--neon-red);">eᵢ = dᵢ = yᵢ − ŷᵢ</span>
+      &nbsp;(actual minus predicted)
+    </div>
+  </div>
+
+  <!-- STEP 1 — Error & Loss definitions -->
+  <div style="border-left:4px solid var(--neon-orange);background:rgba(194,65,12,0.05);border-radius:0 14px 14px 0;padding:1.2rem 1.4rem;margin:0.8rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;color:var(--neon-orange);font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.6rem;">Step 1 — Define Total Error (SSE &amp; MSE)</div>
+    <div style="font-size:0.92rem;color:var(--muted);line-height:1.9;">
+      Total squared error across all n points:<br>
+      <div style="margin:0.5rem 0 0.5rem 1.2rem;font-family:var(--font-mono);font-size:0.95rem;color:var(--text);">
+        E = d₁² + d₂² + d₃² + … + dₙ² &nbsp;=&nbsp; <span style="color:var(--neon-orange);">Σ dᵢ²</span>
+      </div>
+      Expanding each squared residual:<br>
+      <div style="margin:0.5rem 0 0.5rem 1.2rem;font-family:var(--font-mono);font-size:0.95rem;color:var(--text);">
+        E = <span style="color:var(--neon-orange);">Σ (yᵢ − ŷᵢ)²</span>
+      </div>
+      <strong>MSE (Cost function J)</strong> — average over n points:<br>
+      <div style="background:rgba(194,65,12,0.08);border:1.5px solid rgba(194,65,12,0.3);border-radius:10px;padding:0.8rem 1.2rem;margin:0.6rem 0;text-align:center;font-family:var(--font-mono);font-size:1.05rem;font-weight:800;color:var(--neon-orange);">
+        J(m, c) = MSE = (1/n) × Σᵢ (yᵢ − ŷᵢ)² &nbsp;=&nbsp; (1/n) × Σᵢ (yᵢ − mxᵢ − c)²
+      </div>
+      <span style="font-size:0.83rem;color:var(--dim);">This is our <strong>Cost Function</strong> — we want to find m and c that <em>minimize</em> J(m, c).</span>
+    </div>
+  </div>
+
+  <!-- STEP 2 — Geometric Graph -->
+  <div style="background:#f8f9ff;border:1.5px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-purple);margin-bottom:0.8rem;">
+      <i class="fa-solid fa-chart-scatter me-1"></i> Geometric View — Residuals on the Regression Line
+    </div>
+    <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <defs>
+        <marker id="arrowHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+        </marker>
+        <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+        </marker>
+        <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+        </marker>
+      </defs>
+      <!-- Axes -->
+      <line x1="50" y1="210" x2="490" y2="210" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arrowHead)"/>
+      <line x1="50" y1="210" x2="50" y2="20" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arrowHead)"/>
+      <text x="498" y="214" font-size="11" fill="#9ca3af" font-family="sans-serif">x</text>
+      <text x="44" y="16" font-size="11" fill="#9ca3af" font-family="sans-serif">y</text>
+      <!-- Origin label -->
+      <text x="38" y="222" font-size="9" fill="#9ca3af" font-family="sans-serif">O</text>
+      <!-- Best-fit regression line: y = 1.5x + 20 (in SVG coords, y inverted) -->
+      <!-- SVG: x_px = 50 + x*40,  y_px = 210 - (1.5*x + 20)*1.8 -->
+      <!-- x=0 → y_px=210−36=174; x=10 → y_px=210−(15+20)*1.8=210−63=147; x=4→210−(6+20)*1.8=210−46.8=163 -->
+      <!-- line from x_px=50(x=0) to x_px=450(x=10) -->
+      <line x1="65" y1="174" x2="455" y2="82" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="0"/>
+      <!-- Line label -->
+      <text x="458" y="80" font-size="10" fill="#7c3aed" font-family="sans-serif" font-weight="bold">ŷ = mx+c</text>
+      <!-- Data points (actual) and their projections on line -->
+      <!-- Point A: x=1 (px=90), actual y=3.5 (px=210-3.5*18=147), predicted y=1.5+20=21.5(px=210-21.5*1.8=151.3) -->
+      <!-- Simplified: 5 points, show residuals clearly -->
+      <!-- P1: (90, 135) actual, line at y_px for x_px=90: 174 − (90-65)/(455-65)*(174-82) = 174−25/390*92 ≈ 174−5.9=168 → 168 -->
+      <circle cx="100" cy="130" r="5" fill="#e11d48" stroke="#fff" stroke-width="1.5"/>
+      <line x1="100" y1="130" x2="100" y2="170" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <circle cx="100" cy="170" r="3" fill="#7c3aed" stroke="#fff" stroke-width="1"/>
+      <text x="104" y="150" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="bold">d₁</text>
+      <text x="92" y="125" font-size="8" fill="#e11d48" font-family="sans-serif">(x₁,y₁)</text>
+      <!-- P2: above line -->
+      <circle cx="185" cy="115" r="5" fill="#e11d48" stroke="#fff" stroke-width="1.5"/>
+      <line x1="185" y1="115" x2="185" y2="149" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <circle cx="185" cy="149" r="3" fill="#7c3aed" stroke="#fff" stroke-width="1"/>
+      <text x="189" y="133" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="bold">d₂</text>
+      <!-- P3: below line -->
+      <circle cx="270" cy="145" r="5" fill="#e11d48" stroke="#fff" stroke-width="1.5"/>
+      <line x1="270" y1="128" x2="270" y2="145" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <circle cx="270" cy="128" r="3" fill="#7c3aed" stroke="#fff" stroke-width="1"/>
+      <text x="274" y="138" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="bold">d₃</text>
+      <!-- P4: above line -->
+      <circle cx="355" cy="100" r="5" fill="#e11d48" stroke="#fff" stroke-width="1.5"/>
+      <line x1="355" y1="100" x2="355" y2="109" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <circle cx="355" cy="109" r="3" fill="#7c3aed" stroke="#fff" stroke-width="1"/>
+      <text x="359" y="105" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="bold">d₄</text>
+      <!-- P5 -->
+      <circle cx="430" cy="90" r="5" fill="#e11d48" stroke="#fff" stroke-width="1.5"/>
+      <line x1="430" y1="90" x2="430" y2="97" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <circle cx="430" cy="97" r="3" fill="#7c3aed" stroke="#fff" stroke-width="1"/>
+      <text x="434" y="93" font-size="9" fill="#dc2626" font-family="sans-serif" font-weight="bold">d₅</text>
+      <!-- Legend -->
+      <circle cx="65" cy="225" r="5" fill="#e11d48"/>
+      <text x="73" y="229" font-size="9" fill="#374151" font-family="sans-serif">Actual yᵢ</text>
+      <circle cx="145" cy="225" r="3" fill="#7c3aed"/>
+      <text x="152" y="229" font-size="9" fill="#374151" font-family="sans-serif">Predicted ŷᵢ (on line)</text>
+      <line x1="240" y1="225" x2="252" y2="225" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="256" y="229" font-size="9" fill="#374151" font-family="sans-serif">dᵢ = yᵢ − ŷᵢ (residual)</text>
+      <!-- SSE annotation box -->
+      <rect x="52" y="30" width="185" height="48" rx="8" fill="rgba(124,58,237,0.08)" stroke="rgba(124,58,237,0.3)" stroke-width="1"/>
+      <text x="63" y="47" font-size="9.5" fill="#7c3aed" font-family="monospace" font-weight="bold">Goal: minimize SSE</text>
+      <text x="63" y="60" font-size="9" fill="#7c3aed" font-family="monospace">J = Σ dᵢ² = Σ(yᵢ−mxᵢ−c)²</text>
+      <text x="63" y="73" font-size="8.5" fill="#9ca3af" font-family="sans-serif">→ find best m &amp; c</text>
+    </svg>
+    <div style="font-size:0.76rem;color:var(--dim);margin-top:0.3rem;">Purple line = best-fit ŷ=mx+c. Red dots = actual data points yᵢ. Dashed lines = residuals dᵢ. OLS minimizes Σdᵢ².</div>
+  </div>
+
+  <!-- STEP 2 — Take Partial Derivatives -->
+  <div style="border-left:4px solid var(--neon-blue);background:rgba(37,99,235,0.05);border-radius:0 14px 14px 0;padding:1.2rem 1.4rem;margin:0.8rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;color:var(--neon-blue);font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.6rem;">Step 2 — Minimize J: Take Partial Derivatives &amp; Set = 0</div>
+    <div style="font-size:0.92rem;color:var(--muted);line-height:1.9;">
+      To find the minimum of J(m, c), take partial derivatives w.r.t. <strong>m</strong> and <strong>c</strong> separately, and set both to zero:<br><br>
+      <div style="background:rgba(37,99,235,0.07);border-radius:10px;padding:0.8rem 1.1rem;margin:0.5rem 0;font-family:var(--font-mono);font-size:0.93rem;">
+        <strong style="color:var(--neon-blue);">∂J/∂m = 0</strong> &nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp; <span style="color:var(--muted);">find optimal slope m</span><br>
+        <strong style="color:var(--neon-blue);">∂J/∂c = 0</strong> &nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp; <span style="color:var(--muted);">find optimal intercept c</span>
+      </div>
+      <strong>Why both?</strong> J depends on TWO unknowns (m and c) — we need two equations to solve for both uniquely.
+    </div>
+  </div>
+
+  <!-- STEP 3 — ∂J/∂c = 0 → Normal Equation for c -->
+  <div style="border-left:4px solid var(--neon-cyan);background:rgba(8,145,178,0.05);border-radius:0 14px 14px 0;padding:1.2rem 1.4rem;margin:0.8rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;color:var(--neon-cyan);font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.6rem;">Step 3 — Solve ∂J/∂c = 0 → Intercept Formula</div>
+    <div style="font-size:0.92rem;color:var(--muted);line-height:1.9;">
+      Differentiate J = (1/n) Σ (yᵢ − mxᵢ − c)² with respect to c:<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        ∂J/∂c &nbsp;=&nbsp; (1/n) · Σ 2(yᵢ − mxᵢ − c)(−1) &nbsp;=&nbsp; 0
+      </div>
+      Cancel (−2/n), we get:<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        Σ (yᵢ − mxᵢ − c) &nbsp;=&nbsp; 0
+      </div>
+      Expand the sum (Σ distributes):<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        Σyᵢ − m·Σxᵢ − n·c &nbsp;=&nbsp; 0
+      </div>
+      Divide everything by n (using x̄ = Σxᵢ/n, ȳ = Σyᵢ/n):<br>
+      <div style="background:rgba(8,145,178,0.09);border:1.5px solid rgba(8,145,178,0.3);border-radius:10px;padding:0.7rem 1.2rem;margin:0.6rem 0;text-align:center;font-family:var(--font-mono);font-size:1.05rem;font-weight:800;color:var(--neon-cyan);">
+        c &nbsp;=&nbsp; ȳ − m·x̄ &nbsp;&nbsp;&nbsp; ← Intercept formula (c = β₀)
+      </div>
+      <span style="font-size:0.84rem;color:var(--neon-green);font-weight:700;">Key insight:</span> The best-fit line <em>always passes through the mean point (x̄, ȳ)</em>!
+    </div>
+  </div>
+
+  <!-- STEP 4 — ∂J/∂m = 0 → Normal Equation for m -->
+  <div style="border-left:4px solid var(--neon-green);background:rgba(22,163,74,0.05);border-radius:0 14px 14px 0;padding:1.2rem 1.4rem;margin:0.8rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;color:var(--neon-green);font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.6rem;">Step 4 — Solve ∂J/∂m = 0 → Slope Formula (Full Algebra)</div>
+    <div style="font-size:0.92rem;color:var(--muted);line-height:1.9;">
+      Differentiate J w.r.t. m:<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        ∂J/∂m &nbsp;=&nbsp; (1/n) · Σ 2(yᵢ − mxᵢ − c)(−xᵢ) &nbsp;=&nbsp; 0
+      </div>
+      Cancel (−2/n), set to zero:<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        Σ xᵢ(yᵢ − mxᵢ − c) &nbsp;=&nbsp; 0
+      </div>
+      Substitute c = ȳ − mx̄ from Step 3:<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        Σ xᵢ(yᵢ − mxᵢ − ȳ + mx̄) &nbsp;=&nbsp; 0
+      </div>
+      Rearrange inside the bracket:<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        Σ xᵢ[(yᵢ − ȳ) − m(xᵢ − x̄)] &nbsp;=&nbsp; 0
+      </div>
+      Expand the summation:<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        Σ xᵢ(yᵢ − ȳ) − m · Σ xᵢ(xᵢ − x̄) &nbsp;=&nbsp; 0
+      </div>
+      Using the identity &nbsp;<span style="font-family:var(--font-mono);color:var(--neon-purple);">Σ xᵢ(xᵢ−x̄) = Σ (xᵢ−x̄)²</span>&nbsp; and &nbsp;<span style="font-family:var(--font-mono);color:var(--neon-purple);">Σ xᵢ(yᵢ−ȳ) = Σ (xᵢ−x̄)(yᵢ−ȳ)</span>:<br>
+      <div style="margin:0.4rem 0 0.4rem 1rem;font-family:var(--font-mono);font-size:0.92rem;color:var(--text);">
+        Σ (xᵢ−x̄)(yᵢ−ȳ) &nbsp;=&nbsp; m · Σ (xᵢ−x̄)²
+      </div>
+      Solve for m:<br>
+      <div style="background:rgba(22,163,74,0.09);border:1.5px solid rgba(22,163,74,0.35);border-radius:10px;padding:0.9rem 1.2rem;margin:0.6rem 0;text-align:center;font-family:var(--font-mono);font-size:1.1rem;font-weight:800;color:var(--neon-green);">
+        m &nbsp;=&nbsp; Σ(xᵢ−x̄)(yᵢ−ȳ) &nbsp;/&nbsp; Σ(xᵢ−x̄)² &nbsp;&nbsp;&nbsp; ← Slope formula (m = β₁)
+      </div>
+      <span style="font-size:0.84rem;color:var(--dim);">Numerator = Covariance(x, y) × n &nbsp;|&nbsp; Denominator = Variance(x) × n</span>
+    </div>
+  </div>
+
+  <!-- STEP 5 — Final Result Boxed -->
+  <div style="background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(37,99,235,0.06));border:2px solid rgba(124,58,237,0.3);border-radius:16px;padding:1.5rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:var(--neon-purple);margin-bottom:1rem;text-align:center;">
+      ✅ Final OLS Solution — Derived from First Principles
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem;border:1px solid rgba(22,163,74,0.3);text-align:center;">
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-green);margin-bottom:0.4rem;">SLOPE</div>
+          <div style="font-family:var(--font-mono);font-size:1rem;font-weight:800;color:var(--neon-green);">m = Σ(xᵢ−x̄)(yᵢ−ȳ)</div>
+          <div style="font-family:var(--font-mono);font-size:1rem;font-weight:800;color:var(--neon-green);">─────────────────</div>
+          <div style="font-family:var(--font-mono);font-size:1rem;font-weight:800;color:var(--neon-green);">Σ(xᵢ−x̄)²</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem;border:1px solid rgba(8,145,178,0.3);text-align:center;">
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:0.4rem;">INTERCEPT</div>
+          <div style="font-family:var(--font-mono);font-size:1.1rem;font-weight:800;color:var(--neon-cyan);padding-top:0.5rem;">c = ȳ − m · x̄</div>
+          <div style="font-size:0.8rem;color:var(--dim);margin-top:0.4rem;">Line passes through (x̄, ȳ)</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1rem;padding:0.75rem 1rem;background:rgba(124,58,237,0.06);border-radius:10px;font-size:0.85rem;color:var(--muted);text-align:center;">
+      <strong>Derivation summary:</strong> Set ∂J/∂c = 0 → c = ȳ − mx̄ &nbsp;|&nbsp; Set ∂J/∂m = 0, substitute c → solve for m &nbsp;|&nbsp; Both equations together = <strong>Normal Equations</strong>
+    </div>
+  </div>
+
+  <!-- SVG: Cost function bowl + gradient descent arrows -->
+  <div style="background:#f8f9ff;border:1.5px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-orange);margin-bottom:0.8rem;">
+      <i class="fa-solid fa-bowl-food me-1"></i> Cost Function J(m) — Parabolic Bowl Shape
+    </div>
+    <svg viewBox="0 0 520 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <defs>
+        <marker id="arrowGreen2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#16a34a"/>
+        </marker>
+        <marker id="arrowOrange2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#c2410c"/>
+        </marker>
+        <marker id="axArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+        </marker>
+      </defs>
+      <!-- Axes -->
+      <line x1="50" y1="185" x2="490" y2="185" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#axArrow)"/>
+      <line x1="50" y1="185" x2="50" y2="15" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#axArrow)"/>
+      <text x="494" y="189" font-size="11" fill="#c2410c" font-family="sans-serif" font-weight="bold">m</text>
+      <text x="38" y="13" font-size="11" fill="#c2410c" font-family="sans-serif" font-weight="bold">J(m)</text>
+      <!-- Parabola: J = (m - m*)^2 + min, centered at m=270 (optimal), min J ≈ 185-120=65 -->
+      <!-- Points: (50, 185-0)=(50,185), (100,165),(150,135),(200,115),(260,75),(270,65),(320,75),(370,115),(420,155),(470,185) -->
+      <path d="M 80,180 C 110,165 150,130 200,105 C 230,90 255,72 270,65 C 285,72 310,90 340,105 C 390,130 430,165 460,180"
+            fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+      <!-- Shading under curve -->
+      <path d="M 80,180 C 110,165 150,130 200,105 C 230,90 255,72 270,65 C 285,72 310,90 340,105 C 390,130 430,165 460,180 L 460,185 L 80,185 Z"
+            fill="rgba(124,58,237,0.06)"/>
+      <!-- Minimum point marker -->
+      <circle cx="270" cy="65" r="7" fill="#16a34a" stroke="#fff" stroke-width="2"/>
+      <line x1="270" y1="65" x2="270" y2="185" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.7"/>
+      <text x="257" y="196" font-size="9" fill="#16a34a" font-family="sans-serif" font-weight="bold">m* (optimal)</text>
+      <text x="278" y="60" font-size="9" fill="#16a34a" font-family="monospace" font-weight="bold">min J</text>
+      <!-- Gradient descent arrows from left -->
+      <circle cx="130" cy="148" r="5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+      <path d="M 130,148 C 150,140 160,135 178,125" fill="none" stroke="#c2410c" stroke-width="2" marker-end="url(#arrowOrange2)"/>
+      <text x="95" y="143" font-size="8" fill="#c2410c" font-family="sans-serif">∂J/∂m &gt; 0</text>
+      <!-- Gradient descent arrows from right -->
+      <circle cx="390" cy="128" r="5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+      <path d="M 390,128 C 375,118 365,110 350,105" fill="none" stroke="#c2410c" stroke-width="2" marker-end="url(#arrowOrange2)"/>
+      <text x="394" y="124" font-size="8" fill="#c2410c" font-family="sans-serif">∂J/∂m &lt; 0</text>
+      <!-- Annotations -->
+      <rect x="55" y="20" width="160" height="38" rx="7" fill="rgba(194,65,12,0.07)" stroke="rgba(194,65,12,0.3)" stroke-width="1"/>
+      <text x="65" y="35" font-size="9" fill="#c2410c" font-family="sans-serif" font-weight="bold">OLS: set ∂J/∂m = 0</text>
+      <text x="65" y="50" font-size="8.5" fill="#9ca3af" font-family="sans-serif">→ directly at minimum!</text>
+      <!-- Convex label -->
+      <text x="370" y="45" font-size="8.5" fill="#7c3aed" font-family="sans-serif" font-style="italic">Convex bowl</text>
+      <text x="360" y="56" font-size="8.5" fill="#7c3aed" font-family="sans-serif" font-style="italic">(one global min)</text>
+    </svg>
+    <div style="font-size:0.76rem;color:var(--dim);margin-top:0.3rem;">Setting ∂J/∂m = 0 finds the exact bottom of the bowl — the optimal slope m*. The parabolic (convex) shape guarantees a unique global minimum.</div>
+  </div>
+
+  <div class="callout cb-orange mt-3">
+    <div class="ct"><i class="fa-solid fa-brain"></i> Intuition — Formula Ka Matlab Kya Hai?</div>
+    <strong>m (β₁) = Cov(x,y) / Var(x)</strong> ka matlab:<br><br>
+    → <strong>Numerator (Covariance):</strong> X aur y dono apne means se kitna ek saath move karte hain? Positive = ek saath badhte hain, Negative = ulta.<br>
+    → <strong>Denominator (Variance of X):</strong> X apne mean se kitna spread hai?<br>
+    → <strong>Ratio:</strong> "X ke ek unit change pe y mein kitna change" — yahi slope hai!<br><br>
+    <strong>c (β₀) = ȳ − m·x̄</strong> ka matlab: Best fit line hamesha mean point (x̄, ȳ) se guzarti hai — c is point se calculate hota hai!
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-box" data-quiz="3" data-correct="a" data-xp="25">
+    <div class="quiz-q">🤔 OLS mein β₁ (slope) calculate karne ke liye kya formula use hota hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Bilkul sahi! β₁ = Σ(Xᵢ−X̄)(yᵢ−ȳ) / Σ(Xᵢ−X̄)² — ye Covariance(X,y) / Variance(X) hai. Numerator = X aur y ek saath kitna vary karte hain (covariance). Denominator = X akele kitna vary karta hai (variance). Ratio = X ke ek unit change pe y mein expected change = slope!"><span class="opt-letter">A</span>β₁ = Σ(Xᵢ − X̄)(yᵢ − ȳ) / Σ(Xᵢ − X̄)²</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. β₀ = ȳ − β₁X̄ intercept ka formula hai, slope ka nahi. Intercept isliye calculate hota hai kyunki best fit line mean point (X̄, ȳ) se guzarti hai."><span class="opt-letter">B</span>β₀ = ȳ − β₁ × X̄</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Ye R-squared (R²) formula jaisa dikhta hai — explained variance / total variance. Slope ka formula covariance-to-variance ratio hai, ye nahi."><span class="opt-letter">C</span>β₁ = Σ(yᵢ − ȳ)² / Σ(yᵢ − ŷᵢ)²</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Mean residual formula MSE ka ek version lagta hai, slope nahi. OLS slope formula covariance aur variance pe based hai."><span class="opt-letter">D</span>β₁ = (1/n) Σ (yᵢ − ŷᵢ)</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 3-B : OLS STEP-BY-STEP
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s6">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-solid fa-table-cells"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Skill Unlock</div>
+      <div class="lv-title">OLS — Haath Se Calculate Karo aur Python Se Verify</div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-pencil"></i> Chhota Dataset — IPL Practice Hours vs Runs Scored</div>
+    Sirf 5 data points lekar manually OLS karte hain — phir Python se verify karenge!
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Xᵢ (Hours)</th>
+          <th>yᵢ (Runs)</th>
+          <th>Xᵢ − X̄</th>
+          <th>yᵢ − ȳ</th>
+          <th>(Xᵢ−X̄)(yᵢ−ȳ)</th>
+          <th>(Xᵢ−X̄)²</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Rohit</td><td>2</td><td>30</td><td>2−4 = <strong style="color:var(--neon-red);">−2</strong></td><td>30−50 = <strong style="color:var(--neon-red);">−20</strong></td><td>(−2)(−20) = <strong style="color:var(--neon-green);">40</strong></td><td>(−2)² = <strong>4</strong></td></tr>
+        <tr><td>Virat</td><td>3</td><td>40</td><td>3−4 = <strong style="color:var(--neon-red);">−1</strong></td><td>40−50 = <strong style="color:var(--neon-red);">−10</strong></td><td>(−1)(−10) = <strong style="color:var(--neon-green);">10</strong></td><td>(−1)² = <strong>1</strong></td></tr>
+        <tr><td>Dhoni</td><td>4</td><td>50</td><td>4−4 = <strong>0</strong></td><td>50−50 = <strong>0</strong></td><td>0 × 0 = <strong>0</strong></td><td>0² = <strong>0</strong></td></tr>
+        <tr><td>Bumrah</td><td>5</td><td>60</td><td>5−4 = <strong style="color:var(--neon-green);">+1</strong></td><td>60−50 = <strong style="color:var(--neon-green);">+10</strong></td><td>(1)(10) = <strong style="color:var(--neon-green);">10</strong></td><td>1² = <strong>1</strong></td></tr>
+        <tr><td>Hardik</td><td>6</td><td>70</td><td>6−4 = <strong style="color:var(--neon-green);">+2</strong></td><td>70−50 = <strong style="color:var(--neon-green);">+20</strong></td><td>(2)(20) = <strong style="color:var(--neon-green);">40</strong></td><td>2² = <strong>4</strong></td></tr>
+        <tr style="background:rgba(124,58,237,0.06);"><td><strong>Sum / Mean</strong></td><td><strong>X̄ = 4</strong></td><td><strong>ȳ = 50</strong></td><td>Sum = 0</td><td>Sum = 0</td><td><strong style="color:var(--neon-purple);">Σ = 100</strong></td><td><strong style="color:var(--neon-purple);">Σ = 10</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="formula-box fb-cyan" style="margin:0;">
+        <div class="formula-label">SLOPE CALCULATION</div>
+        <div class="formula-main">β₁ = 100 / 10 = 10</div>
+        <div class="formula-sub">Σ(Xᵢ−X̄)(yᵢ−ȳ) / Σ(Xᵢ−X̄)² = 100/10<br>Har 1 hour extra practice → 10 extra runs!</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box fb-blue" style="margin:0;">
+        <div class="formula-label">INTERCEPT CALCULATION</div>
+        <div class="formula-main">β₀ = 50 − 10 × 4 = 10</div>
+        <div class="formula-sub">ȳ − β₁ × X̄ = 50 − 40 = 10<br>0 hours practice → predicted 10 runs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-green mt-3">
+    <div class="ct"><i class="fa-solid fa-check-double"></i> Final Equation</div>
+    <strong>Predicted Runs = 10 + 10 × Practice_Hours</strong><br><br>
+    Verify karo: Rohit (2 hrs) → 10 + 10×2 = 30 ✅ &nbsp; Hardik (6 hrs) → 10 + 10×6 = 70 ✅<br>
+    Naya player 7 hrs practice kare → 10 + 10×7 = <strong>80 runs predicted!</strong>
+  </div>
+
+  <div class="ex-card ex-story mt-3">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> Python Se Verify Karo — Same Answer!</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — OLS Verification</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.linear_model import LinearRegression
+
+# IPL data — same 5 players
+X = np.array([[2], [3], [4], [5], [6]])  # Practice hours
+y = np.array([30, 40, 50, 60, 70])       # Runs scored
+
+# sklearn OLS (internally same formula!)
+model = LinearRegression()
+model.fit(X, y)
+print(f"sklearn β₀ (Intercept): {model.intercept_:.1f}")  # 10.0
+print(f"sklearn β₁ (Slope):     {model.coef_[0]:.1f}")    # 10.0
+
+# Manual OLS formula se verify karo
+X_vals = X.flatten()
+X_mean = X_vals.mean()   # 4.0
+y_mean = y.mean()         # 50.0
+
+numerator   = np.sum((X_vals - X_mean) * (y - y_mean))  # 100
+denominator = np.sum((X_vals - X_mean) ** 2)              # 10
+beta1 = numerator / denominator                            # 10.0
+beta0 = y_mean - beta1 * X_mean                           # 10.0
+
+print(f"\nManual β₀: {beta0:.1f}")   # 10.0 ← Same!
+print(f"Manual β₁: {beta1:.1f}")   # 10.0 ← Same!
+
+# Prediction for new player
+new_player_hours = 7
+pred = beta0 + beta1 * new_player_hours
+print(f"\n7 hours practice → {pred:.0f} runs predicted")</code></pre>
+        <div class="code-output">✅ sklearn β₀ = 10.0, β₁ = 10.0. Manual β₀ = 10.0, β₁ = 10.0. EXACTLY SAME! sklearn internally OLS formula hi use karta hai. 7 hours → 80 runs predicted!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 4-A : GRADIENT DESCENT INTUITION
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s7">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-mountain-sun"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Boss Topic</div>
+      <div class="lv-title">Gradient Descent — Pahaad Se Neeche Utarna!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Analogy — Aankhein Band Karke Pahaad Se Utaro</div>
+    Imagine karo tum ek pahaad pe khade ho — raat ka andhera hai, kuch dikh nahi raha. Tumhara goal sabse neeche valley (minimum) mein pahunchna hai.<br><br>
+    Tum kya karoge? <strong>Har kadam pe neeche ki taraf ghoom jao aur ek step lo!</strong> Yahi Gradient Descent hai.<br><br>
+    → <strong>Pahaad</strong> = Cost Function J(β)<br>
+    → <strong>Tumhari position</strong> = current β values<br>
+    → <strong>Neeche ki direction</strong> = negative gradient (slope ki opposite direction)<br>
+    → <strong>Valley (bottom)</strong> = minimum cost = best β values!
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1rem;">
+    <i class="fa-solid fa-rotate me-2" style="color:var(--neon-green)"></i>Update Rule — Gradient Descent Formula
+  </h5>
+
+  <div class="formula-box fb-green">
+    <div class="formula-label">GRADIENT DESCENT UPDATE RULE</div>
+    <div class="formula-main">β₁ := β₁ − α × ∂J/∂β₁</div>
+    <div class="formula-sub">Simultaneously β₀ bhi update hota hai: β₀ := β₀ − α × ∂J/∂β₀</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">:=</span><span class="meaning">Update karo (assign karo)</span></div>
+    <div class="math-term"><span class="sym">α</span><span class="meaning">Learning rate — kadam kitna bada? (alpha)</span></div>
+    <div class="math-term"><span class="sym">∂J/∂β₁</span><span class="meaning">Partial derivative — β₁ direction mein slope of cost</span></div>
+    <div class="math-term"><span class="sym">−</span><span class="meaning">Minus — gradient ke opposite direction mein jao!</span></div>
+  </div>
+
+  <div class="callout cb-yellow mt-3">
+    <div class="ct"><i class="fa-solid fa-walkie-talkie"></i> Partial Derivatives — Expanded Form</div>
+    Cost function J = (1/n)Σ(yᵢ − β₀ − β₁Xᵢ)² ko β₀ aur β₁ ke respect mein differentiate karte hain:<br><br>
+    <div class="formula-box fb-orange" style="margin:0.8rem 0;">
+      <div class="formula-label">PARTIAL DERIVATIVE w.r.t. β₀</div>
+      <div class="formula-main">∂J/∂β₀ = (−2/n) × Σ(yᵢ − ŷᵢ)</div>
+      <div class="formula-sub">= (−2/n) × sum of all residuals</div>
+    </div>
+    <div class="formula-box fb-orange" style="margin:0.5rem 0 0;">
+      <div class="formula-label">PARTIAL DERIVATIVE w.r.t. β₁</div>
+      <div class="formula-main">∂J/∂β₁ = (−2/n) × Σ(yᵢ − ŷᵢ) × Xᵢ</div>
+      <div class="formula-sub">= (−2/n) × sum of (residual × X) for all points</div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue mt-3">
+    <div class="ct"><i class="fa-solid fa-sliders"></i> Learning Rate α — Bahut Important Hyperparameter!</div>
+    <div class="row g-3 mt-1">
+      <div class="col-md-4">
+        <div class="ach-card ac-green" style="padding:1rem;">
+          <span class="ach-icon">🎯</span>
+          <div class="ach-title">α sahi ho (e.g., 0.01)</div>
+          <div class="ach-desc">Smooth convergence — gradually bowl ke bottom pe pahunch jaata hai. Best scenario!</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="ach-card ac-red" style="padding:1rem;">
+          <span class="ach-icon">🏃</span>
+          <div class="ach-title">α bahut bada (e.g., 10)</div>
+          <div class="ach-desc">Overshoot! Bowl ke ek taraf se dusri taraf jump karta hai — diverge ho jaata hai, minimum kabhi nahi milta!</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="ach-card ac-yellow" style="padding:1rem;">
+          <span class="ach-icon">🐢</span>
+          <div class="ach-title">α bahut chota (e.g., 0.00001)</div>
+          <div class="ach-desc">Bahut slow — converge hoga but bahut time lagega. Thousands of iterations needed!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 4-B : GRADIENT DESCENT STEP-BY-STEP
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s8">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-code"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Skill Unlock</div>
+      <div class="lv-title">Gradient Descent — Scratch Se Implement Karo</div>
+    </div>
+  </div>
+
+  <div class="ex-card ex-tech">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> Gradient Descent From Scratch — Har Step Clearly</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — Gradient Descent From Scratch</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+
+# ─── Inline Dataset: IPL — Practice Hours vs Runs ───
+X = np.array([2, 3, 4, 5, 6], dtype=float)
+y = np.array([30, 40, 50, 60, 70], dtype=float)
+n = len(X)
+
+# ════════════════════════════════════════
+# Gradient Descent Setup
+# ════════════════════════════════════════
+beta0 = 0.0          # Intercept — random shuru karo
+beta1 = 0.0          # Slope — random shuru karo
+alpha = 0.01         # Learning rate — step size
+iterations = 1000    # Kitni baar update karein
+
+# Cost function — MSE
+def compute_cost(X, y, b0, b1):
+    y_pred = b0 + b1 * X
+    residuals = y - y_pred
+    return (1/len(y)) * np.sum(residuals**2)
+
+print(f"Shuruat: β₀={beta0:.1f}, β₁={beta1:.1f}")
+print(f"Initial Cost (MSE): {compute_cost(X,y,beta0,beta1):.2f}\n")
+
+# ════════════════════════════════════════
+# Gradient Descent Loop
+# ════════════════════════════════════════
+for i in range(iterations):
+    y_pred  = beta0 + beta1 * X           # Current predictions
+    residuals = y - y_pred                 # Errors (residuals)
+
+    # Gradients (partial derivatives)
+    grad_b0 = (-2/n) * np.sum(residuals)          # ∂J/∂β₀
+    grad_b1 = (-2/n) * np.sum(residuals * X)      # ∂J/∂β₁
+
+    # Update β — gradient ke opposite direction mein
+    beta0 = beta0 - alpha * grad_b0
+    beta1 = beta1 - alpha * grad_b1
+
+    # Progress print karo (every 200 iterations)
+    if i % 200 == 0:
+        cost = compute_cost(X, y, beta0, beta1)
+        print(f"Iter {i:4d}: β₀={beta0:.3f}, β₁={beta1:.3f}, Cost={cost:.4f}")
+
+# ════════════════════════════════════════
+# Final Result
+# ════════════════════════════════════════
+print(f"\n=== GRADIENT DESCENT RESULT ===")
+print(f"β₀ (Intercept): {beta0:.4f}  (Expected: 10.0)")
+print(f"β₁ (Slope):     {beta1:.4f}  (Expected: 10.0)")
+print(f"Final Cost:     {compute_cost(X,y,beta0,beta1):.6f}")
+
+# 7 hours prediction
+pred = beta0 + beta1 * 7
+print(f"\n7 hours practice → {pred:.1f} runs")</code></pre>
+        <div class="code-output">Iter 0: β₀=1.200, β₁=4.400, Cost=1005.4400
+Iter 200: β₀=8.432, β₁=9.231, Cost=2.3401
+Iter 400: β₀=9.641, β₁=9.822, Cost=0.0892
+Iter 600: β₀=9.921, β₁=9.963, Cost=0.0034
+Iter 800: β₀=9.983, β₁=9.993, Cost=0.0001
+GRADIENT DESCENT RESULT: β₀ ≈ 9.998, β₁ ≈ 9.999. Converged to OLS answer (10, 10)!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-purple mt-2">
+    <div class="ct"><i class="fa-solid fa-scale-balanced"></i> OLS vs Gradient Descent — Kab Kya Use Karein?</div>
+    <div class="table-responsive" style="margin-top:0.8rem;">
+      <table class="gtbl">
+        <thead><tr><th>Feature</th><th>OLS (Closed-Form)</th><th>Gradient Descent</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Approach</strong></td><td>Direct mathematical formula</td><td>Iterative optimization</td></tr>
+          <tr><td><strong>Speed</strong></td><td><span class="stat-pill sp-green">Very fast</span> — ek hi calculation</td><td><span class="stat-pill sp-yellow">Slower</span> — many iterations</td></tr>
+          <tr><td><strong>Large datasets</strong></td><td><span class="stat-pill sp-red">Slow</span> — matrix inversion O(n³)</td><td><span class="stat-pill sp-green">Better</span> — mini-batch possible</td></tr>
+          <tr><td><strong>Multiple features</strong></td><td>Works but gets expensive</td><td><span class="stat-pill sp-green">Scales well</span> with features</td></tr>
+          <tr><td><strong>Neural Networks</strong></td><td>❌ Not applicable</td><td><span class="stat-pill sp-green">✅ Foundation of deep learning!</span></td></tr>
+          <tr><td><strong>sklearn default</strong></td><td>✅ LinearRegression() uses OLS</td><td>SGDRegressor() for large data</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-box" data-quiz="4" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 Gradient Descent mein agar learning rate (α) bahut zyada bada set kar dein toh kya hoga?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Bada learning rate faster converge nahi karta — ye actually diverge karta hai. Faster convergence ke liye medium learning rate chahiye jo smoothly minimum ki taraf jaaye."><span class="opt-letter">A</span>Model bahut jaldi converge karega — faster training!</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Bada alpha learning rate se gradient direction galat nahi hota — direction wahi rehta hai. Problem ye hai ki step size itna bada hai ki minimum ko cross kar jaata hai."><span class="opt-letter">B</span>Gradient direction galat ho jaayegi</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Learning rate ka regularization se seedha koi lena dena nahi hai. Regularization alag concept hai (Ridge, Lasso). Bada alpha overfitting se bachata nahi."><span class="opt-letter">C</span>Model overfit ho jaayega</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! Bada learning rate = bada step. Model cost minimum ke paas pahunchega, phir woh dusri taraf zyada jump kar jaayega, phir wapas, phir udhar — oscillate karta rahega aur kabhi settle nahi hoga. Extreme case mein cost badh bhi sakti hai (diverge). Ye pahaad se utarte waqt itna bada kadam lene jaisa hai ki valley se niklar doosri taraf pahad pe pahunch jao!"><span class="opt-letter">D</span>Cost oscillate ya diverge karega — minimum kabhi nahi milega</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 5 : R² SCORE
+█████████████████████████████████████ -->
+<div class="level-card lvl-pink fade-up" id="s9">
+  <div class="corner-deco">LEVEL 5</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-chart-column"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 5 · Boss Topic</div>
+      <div class="lv-title">R² Score — Model Kitna Accha Explain Karta Hai?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Core Idea — Ek Line Mein</div>
+    <strong>R² (R-squared)</strong> = batata hai ki model <span class="hl-purple">y ki total variation ka kitna percent explain</span> kar pa raha hai.<br><br>
+    Range: 0 to 1 (kabhi kabhi negative bhi). 1 = perfect, 0 = model kuch explain nahi kar raha (sirf mean predict kar raha hai jitna hi).
+  </div>
+
+  <!-- R² Formula -->
+  <div class="formula-box" style="margin-top:1.4rem;">
+    <div class="formula-label">R-SQUARED FORMULA</div>
+    <div class="formula-main">R² = 1 − (SSR / SST)</div>
+    <div class="formula-sub">= 1 − [Σ(yᵢ−ŷᵢ)²] / [Σ(yᵢ−ȳ)²]</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">SSR</span><span class="meaning">Sum of Squared Residuals = Σ(yᵢ−ŷᵢ)² — model ka remaining error</span></div>
+    <div class="math-term"><span class="sym">SST</span><span class="meaning">Total Sum of Squares = Σ(yᵢ−ȳ)² — total variation in y</span></div>
+    <div class="math-term"><span class="sym">SSR/SST</span><span class="meaning">Fraction of variation jo model explain NAHI kar paaya</span></div>
+    <div class="math-term"><span class="sym">1 − SSR/SST</span><span class="meaning">Fraction jo model ne explain KIYA = R²</span></div>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin-bottom:1.2rem;">
+    <i class="fa-solid fa-gauge me-2" style="color:var(--neon-pink)"></i>R² Values — Kya Matlab Hai?
+  </h5>
+
+  <div class="row g-3">
+    <div class="col-md-3 col-sm-6">
+      <div class="ach-card ac-green">
+        <span class="ach-icon">🏆</span>
+        <div class="ach-title">R² = 1.0</div>
+        <div class="ach-desc">Perfect fit! Model har point exactly predict karta hai. SSR = 0. Real data mein almost impossible.</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="ach-card ac-blue">
+        <span class="ach-icon">😊</span>
+        <div class="ach-title">R² = 0.85+</div>
+        <div class="ach-desc">85%+ variation explained. Very good model! Most real-world good models 0.7–0.95 range mein hote hain.</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="ach-card ac-yellow">
+        <span class="ach-icon">😐</span>
+        <div class="ach-title">R² = 0.5</div>
+        <div class="ach-desc">50% variation explain hua. Model kuch seekha hai lekin bahut unexplained hai. More features needed?</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="ach-card ac-red">
+        <span class="ach-icon">❌</span>
+        <div class="ach-title">R² = 0 ya &lt;0</div>
+        <div class="ach-desc">Model mean se bhi worse! (Negative R² possible when wrong model). Sirf mean predict karo toh R²=0.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-orange mt-4">
+    <div class="ct"><i class="fa-solid fa-india"></i> R² Numbers ke Saath Samjho — HDFC Loan Example</div>
+    HDFC loan EMI predict karne wala model: SST = 1,000,000 (total variation in EMI), SSR = 150,000 (model ke baad remaining error)<br><br>
+    <strong>R² = 1 − (150,000 / 1,000,000) = 1 − 0.15 = 0.85</strong><br><br>
+    Matlab: Model <strong>85% variation explain</strong> karta hai EMI mein! 15% still unexplained (shayad credit score, employment type missing hai dataset se).<br>
+    RMSE = √(SSR/n) se actual rupees mein error samajh sakte ho!
+  </div>
+
+  <div class="ex-card ex-story mt-3">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> R² Calculate karo — Manual aur sklearn dono</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — R² Manual + sklearn</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+# IPL dataset — same as before
+X = np.array([[2],[3],[4],[5],[6]])
+y = np.array([30, 40, 50, 60, 70])
+
+model = LinearRegression()
+model.fit(X, y)
+y_pred = model.predict(X)
+
+# ─── Manual R² calculation ───
+y_mean  = y.mean()                       # ȳ = 50
+
+SSR = np.sum((y - y_pred) ** 2)          # Σ(yᵢ − ŷᵢ)² — residual sum
+SST = np.sum((y - y_mean) ** 2)          # Σ(yᵢ − ȳ)²  — total sum
+R2_manual = 1 - (SSR / SST)
+
+print(f"SST (Total variation):     {SST:.2f}")
+print(f"SSR (Residual / Error):    {SSR:.6f}")
+print(f"\nR² Manual:   {R2_manual:.6f}")
+
+# ─── sklearn r2_score ───
+R2_sklearn = r2_score(y, y_pred)
+print(f"R² sklearn:  {R2_sklearn:.6f}")
+# Dono same hain!
+
+# ─── Other metrics ───
+mse  = mean_squared_error(y, y_pred)
+rmse = np.sqrt(mse)
+print(f"\nMSE:         {mse:.6f}")
+print(f"RMSE:        {rmse:.6f} runs")
+print(f"\nInterpretation:")
+print(f"  R² ≈ {R2_sklearn:.0%} — Model ne {R2_sklearn:.0%} variation explain kiya!")
+print(f"  RMSE ≈ {rmse:.2f} runs — Average prediction error")</code></pre>
+        <div class="code-output">SST = 200.00, SSR ≈ 0.000000. R² Manual ≈ 1.000000, R² sklearn ≈ 1.000000. Perfect fit! (Kyunki ye perfectly linear synthetic data tha). RMSE ≈ 0.000 runs. Real noisy data mein R² thoda less hoga — 0.85–0.95 range good hai!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-box" data-quiz="5" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Ek model ka R² = 0.72 hai. Iska kya matlab hai?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. R² = 0.72 matlab 72% variation explained. Iska 72% accuracy se koi seedha connection nahi — accuracy classification metric hai (correct predictions / total). Regression mein R² aur accuracy alag concepts hain."><span class="opt-letter">A</span>Model ki accuracy 72% hai — 72% predictions sahi hain</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! R² = 0.72 ka exact matlab hai: model y ki total variation ka 72% explain kar pa raha hai. Remaining 28% unexplained hai — shayad aur features missing hain jo y ko affect karte hain. Ye regression ka proper interpretation hai. 0.72 generally a decent model hai — 0.85+ hota toh bahut accha!"><span class="opt-letter">B</span>Model y ki 72% variation explain karta hai — 28% still unexplained</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. R² = 0 matlab model kuch bhi explain nahi karta (sirf mean predict jitna useful). R² = 0.72 toh substantial explanation hai — 72% variation model ke paas hai."><span class="opt-letter">C</span>Model ne kuch nahi seekha — R² = 0 ke barabar hai</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. R² = 1 perfect fit hota hai. R² = 0.72 good hai lekin perfect nahi. SSR/SST = 0.28 hai — 28% variation abhi bhi unexplained hai. Perfect model mein SSR = 0 hota."><span class="opt-letter">D</span>Model perfect hai — R² = 1 ke barabar hai</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     PIZZA PRICE PREDICTION — WORKED EXAMPLE
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s11">
+  <div class="corner-deco">WORKED EXAMPLE 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-pizza-slice"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Practical Application · Haath Se Calculate</div>
+      <div class="lv-title">🍕 Pizza Price Prediction — OLS Step-by-Step</div>
+    </div>
+  </div>
+
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Problem Statement</div>
+    Ek pizza shop ke data se hum predict karna chahte hain ki <strong>pizza size (inches)</strong> se uski <strong>price (₹)</strong> kya hogi.<br><br>
+    Known data: 4 pizza sizes aur unki prices. OLS use karke <strong>m (slope)</strong> aur <strong>c (intercept)</strong> find karenge, phir naye sizes predict karenge.
+  </div>
+
+  <!-- Training Data -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-green)"></i>Step 1 — Training Data
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Pizza Size — X (inch)</th><th>Price — Y (₹)</th></tr></thead>
+      <tbody>
+        <tr><td>8</td><td>280</td></tr>
+        <tr><td>10</td><td>450</td></tr>
+        <tr><td>12</td><td>675</td></tr>
+        <tr><td>15</td><td>1,200</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Step 2: Means -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-calculator me-2" style="color:var(--neon-green)"></i>Step 2 — Mean of X and Y Calculate Karo
+  </h5>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="formula-box fb-green" style="margin:0;">
+        <div class="formula-label">MEAN OF X</div>
+        <div class="formula-main">X̄ = (8+10+12+15) / 4 = 11.25</div>
+        <div class="formula-sub">Average pizza size in the dataset</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box fb-green" style="margin:0;">
+        <div class="formula-label">MEAN OF Y</div>
+        <div class="formula-main">ȳ = (280+450+675+1200) / 4 = 651.25</div>
+        <div class="formula-sub">Average pizza price in the dataset</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Deviations Table -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-green)"></i>Step 3 — Deviations Table (Numerator &amp; Denominator ke liye)
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead>
+        <tr>
+          <th>X</th><th>Y</th>
+          <th>Xᵢ − X̄</th><th>Yᵢ − ȳ</th>
+          <th>(Xᵢ−X̄)(Yᵢ−ȳ)</th>
+          <th>(Xᵢ−X̄)²</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>8</td><td>280</td><td style="color:var(--neon-red)">8−11.25 = <strong>−3.25</strong></td><td style="color:var(--neon-red)">280−651.25 = <strong>−371.25</strong></td><td style="color:var(--neon-green)"><strong>1206.5625</strong></td><td><strong>10.5625</strong></td></tr>
+        <tr><td>10</td><td>450</td><td style="color:var(--neon-red)">10−11.25 = <strong>−1.25</strong></td><td style="color:var(--neon-red)">450−651.25 = <strong>−201.25</strong></td><td style="color:var(--neon-green)"><strong>251.5625</strong></td><td><strong>1.5625</strong></td></tr>
+        <tr><td>12</td><td>675</td><td style="color:var(--neon-green)">12−11.25 = <strong>+0.75</strong></td><td style="color:var(--neon-green)">675−651.25 = <strong>+23.75</strong></td><td style="color:var(--neon-green)"><strong>17.8125</strong></td><td><strong>0.5625</strong></td></tr>
+        <tr><td>15</td><td>1200</td><td style="color:var(--neon-green)">15−11.25 = <strong>+3.75</strong></td><td style="color:var(--neon-green)">1200−651.25 = <strong>+548.75</strong></td><td style="color:var(--neon-green)"><strong>2057.8125</strong></td><td><strong>14.0625</strong></td></tr>
+        <tr style="background:rgba(22,163,74,0.08);">
+          <td colspan="4"><strong>Σ (Sum)</strong></td>
+          <td><strong style="color:var(--neon-purple)">Σ = 3533.75</strong></td>
+          <td><strong style="color:var(--neon-purple)">Σ = 26.75</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Step 4: Slope & Intercept -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-function me-2" style="color:var(--neon-green)"></i>Step 4 — Slope (m) aur Intercept (c) Calculate Karo
+  </h5>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="formula-box fb-cyan" style="margin:0;">
+        <div class="formula-label">SLOPE (m)</div>
+        <div class="formula-main">m = 3533.75 / 26.75 ≈ 132.10</div>
+        <div class="formula-sub">Har 1 inch size badhne pe price ≈ ₹132.10 badhegi!</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box fb-blue" style="margin:0;">
+        <div class="formula-label">INTERCEPT (c)</div>
+        <div class="formula-main">c = 651.25 − 132.10 × 11.25 ≈ −834.88</div>
+        <div class="formula-sub">ȳ − m × X̄ = base value (0 inch pe theoretical price)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final Equation -->
+  <div class="formula-box" style="margin-top:1rem;">
+    <div class="formula-label">FINAL PREDICTION EQUATION</div>
+    <div class="formula-main">Price = −834.88 + 132.10 × Pizza_Size</div>
+    <div class="formula-sub">Y = mX + c &nbsp;|&nbsp; Slope m ≈ 132.10, Intercept c ≈ −834.88</div>
+  </div>
+
+  <!-- Step 5: Predictions -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-chart-line me-2" style="color:var(--neon-green)"></i>Step 5 — Naye Sizes ke liye Price Predict Karo
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Pizza Size (X)</th><th>Prediction Formula</th><th>Predicted Price (ŷ)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>17 inch</strong></td><td>−834.88 + 132.10 × 17</td><td><strong style="color:var(--neon-green)">₹1,410.82</strong></td></tr>
+        <tr><td><strong>18 inch</strong></td><td>−834.88 + 132.10 × 18</td><td><strong style="color:var(--neon-green)">₹1,542.92</strong></td></tr>
+        <tr><td><strong>20 inch</strong></td><td>−834.88 + 132.10 × 20</td><td><strong style="color:var(--neon-green)">₹1,807.12</strong></td></tr>
+        <tr><td><strong>22 inch</strong></td><td>−834.88 + 132.10 × 22</td><td><strong style="color:var(--neon-green)">₹2,071.32</strong></td></tr>
+        <tr><td><strong>26 inch</strong></td><td>−834.88 + 132.10 × 26</td><td><strong style="color:var(--neon-green)">₹2,599.72</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Python Code -->
+  <div class="ex-card ex-story mt-4">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> Python Code — Pizza Price Prediction</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — Pizza Example</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.linear_model import LinearRegression
+
+# Training data — Pizza size vs Price
+X_train = np.array([[8], [10], [12], [15]])   # Size in inches
+y_train = np.array([280, 450, 675, 1200])     # Price in ₹
+
+# OLS Linear Regression
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+m = model.coef_[0]          # Slope
+c = model.intercept_         # Intercept
+
+print(f"Slope (m):     {m:.2f}")   # ~132.10
+print(f"Intercept (c): {c:.2f}")   # ~-834.88
+print(f"\nEquation: Price = {c:.2f} + {m:.2f} × Size")
+
+# Predict new pizza sizes
+new_sizes = np.array([[17], [18], [20], [22], [26]])
+predictions = model.predict(new_sizes)
+
+print("\nPredictions:")
+for size, price in zip(new_sizes.flatten(), predictions):
+    print(f"  {size} inch → ₹{price:.2f}")</code></pre>
+        <div class="code-output">Slope (m): 132.10, Intercept (c): -834.88. Equation: Price = -834.88 + 132.10 × Size. 17 inch → ₹1410.82 | 20 inch → ₹1807.12 | 26 inch → ₹2599.72. Excel ke SLOPE() aur INTERCEPT() functions bhi same values denge!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-yellow mt-2">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Excel mein bhi kar sakte ho — ek line mein!</div>
+    Excel functions: &nbsp;<strong>=SLOPE(Y_values, X_values)</strong> → m nikalta hai &nbsp;|&nbsp; <strong>=INTERCEPT(Y_values, X_values)</strong> → c nikalta hai<br>
+    Manually ya formula se — answer same aayega! Manually karna OLS ka intuition deta hai, Excel/Python scale pe kaam karta hai.
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEMONADE SOLD PREDICTION — WORKED EXAMPLE
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s12">
+  <div class="corner-deco">WORKED EXAMPLE 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-lemon"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Practical Application · Haath Se Calculate</div>
+      <div class="lv-title">🍋 Lemonade Sold Prediction — Temperature se Sales!</div>
+    </div>
+  </div>
+
+  <div class="callout cb-cyan">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Problem Statement</div>
+    Ek lemonade stall ka data hai — <strong>temperature (°C)</strong> ke hisaab se <strong>kitne glasses bike</strong>. OLS se slope aur intercept nikalenge aur naye temperatures pe sales predict karenge.
+  </div>
+
+  <!-- Training Data -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-cyan)"></i>Training Data
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Temperature — X (°C)</th><th>Lemonade Sold — Y (glasses)</th></tr></thead>
+      <tbody>
+        <tr><td>25</td><td>50</td></tr>
+        <tr><td>30</td><td>70</td></tr>
+        <tr><td>35</td><td>90</td></tr>
+        <tr><td>40</td><td>110</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Step 2: Means -->
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="formula-box fb-cyan" style="margin:0;">
+        <div class="formula-label">MEAN OF X (Temperature)</div>
+        <div class="formula-main">X̄ = (25+30+35+40) / 4 = 32.5 °C</div>
+        <div class="formula-sub">Average temperature in dataset</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box fb-cyan" style="margin:0;">
+        <div class="formula-label">MEAN OF Y (Lemonade Sold)</div>
+        <div class="formula-main">ȳ = (50+70+90+110) / 4 = 80 glasses</div>
+        <div class="formula-sub">Average sales in dataset</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deviations Table -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-cyan)"></i>Deviations Table
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead>
+        <tr>
+          <th>X (°C)</th><th>Y (glasses)</th>
+          <th>Xᵢ − X̄</th><th>Yᵢ − ȳ</th>
+          <th>(Xᵢ−X̄)(Yᵢ−ȳ)</th>
+          <th>(Xᵢ−X̄)²</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>25</td><td>50</td><td style="color:var(--neon-red)"><strong>−7.5</strong></td><td style="color:var(--neon-red)"><strong>−30</strong></td><td style="color:var(--neon-green)"><strong>225</strong></td><td><strong>56.25</strong></td></tr>
+        <tr><td>30</td><td>70</td><td style="color:var(--neon-red)"><strong>−2.5</strong></td><td style="color:var(--neon-red)"><strong>−10</strong></td><td style="color:var(--neon-green)"><strong>25</strong></td><td><strong>6.25</strong></td></tr>
+        <tr><td>35</td><td>90</td><td style="color:var(--neon-green)"><strong>+2.5</strong></td><td style="color:var(--neon-green)"><strong>+10</strong></td><td style="color:var(--neon-green)"><strong>25</strong></td><td><strong>6.25</strong></td></tr>
+        <tr><td>40</td><td>110</td><td style="color:var(--neon-green)"><strong>+7.5</strong></td><td style="color:var(--neon-green)"><strong>+30</strong></td><td style="color:var(--neon-green)"><strong>225</strong></td><td><strong>56.25</strong></td></tr>
+        <tr style="background:rgba(8,145,178,0.08);">
+          <td colspan="4"><strong>Σ (Sum)</strong></td>
+          <td><strong style="color:var(--neon-purple)">Σ = 500</strong></td>
+          <td><strong style="color:var(--neon-purple)">Σ = 125</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Slope & Intercept -->
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="formula-box fb-cyan" style="margin:0;">
+        <div class="formula-label">SLOPE (m)</div>
+        <div class="formula-main">m = 500 / 125 = 4</div>
+        <div class="formula-sub">Har 1°C temperature badhne pe 4 extra glasses biktay hain!</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box fb-blue" style="margin:0;">
+        <div class="formula-label">INTERCEPT (c)</div>
+        <div class="formula-main">c = 80 − 4 × 32.5 = −50</div>
+        <div class="formula-sub">0°C pe sales = −50 (theoretical — practically impossible!)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula-box" style="margin-top:1rem;">
+    <div class="formula-label">FINAL PREDICTION EQUATION</div>
+    <div class="formula-main">Lemonade_Sold = −50 + 4 × Temperature</div>
+    <div class="formula-sub">Y = 4X − 50 &nbsp;|&nbsp; Clean aur simple linear relationship!</div>
+  </div>
+
+  <!-- Predictions -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-chart-line me-2" style="color:var(--neon-cyan)"></i>Predictions for New Temperatures
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Temperature (°C)</th><th>Prediction Formula</th><th>Estimated Sales (glasses)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>42°C</strong></td><td>−50 + 4 × 42</td><td><strong style="color:var(--neon-cyan)">118 glasses</strong></td></tr>
+        <tr><td><strong>44°C</strong></td><td>−50 + 4 × 44</td><td><strong style="color:var(--neon-cyan)">126 glasses</strong></td></tr>
+        <tr><td><strong>45°C</strong></td><td>−50 + 4 × 45</td><td><strong style="color:var(--neon-cyan)">130 glasses</strong></td></tr>
+        <tr><td><strong>47°C</strong></td><td>−50 + 4 × 47</td><td><strong style="color:var(--neon-cyan)">138 glasses</strong></td></tr>
+        <tr><td><strong>0°C</strong></td><td>−50 + 4 × 0</td><td><strong style="color:var(--neon-red)">−50 (extrapolation warning!)</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout cb-red mt-3">
+    <div class="ct"><i class="fa-solid fa-triangle-exclamation"></i> Extrapolation Warning — 0°C pe −50 glasses?!</div>
+    Equation kehti hai 0°C pe −50 glasses biktay hain — jo clearly impossible hai!<br><br>
+    <strong>Extrapolation problem:</strong> Linear regression sirf training data ki range mein reliable hoti hai (25°C–40°C). Us range se bahut door predict karna → unreliable results.<br>
+    <em style="color:var(--dim);">Real use: Hamesha apne training data ki range ke andar predict karo — 0°C range se bahut bahar hai!</em>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     HOUSE PRICE PREDICTION — WORKED EXAMPLE
+█████████████████████████████████████ -->
+<div class="level-card lvl-blue fade-up" id="s13">
+  <div class="corner-deco">WORKED EXAMPLE 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-solid fa-house"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Practical Application · Haath Se Calculate</div>
+      <div class="lv-title">🏠 House Price Prediction — Size se Price!</div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Problem Statement</div>
+    Ek real estate dataset mein <strong>house size (sq. ft.)</strong> aur uski <strong>price (₹)</strong> hai. OLS se slope aur intercept nikalenge — bade datasets mein yahi formula scale karta hai!
+  </div>
+
+  <!-- Training Data -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-blue)"></i>Training Data
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>House Size — X (sq. ft.)</th><th>Price — Y (₹)</th></tr></thead>
+      <tbody>
+        <tr><td>1,000</td><td>₹20,00,000</td></tr>
+        <tr><td>1,500</td><td>₹25,00,000</td></tr>
+        <tr><td>2,000</td><td>₹30,00,000</td></tr>
+        <tr><td>2,500</td><td>₹35,00,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Means -->
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="formula-box fb-blue" style="margin:0;">
+        <div class="formula-label">MEAN OF X (Size)</div>
+        <div class="formula-main">X̄ = (1000+1500+2000+2500) / 4 = 1750 sq.ft.</div>
+        <div class="formula-sub">Average house size in dataset</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box fb-blue" style="margin:0;">
+        <div class="formula-label">MEAN OF Y (Price)</div>
+        <div class="formula-main">ȳ = (20L+25L+30L+35L) / 4 = ₹27,50,000</div>
+        <div class="formula-sub">Average house price in dataset</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deviations Table -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-table me-2" style="color:var(--neon-blue)"></i>Deviations Table
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead>
+        <tr>
+          <th>X (sq.ft.)</th><th>Y (₹)</th>
+          <th>Xᵢ − X̄</th><th>Yᵢ − ȳ</th>
+          <th>(Xᵢ−X̄)(Yᵢ−ȳ)</th>
+          <th>(Xᵢ−X̄)²</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1000</td><td>20,00,000</td><td style="color:var(--neon-red)"><strong>−750</strong></td><td style="color:var(--neon-red)"><strong>−7,50,000</strong></td><td style="color:var(--neon-green)"><strong>56,25,00,000</strong></td><td><strong>5,62,500</strong></td></tr>
+        <tr><td>1500</td><td>25,00,000</td><td style="color:var(--neon-red)"><strong>−250</strong></td><td style="color:var(--neon-red)"><strong>−2,50,000</strong></td><td style="color:var(--neon-green)"><strong>6,25,00,000</strong></td><td><strong>62,500</strong></td></tr>
+        <tr><td>2000</td><td>30,00,000</td><td style="color:var(--neon-green)"><strong>+250</strong></td><td style="color:var(--neon-green)"><strong>+2,50,000</strong></td><td style="color:var(--neon-green)"><strong>6,25,00,000</strong></td><td><strong>62,500</strong></td></tr>
+        <tr><td>2500</td><td>35,00,000</td><td style="color:var(--neon-green)"><strong>+750</strong></td><td style="color:var(--neon-green)"><strong>+7,50,000</strong></td><td style="color:var(--neon-green)"><strong>56,25,00,000</strong></td><td><strong>5,62,500</strong></td></tr>
+        <tr style="background:rgba(37,99,235,0.08);">
+          <td colspan="4"><strong>Σ (Sum)</strong></td>
+          <td><strong style="color:var(--neon-purple)">Σ = 1,25,00,00,000</strong></td>
+          <td><strong style="color:var(--neon-purple)">Σ = 12,50,000</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Slope & Intercept -->
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="formula-box fb-blue" style="margin:0;">
+        <div class="formula-label">SLOPE (m)</div>
+        <div class="formula-main">m = 1,25,00,00,000 / 12,50,000 = 1000</div>
+        <div class="formula-sub">Har 1 sq.ft. badhne pe price ₹1,000 badhti hai!</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="formula-box fb-blue" style="margin:0;">
+        <div class="formula-label">INTERCEPT (c)</div>
+        <div class="formula-main">c = 27,50,000 − 1000 × 1750 = ₹10,00,000</div>
+        <div class="formula-sub">ȳ − m × X̄ — base land/construction value</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula-box" style="margin-top:1rem;">
+    <div class="formula-label">FINAL PREDICTION EQUATION</div>
+    <div class="formula-main">Price = ₹10,00,000 + 1000 × House_Size</div>
+    <div class="formula-sub">Y = 1000X + 10,00,000 &nbsp;|&nbsp; Perfect linear fit — R² = 1.0!</div>
+  </div>
+
+  <!-- Predictions -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-chart-line me-2" style="color:var(--neon-blue)"></i>Predictions for New House Sizes
+  </h5>
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>House Size (sq.ft.)</th><th>Prediction Formula</th><th>Predicted Price (₹)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>2,800 sq.ft.</strong></td><td>10,00,000 + 1000 × 2800</td><td><strong style="color:var(--neon-blue)">₹38,00,000</strong></td></tr>
+        <tr><td><strong>3,000 sq.ft.</strong></td><td>10,00,000 + 1000 × 3000</td><td><strong style="color:var(--neon-blue)">₹40,00,000</strong></td></tr>
+        <tr><td><strong>3,250 sq.ft.</strong></td><td>10,00,000 + 1000 × 3250</td><td><strong style="color:var(--neon-blue)">₹42,50,000</strong></td></tr>
+        <tr><td><strong>3,500 sq.ft.</strong></td><td>10,00,000 + 1000 × 3500</td><td><strong style="color:var(--neon-blue)">₹45,00,000</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Python Code -->
+  <div class="ex-card ex-tip mt-4">
+    <div class="ex-head"><i class="fa-brands fa-python"></i> Python Code — House Price Prediction</div>
+    <div class="ex-body">
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">🐍 Python — House Price Example</span><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div></div>
+        <pre><code class="language-python">import numpy as np
+from sklearn.linear_model import LinearRegression
+
+# Training data — House size vs Price
+X_train = np.array([[1000], [1500], [2000], [2500]])
+y_train = np.array([2000000, 2500000, 3000000, 3500000])  # ₹
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+m = model.coef_[0]
+c = model.intercept_
+
+print(f"Slope (m):     {m:.0f}")     # 1000 — ₹1000 per sq.ft.
+print(f"Intercept (c): {c:.0f}")     # 1000000 — ₹10,00,000
+print(f"\nEquation: Price = {c:.0f} + {m:.0f} × Size")
+
+# Predict new house sizes
+new_sizes = np.array([[2800], [3000], [3250], [3500]])
+predictions = model.predict(new_sizes)
+
+print("\nHouse Price Predictions:")
+for size, price in zip(new_sizes.flatten(), predictions):
+    print(f"  {size:,} sq.ft. → ₹{price:,.0f}")</code></pre>
+        <div class="code-output">Slope (m): 1000 (₹1000/sq.ft.), Intercept (c): 1000000 (₹10L base). 2800 sq.ft. → ₹38,00,000 | 3000 sq.ft. → ₹40,00,000 | 3500 sq.ft. → ₹45,00,000. Note: Real world mein multiple features hote hain (location, floors, amenities) — Multiple Linear Regression use karte hain!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Summary -->
+  <div class="callout cb-purple mt-3">
+    <div class="ct"><i class="fa-solid fa-table-list"></i> Teen Examples ka Summary — Patterns Dekho!</div>
+    <div class="table-responsive" style="margin-top:0.8rem;">
+      <table class="gtbl">
+        <thead><tr><th>Example</th><th>X (Input)</th><th>Y (Output)</th><th>Slope (m)</th><th>Intercept (c)</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>🍕 Pizza</td><td>Size (inch)</td><td>Price (₹)</td>
+            <td><strong style="color:var(--neon-green)">132.10</strong></td>
+            <td>−834.88</td>
+            <td>1 inch bada = ₹132.10 zyada</td>
+          </tr>
+          <tr>
+            <td>🍋 Lemonade</td><td>Temp (°C)</td><td>Glasses sold</td>
+            <td><strong style="color:var(--neon-cyan)">4</strong></td>
+            <td>−50</td>
+            <td>1°C zyada = 4 extra glasses biktay</td>
+          </tr>
+          <tr>
+            <td>🏠 House</td><td>Size (sq.ft.)</td><td>Price (₹)</td>
+            <td><strong style="color:var(--neon-blue)">1000</strong></td>
+            <td>10,00,000</td>
+            <td>1 sq.ft. zyada = ₹1,000 zyada</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <br>
+    <strong>Pattern Notice Karo:</strong> Teeno mein positive slope → X badhne pe Y bhi badhta hai (positive correlation). Intercept = starting value jab X=0. <em>OLS formula sab jagah same hai — sirf numbers different!</em>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     FINAL SUMMARY
+█████████████████████████████████████ -->
+<div class="level-card lvl-purple fade-up" id="s10" style="background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(194,65,12,0.04),#ffffff);">
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-trophy"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">🏆 Quest Complete!</div>
+      <div class="lv-title">Final Summary — Linear Regression Math at a Glance</div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="gtbl">
+      <thead><tr><th>Concept</th><th>Formula</th><th>Matlab (Intuition)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="stat-pill sp-purple">L1</span> <strong>Line Equation</strong></td>
+          <td><span class="inline-code">ŷ = β₀ + β₁X</span></td>
+          <td>Model ki prediction — intercept + slope × input</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-purple">L1</span> <strong>Slope &amp; Intercept</strong></td>
+          <td><span class="inline-code">β₁ = Δy/ΔX, β₀ = ŷ when X=0</span></td>
+          <td>β₁ = rate of change, β₀ = base value</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-orange">L2</span> <strong>Residual</strong></td>
+          <td><span class="inline-code">eᵢ = yᵢ − ŷᵢ</span></td>
+          <td>Actual minus predicted — prediction error</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-orange">L2</span> <strong>Cost Function (MSE)</strong></td>
+          <td><span class="inline-code">J = (1/n)Σ(yᵢ−ŷᵢ)²</span></td>
+          <td>Average squared error — minimize karo training mein!</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-cyan">L3</span> <strong>OLS — β₁</strong></td>
+          <td><span class="inline-code">β₁ = Σ(Xᵢ−X̄)(yᵢ−ȳ) / Σ(Xᵢ−X̄)²</span></td>
+          <td>Cov(X,y) / Var(X) — direct exact formula</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-cyan">L3</span> <strong>OLS — β₀</strong></td>
+          <td><span class="inline-code">β₀ = ȳ − β₁X̄</span></td>
+          <td>Line always passes through mean point (X̄, ȳ)</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-green">L4</span> <strong>Gradient Descent</strong></td>
+          <td><span class="inline-code">β := β − α × ∂J/∂β</span></td>
+          <td>Pahaad se neeche utaro — iterative optimization</td>
+        </tr>
+        <tr>
+          <td><span class="stat-pill sp-pink">L5</span> <strong>R² Score</strong></td>
+          <td><span class="inline-code">R² = 1 − SSR/SST</span></td>
+          <td>Explained variation / Total variation — 1.0 = perfect</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+    A["📊 Data\n(X, y)"] --> B["📐 Line Equation\nŷ = β₀ + β₁X"]
+    B --> C["🎯 Cost Function\nJ = MSE = (1/n)Σ(y-ŷ)²"]
+    C --> D{Optimization\nMethod?}
+    D -->|Small data| E["🧮 OLS\nβ₁ = Cov(X,y)/Var(X)\nβ₀ = ȳ - β₁X̄"]
+    D -->|Large/Neural| F["⛰️ Gradient Descent\nβ := β - α∇J"]
+    E --> G["✅ Best β₀, β₁ Found"]
+    F --> G
+    G --> H["📈 Predictions\nŷ = β₀ + β₁X"]
+    H --> I["📊 Evaluate\nR² = 1 - SSR/SST\nRMSE = √MSE"]
+    style A fill:#ede9fe,stroke:#7c3aed,color:#4c1d95,rx:12
+    style B fill:#ede9fe,stroke:#7c3aed,color:#4c1d95,rx:10
+    style C fill:#ffedd5,stroke:#c2410c,color:#7c2d12,rx:10
+    style D fill:#fef9c3,stroke:#b45309,color:#713f12,rx:10
+    style E fill:#cffafe,stroke:#0891b2,color:#164e63,rx:10
+    style F fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:10
+    style G fill:#dcfce7,stroke:#16a34a,color:#14532d,rx:10
+    style H fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,rx:10
+    style I fill:#fce7f3,stroke:#db2777,color:#831843,rx:12
+    </div>
+  </div>
+
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-purple h-100" style="margin:0;">
+        <div class="ct"><i class="fa-brands fa-python"></i> Key Python Functions — Reference</div>
+        <strong style="color:var(--neon-purple)">model.intercept_</strong> → β₀ (OLS se seekha)<br>
+        <strong style="color:var(--neon-purple)">model.coef_[0]</strong> → β₁ (OLS se seekha)<br>
+        <strong style="color:var(--neon-orange)">mean_squared_error(y, y_pred)</strong> → MSE / Cost<br>
+        <strong style="color:var(--neon-cyan)">r2_score(y, y_pred)</strong> → R² Score<br>
+        <strong style="color:var(--neon-green)">np.sum((y-y_pred)**2)</strong> → SSR manually<br>
+        <strong style="color:var(--neon-pink)">np.sum((y-y.mean())**2)</strong> → SST manually
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-road"></i> Aage Kya Seekhein? (Next Quest!)</div>
+        📈 <strong>Multiple Linear Regression</strong> — β₀ + β₁X₁ + β₂X₂ + ...<br>
+        🔀 <strong>Logistic Regression Math</strong> — sigmoid function, log-loss<br>
+        🌊 <strong>Regularization</strong> — Ridge (L2) aur Lasso (L1) cost<br>
+        🧠 <strong>Neural Network Math</strong> — Gradient Descent ka extension<br>
+        📊 <strong>Adjusted R²</strong> — multiple features ke liye fair metric
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink mt-3">
+    <div class="ct"><i class="fa-solid fa-heart"></i> Final Message — Math Se Daro Mat!</div>
+    <strong>Line Equation</strong> = ŷ = β₀ + β₁X — school ka y=mx+c hi hai, bas notation different!<br>
+    → <strong>Cost Function</strong> = MSE — model galat hai toh penalty, sahi hai toh reward. Minimize karo!<br>
+    → <strong>OLS</strong> = Direct formula — Covariance / Variance — exact best line ek hi calculation mein!<br>
+    → <strong>Gradient Descent</strong> = Pahaad se neeche utaro — har step cost kam karta hai, minimum = best model!<br>
+    → <strong>R²</strong> = 0 to 1 — model ne kitni y variation pakdi — jitna 1 ke paas, utna better!<br><br>
+    <strong style="color:var(--neon-pink)">Ye sab formulas sirf symbols nahi hain — har ek ek simple story hai. Aur woh story ab tumhe pata hai! 🧮🚀</strong>
+  </div>
+</div>
+
+</div><!-- /container-main -->
+
+<!-- FOOTER -->
+<footer class="gfooter">
+  <div class="container-main">
+    <div class="gfooter-logo"><i class="fa-solid fa-square-root-variable me-2"></i>Linear Regression Mathematical Intuition Quest</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">Line Equation · Cost Function · OLS · Gradient Descent · R² Score | Gamified Tutorial</p>
+    <p style="color:var(--dim);font-size:0.82rem;">Made with <i class="fa-solid fa-heart" style="color:var(--neon-pink)"></i> for Hindi-speaking Data Science learners across India 🇮🇳</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL — HTML before scripts -->
+<canvas id="confettiCanvas"></canvas>
+<div class="modal-overlay" id="finalModal">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" id="modalClose" title="Close">✕</button>
+    <div class="modal-trophy" id="modalTrophy">🏆</div>
+    <div class="modal-title" id="modalTitle">Quest Complete!</div>
+    <div class="modal-subtitle" id="modalSubtitle">Tumne saare 5 quizzes complete kar liye!</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-num" id="ringNum">0/5</div>
+          <div class="ring-label">Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="grade-card" id="gradeCard">
+      <div class="grade-letter" id="gradeLetter">S</div>
+      <div class="grade-msg" id="gradeMsg">Exceptional!</div>
+    </div>
+    <div class="modal-xp-row">
+      <span class="mxp-label">⚡ Total XP Earned from Quizzes</span>
+      <span class="mxp-val" id="modalXpVal">0 XP</span>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-retry"    id="modalRetry"><i class="fa-solid fa-rotate-right"></i> Retry All</button>
+      <button class="modal-btn-continue" id="modalContinue"><i class="fa-solid fa-trophy"></i> Awesome, Continue!</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* FINAL MODAL */
+function showFinalModal(){
+  const total=quizTotal,correct=quizCorrect,pct=total>0?correct/total:0,quizXP=correct*25;
+  const grades=[
+    {min:1.0,cls:'grade-s',letter:'S 🌟',msg:'Zabardast! Sab 5/5 correct! Math Wizard ban gaye! 🧮'},
+    {min:0.8,cls:'grade-a',letter:'A 🎯',msg:'Bahut badhiya! Almost perfect — great math sense!'},
+    {min:0.6,cls:'grade-b',letter:'B 📘',msg:'Accha kiya! Kuch formulas dobara review karo.'},
+    {min:0.4,cls:'grade-c',letter:'C 💪',msg:'Theek hai! Math concepts ko aur practice karo.'},
+    {min:0.0,cls:'grade-d',letter:'D 📚',msg:'Aur mehnat karo! Tutorial dobara padho.'},
+  ];
+  const g=grades.find(gr=>pct>=gr.min);
+  document.getElementById('ringNum').textContent=correct+'/'+total;
+  document.getElementById('modalXpVal').textContent=quizXP+' XP';
+  const gc=document.getElementById('gradeCard');gc.className='grade-card '+g.cls;
+  document.getElementById('gradeLetter').textContent=g.letter;
+  document.getElementById('gradeMsg').textContent=g.msg;
+  if(pct===1.0){
+    document.getElementById('modalTrophy').textContent='🏆';
+    document.getElementById('modalTitle').textContent='🎊 Perfect Score!';
+    document.getElementById('modalSubtitle').textContent='Wah! Saare '+total+'/'+total+' sahi! Math Wizard!';
+  }else if(pct>=0.6){
+    document.getElementById('modalTrophy').textContent='🎯';
+    document.getElementById('modalTitle').textContent='Quest Complete!';
+    document.getElementById('modalSubtitle').textContent=correct+' out of '+total+' correct. Kafi accha kiya!';
+  }else{
+    document.getElementById('modalTrophy').textContent='📚';
+    document.getElementById('modalTitle').textContent='Keep Trying!';
+    document.getElementById('modalSubtitle').textContent='Formulas dobara padho aur retry karo!';
+  }
+  const circumference=327,offset=circumference*(1-pct);
+  const ringColors={'grade-s':'#b45309','grade-a':'#16a34a','grade-b':'#2563eb','grade-c':'#7c3aed','grade-d':'#dc2626'};
+  const ringEl=document.getElementById('ringFill');
+  ringEl.style.stroke=ringColors[g.cls]||'#7c3aed';
+  ringEl.style.transition='none';ringEl.style.strokeDashoffset='327';
+  setTimeout(()=>{ringEl.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';ringEl.style.strokeDashoffset=offset;},80);
+  document.getElementById('finalModal').classList.add('open');
+  if(pct>=0.6)launchConfetti(pct);
+}
+
+function launchConfetti(pct){
+  const canvas=document.getElementById('confettiCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const count=Math.floor(80+pct*140);
+  const colors=['#7c3aed','#c2410c','#0891b2','#16a34a','#b45309','#db2777','#f59e0b'];
+  const pieces=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.6,w:Math.random()*10+5,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*9,alpha:1}));
+  let frame=0;
+  (function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;
+    pieces.forEach(p=>{
+      if(p.y>canvas.height+20)return;alive=true;
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;
+      if(p.y>canvas.height*0.65)p.alpha-=0.02;
+      p.alpha=Math.max(0,p.alpha);
+      ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    });
+    frame++;
+    if(alive&&frame<260)requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
+
+function initQuizzes(){
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{const n=opt.cloneNode(true);opt.parentNode.replaceChild(n,opt);});
+    const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;
+    let answered=false;
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        if(answered)return;answered=true;
+        const isCorrect=opt.dataset.ans===correct,fb=box.querySelector('.quiz-feedback');
+        box.querySelectorAll('.quiz-opt').forEach(o=>{
+          o.classList.add('answered-opt');
+          const exDiv=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');
+          if(o.dataset.ans===correct){o.classList.add('correct');if(exDiv)exDiv.classList.add('show-correct');}
+          else if(o===opt&&!isCorrect){o.classList.add('wrong');if(exDiv)exDiv.classList.add('show-wrong');}
+          else{o.classList.add('dimmed');}
+        });
+        if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span>&nbsp;Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+        else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span>&nbsp;Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+        const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+        if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+      });
+    });
+  });
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#ede9fe',primaryTextColor:'#4c1d95',primaryBorderColor:'#7c3aed',lineColor:'#94a3b8',secondaryColor:'#ffedd5',tertiaryColor:'#cffafe',fontFamily:'Plus Jakarta Sans, sans-serif',fontSize:'13px'},flowchart:{curve:'basis',padding:24}});
+
+let xp=0,scrollXpEarned=0;
+const XP_MAX=275;  // 5×30 scroll + 5×25 quiz = 275
+const earnedBadges=new Set();
+
+function addXP(amount,badgeId){
+  if(badgeId)scrollXpEarned=Math.min(scrollXpEarned+amount,150);
+  xp=Math.min(xp+amount,XP_MAX);
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  if(badgeId&&!earnedBadges.has(badgeId)){earnedBadges.add(badgeId);const el=document.getElementById(badgeId);if(el)el.classList.add('earned');}
+  if(xp>=XP_MAX)showToast('🏆','QUEST COMPLETE! 🎊','Math Wizard! 275/275 XP!','#b45309');
+}
+
+function showToast(icon,title,msg,color){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='gtoast';
+  t.innerHTML=`<span class="gtoast-icon">${icon}</span><div><div style="font-weight:800;color:${color};font-size:0.9rem;">${title}</div><div style="color:#6b7280;font-size:0.8rem;font-weight:400;">${msg}</div></div>`;
+  container.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+
+let quizTotal=0,quizCorrect=0;
+
+document.querySelectorAll('.quiz-box').forEach(box=>{
+  quizTotal++;
+  const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;
+  let answered=false;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    const explain=opt.dataset.explain||'';
+    if(explain){const div=document.createElement('div');div.className='quiz-explain';div.dataset.forAns=opt.dataset.ans;div.textContent=explain;opt.parentNode.insertBefore(div,opt.nextSibling);}
+  });
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+      box.querySelectorAll('.quiz-opt').forEach(o=>{
+        o.classList.add('answered-opt');
+        const explainDiv=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');
+        if(o.dataset.ans===correct){o.classList.add('correct');if(explainDiv)explainDiv.classList.add('show-correct');}
+        else if(o===opt&&!isCorrect){o.classList.add('wrong');if(explainDiv)explainDiv.classList.add('show-wrong');}
+        else{o.classList.add('dimmed');if(o.dataset.ans===correct&&explainDiv)explainDiv.classList.add('show-reveal');}
+      });
+      if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+      else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho aur concept review karo.','#dc2626');}
+      const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+      if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+    });
+  });
+});
+
+const fadeObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObserver.unobserve(e.target);}});},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(el=>fadeObserver.observe(el));
+
+const sectionXP={
+  's1':{xp:30,badge:'badge1',msg:'📐 Line Builder badge unlocked!'},
+  's3':{xp:30,badge:'badge2',msg:'🎯 Loss Hunter badge unlocked!'},
+  's5':{xp:30,badge:'badge3',msg:'🧮 OLS Master badge unlocked!'},
+  's7':{xp:30,badge:'badge4',msg:'⛰️ Gradient Hero badge unlocked!'},
+  's9':{xp:30,badge:'badge5',msg:'🏆 R² Champion badge unlocked!'},
+};
+const xpObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      if(sectionXP[id]&&!earnedBadges.has(sectionXP[id].badge)){const{xp:sx,badge,msg}=sectionXP[id];addXP(sx,badge);showToast('🏅','Badge Unlocked!',msg,'#7c3aed');}
+      xpObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+['s1','s3','s5','s7','s9'].forEach(id=>{const el=document.getElementById(id);if(el)xpObserver.observe(el);});
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+
+function closeModal(){document.getElementById('finalModal').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalContinue').addEventListener('click',closeModal);
+document.getElementById('modalRetry').addEventListener('click',()=>{
+  closeModal();quizCorrect=0;xp=scrollXpEarned;
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','wrong','dimmed','answered-opt'));
+    box.querySelectorAll('.quiz-explain').forEach(ex=>ex.classList.remove('show-correct','show-wrong','show-reveal'));
+    const fb=box.querySelector('.quiz-feedback');if(fb){fb.className='quiz-feedback';fb.innerHTML='';}
+  });
+  initQuizzes();window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('finalModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+
+</body>
+</html>

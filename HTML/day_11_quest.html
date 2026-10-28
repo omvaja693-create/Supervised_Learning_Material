@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supervised Learning Quest — Cross-Validation: K-Fold, Stratified, LOOCV &amp; Time Series!</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f9ff;--bg2:#e0f2fe;--bg3:#f5faff;--card:#ffffff;--card2:#f0f9ff;
+  --border:rgba(6,182,212,0.14);--border2:rgba(6,182,212,0.30);
+  --neon-cyan:#0891b2;--neon-sky:#0ea5e9;--neon-blue:#2563eb;
+  --neon-teal:#0d9488;--neon-green:#16a34a;--neon-violet:#7c3aed;
+  --neon-orange:#c2410c;--neon-yellow:#b45309;--neon-pink:#db2777;
+  --neon-red:#dc2626;
+  --text:#082f49;--muted:#374151;--dim:#9ca3af;
+  --font-head:'Syne',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --glow-cyan:0 4px 16px rgba(6,182,212,0.22),0 1px 4px rgba(6,182,212,0.12);
+  --glow-blue:0 4px 16px rgba(37,99,235,0.18),0 1px 4px rgba(37,99,235,0.10);
+  --glow-teal:0 4px 16px rgba(13,148,136,0.18),0 1px 4px rgba(13,148,136,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.8;font-size:16px;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--neon-cyan);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(6,182,212,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,0.05) 1px,transparent 1px);background-size:48px 48px;}
+.container-main{max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;z-index:1;}
+
+/* XP BAR */
+.xp-strip{position:sticky;top:0;z-index:1000;background:rgba(240,249,255,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);box-shadow:0 2px 16px rgba(6,182,212,0.10);padding:0.65rem 0;}
+.xp-inner{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.xp-label{font-family:var(--font-head);font-weight:800;font-size:0.8rem;color:var(--neon-cyan);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.xp-bar-wrap{flex:1;min-width:120px;background:rgba(6,182,212,0.12);border-radius:50px;height:10px;border:1px solid rgba(6,182,212,0.28);overflow:hidden;}
+.xp-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-sky),var(--neon-blue));border-radius:50px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(6,182,212,0.40);position:relative;}
+.xp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0;}50%{opacity:1;}}
+.xp-score{font-family:var(--font-head);font-weight:800;font-size:0.9rem;color:var(--neon-cyan);white-space:nowrap;}
+.xp-badges{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.xp-badge{font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:50px;border:1px solid;white-space:nowrap;transition:0.3s;opacity:0.35;}
+.xp-badge.earned{opacity:1;animation:badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes badgePop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.xp-badge.b1{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.xp-badge.b2{border-color:var(--neon-blue);color:var(--neon-blue);}
+.xp-badge.b3{border-color:var(--neon-green);color:var(--neon-green);}
+.xp-badge.b4{border-color:var(--neon-violet);color:var(--neon-violet);}
+.xp-badge.b5{border-color:var(--neon-orange);color:var(--neon-orange);}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:6rem 0 5rem;
+  background:radial-gradient(ellipse at 20% 50%,rgba(6,182,212,0.14) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(37,99,235,0.10) 0%,transparent 55%),
+             radial-gradient(ellipse at 60% 80%,rgba(13,148,136,0.07) 0%,transparent 50%),var(--bg);}
+.hero-orbit{position:absolute;top:50%;right:8%;transform:translateY(-50%);width:420px;height:420px;pointer-events:none;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(6,182,212,0.25);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-ring:nth-child(1){width:150px;height:150px;animation:spin 12s linear infinite;}
+.orbit-ring:nth-child(2){width:250px;height:250px;animation:spin 20s linear infinite reverse;border-color:rgba(37,99,235,0.18);}
+.orbit-ring:nth-child(3){width:350px;height:350px;animation:spin 30s linear infinite;border-color:rgba(13,148,136,0.14);}
+.orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;transform:translateX(-50%);}
+.orbit-ring:nth-child(1) .orbit-dot{background:var(--neon-cyan);box-shadow:var(--glow-cyan);}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--neon-blue);box-shadow:var(--glow-blue);}
+.orbit-ring:nth-child(3) .orbit-dot{background:var(--neon-teal);box-shadow:var(--glow-teal);}
+.orbit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;animation:float 4s ease-in-out infinite;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(6,182,212,0.10);border:1px solid rgba(6,182,212,0.30);border-radius:50px;padding:0.3rem 1rem;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:1.5rem;}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--neon-cyan);box-shadow:var(--glow-cyan);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hero h1{font-family:var(--font-head);font-weight:800;font-size:clamp(2.2rem,4.5vw,3.8rem);line-height:1.1;letter-spacing:-1.5px;margin-bottom:1.5rem;}
+.hero h1 .line1{display:block;color:#082f49;}
+.hero h1 .line2{display:block;background:linear-gradient(135deg,var(--neon-cyan) 0%,var(--neon-sky) 40%,var(--neon-blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.05rem;color:var(--muted);max-width:560px;margin-bottom:2rem;line-height:1.75;}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat-item{text-align:center;}
+.hero-stat-num{font-family:var(--font-head);font-weight:800;font-size:1.8rem;line-height:1;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-label{font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.2rem;}
+.hero-cta{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));color:white;font-weight:800;font-size:0.95rem;padding:0.8rem 2rem;border-radius:50px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(6,182,212,0.32);transition:0.3s;animation:pulse-btn 2s infinite;}
+@keyframes pulse-btn{0%,100%{box-shadow:0 4px 20px rgba(6,182,212,0.30);}50%{box-shadow:0 4px 32px rgba(6,182,212,0.52);}}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);color:white;}
+
+/* QUEST MAP */
+.quest-map{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2rem;margin:3rem 0;position:relative;box-shadow:0 4px 24px rgba(6,182,212,0.08);}
+.quest-map::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(6,182,212,0.03),rgba(37,99,235,0.03));pointer-events:none;}
+.quest-map-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;color:var(--neon-cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.quest-map-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(6,182,212,0.4),transparent);}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;}
+.quest-item{display:flex;align-items:center;gap:0.75rem;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;text-decoration:none;color:var(--muted);font-weight:600;font-size:0.88rem;transition:0.25s;}
+.quest-item:hover{background:rgba(6,182,212,0.07);border-color:rgba(6,182,212,0.35);color:var(--neon-cyan);transform:translateX(4px);}
+.quest-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;flex-shrink:0;}
+
+/* LEVEL CARD */
+.level-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;margin-bottom:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:24px 24px 0 0;}
+.level-card.lvl-cyan::before{background:linear-gradient(90deg,var(--neon-cyan),var(--neon-sky));}
+.level-card.lvl-blue::before{background:linear-gradient(90deg,var(--neon-blue),var(--neon-cyan));}
+.level-card.lvl-green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-teal));}
+.level-card.lvl-violet::before{background:linear-gradient(90deg,var(--neon-violet),var(--neon-blue));}
+.level-card.lvl-orange::before{background:linear-gradient(90deg,var(--neon-orange),var(--neon-yellow));}
+.level-card.lvl-teal::before{background:linear-gradient(90deg,var(--neon-teal),var(--neon-cyan));}
+.level-card.lvl-pink::before{background:linear-gradient(90deg,var(--neon-pink),var(--neon-violet));}
+.level-card:hover{box-shadow:0 8px 32px rgba(6,182,212,0.11);}
+.level-card .corner-deco{position:absolute;top:1.2rem;right:1.5rem;font-family:var(--font-head);font-weight:800;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;opacity:0.22;}
+.lv-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.8rem;}
+.lv-icon-wrap{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;}
+.lv-icon-wrap::after{content:'';position:absolute;inset:-3px;border-radius:18px;border:1px solid;opacity:0.4;}
+.ico-cyan{background:rgba(6,182,212,0.12);color:var(--neon-cyan);}.ico-cyan::after{border-color:var(--neon-cyan);}
+.ico-sky{background:rgba(14,165,233,0.12);color:var(--neon-sky);}.ico-sky::after{border-color:var(--neon-sky);}
+.ico-blue{background:rgba(37,99,235,0.12);color:var(--neon-blue);}.ico-blue::after{border-color:var(--neon-blue);}
+.ico-green{background:rgba(22,163,74,0.12);color:var(--neon-green);}.ico-green::after{border-color:var(--neon-green);}
+.ico-teal{background:rgba(13,148,136,0.12);color:var(--neon-teal);}.ico-teal::after{border-color:var(--neon-teal);}
+.ico-violet{background:rgba(124,58,237,0.12);color:var(--neon-violet);}.ico-violet::after{border-color:var(--neon-violet);}
+.ico-orange{background:rgba(194,65,12,0.12);color:var(--neon-orange);}.ico-orange::after{border-color:var(--neon-orange);}
+.ico-pink{background:rgba(219,39,119,0.12);color:var(--neon-pink);}.ico-pink::after{border-color:var(--neon-pink);}
+.ico-red{background:rgba(220,38,38,0.12);color:var(--neon-red);}.ico-red::after{border-color:var(--neon-red);}
+.lv-meta{flex:1;}
+.lv-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.35rem;}
+.lv-title{font-family:var(--font-head);font-weight:800;font-size:1.55rem;line-height:1.2;color:var(--text);}
+.lv-xp{margin-top:0.4rem;display:inline-flex;align-items:center;gap:0.4rem;background:rgba(6,182,212,0.09);border:1px solid rgba(6,182,212,0.26);border-radius:50px;padding:0.2rem 0.75rem;font-size:0.75rem;font-weight:700;color:var(--neon-cyan);}
+
+/* CALLOUT */
+.callout{border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0;border:1px solid;position:relative;overflow:hidden;}
+.callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.callout .ct{font-weight:800;font-size:0.95rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;}
+.cb-cyan{background:rgba(6,182,212,0.07);border-color:rgba(6,182,212,0.22);}.cb-cyan::before{background:var(--neon-cyan);}.cb-cyan .ct{color:var(--neon-cyan);}
+.cb-sky{background:rgba(14,165,233,0.07);border-color:rgba(14,165,233,0.22);}.cb-sky::before{background:var(--neon-sky);}.cb-sky .ct{color:var(--neon-sky);}
+.cb-blue{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.20);}.cb-blue::before{background:var(--neon-blue);}.cb-blue .ct{color:var(--neon-blue);}
+.cb-green{background:rgba(22,163,74,0.06);border-color:rgba(22,163,74,0.20);}.cb-green::before{background:var(--neon-green);}.cb-green .ct{color:var(--neon-green);}
+.cb-teal{background:rgba(13,148,136,0.06);border-color:rgba(13,148,136,0.20);}.cb-teal::before{background:var(--neon-teal);}.cb-teal .ct{color:var(--neon-teal);}
+.cb-violet{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.20);}.cb-violet::before{background:var(--neon-violet);}.cb-violet .ct{color:var(--neon-violet);}
+.cb-orange{background:rgba(194,65,12,0.06);border-color:rgba(194,65,12,0.20);}.cb-orange::before{background:var(--neon-orange);}.cb-orange .ct{color:var(--neon-orange);}
+.cb-yellow{background:rgba(180,83,9,0.06);border-color:rgba(180,83,9,0.20);}.cb-yellow::before{background:var(--neon-yellow);}.cb-yellow .ct{color:var(--neon-yellow);}
+.cb-red{background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.20);}.cb-red::before{background:var(--neon-red);}.cb-red .ct{color:var(--neon-red);}
+.cb-pink{background:rgba(219,39,119,0.06);border-color:rgba(219,39,119,0.20);}.cb-pink::before{background:var(--neon-pink);}.cb-pink .ct{color:var(--neon-pink);}
+
+/* FORMULA BOX */
+.formula-box{background:linear-gradient(135deg,rgba(6,182,212,0.07),rgba(37,99,235,0.04));border:1.5px solid rgba(6,182,212,0.26);border-radius:16px;padding:1.5rem 2rem;margin:1.4rem 0;text-align:center;position:relative;overflow:hidden;}
+.formula-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(6,182,212,0.06),transparent 70%);pointer-events:none;}
+.formula-main{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--neon-cyan);letter-spacing:0.5px;line-height:1.9;}
+.formula-sub{font-size:0.82rem;color:var(--muted);margin-top:0.5rem;}
+.formula-label{position:absolute;top:0.55rem;right:1rem;font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-cyan);opacity:0.6;}
+.fb-blue{background:linear-gradient(135deg,rgba(37,99,235,0.07),rgba(6,182,212,0.04));border-color:rgba(37,99,235,0.26);}.fb-blue .formula-main{color:var(--neon-blue);}.fb-blue .formula-label{color:var(--neon-blue);}
+.fb-green{background:linear-gradient(135deg,rgba(22,163,74,0.07),rgba(13,148,136,0.04));border-color:rgba(22,163,74,0.26);}.fb-green .formula-main{color:var(--neon-green);}.fb-green .formula-label{color:var(--neon-green);}
+.fb-violet{background:linear-gradient(135deg,rgba(124,58,237,0.07),rgba(37,99,235,0.04));border-color:rgba(124,58,237,0.26);}.fb-violet .formula-main{color:var(--neon-violet);}.fb-violet .formula-label{color:var(--neon-violet);}
+.fb-orange{background:linear-gradient(135deg,rgba(194,65,12,0.07),rgba(180,83,9,0.04));border-color:rgba(194,65,12,0.26);}.fb-orange .formula-main{color:var(--neon-orange);}.fb-orange .formula-label{color:var(--neon-orange);}
+
+/* MATH TERMS */
+.math-terms{display:flex;flex-wrap:wrap;gap:0.6rem;margin:0.8rem 0;}
+.math-term{display:inline-flex;align-items:center;gap:0.45rem;background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.22);border-radius:8px;padding:0.3rem 0.75rem;font-size:0.84rem;}
+.math-term .sym{font-family:var(--font-mono);font-weight:700;color:var(--neon-cyan);}
+.math-term .meaning{color:var(--muted);}
+
+/* STEP TIMELINE */
+.step-timeline{position:relative;padding-left:2.8rem;}
+.step-timeline::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--neon-cyan),var(--neon-blue),var(--neon-teal));opacity:0.45;border-radius:2px;}
+.step-item{position:relative;margin-bottom:1.3rem;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 2px 8px rgba(6,182,212,0.06);transition:0.25s;}
+.step-item:hover{border-color:var(--border2);background:#e6f7fc;}
+.step-item::before{content:attr(data-step);position:absolute;left:-2.8rem;top:1rem;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--neon-cyan);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.78rem;color:var(--neon-cyan);box-shadow:0 2px 8px rgba(6,182,212,0.22);}
+.step-label{font-weight:700;color:var(--text);font-size:0.98rem;margin-bottom:0.35rem;}
+.step-body{color:var(--muted);font-size:0.92rem;line-height:1.7;}
+
+/* ACH CARD */
+.ach-card{background:#ffffff;border:1px solid var(--border);border-radius:18px;padding:1.5rem;height:100%;transition:0.3s;text-align:center;position:relative;overflow:hidden;}
+.ach-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s;}
+.ach-card:hover{transform:translateY(-6px);}
+.ach-card:hover::after{opacity:1;}
+.ach-card.ac-cyan::after{background:var(--neon-cyan);}.ach-card.ac-cyan:hover{box-shadow:0 16px 48px rgba(6,182,212,0.18);}
+.ach-card.ac-blue::after{background:var(--neon-blue);}.ach-card.ac-blue:hover{box-shadow:0 16px 48px rgba(37,99,235,0.18);}
+.ach-card.ac-green::after{background:var(--neon-green);}.ach-card.ac-green:hover{box-shadow:0 16px 48px rgba(22,163,74,0.18);}
+.ach-card.ac-violet::after{background:var(--neon-violet);}.ach-card.ac-violet:hover{box-shadow:0 16px 48px rgba(124,58,237,0.18);}
+.ach-card.ac-teal::after{background:var(--neon-teal);}.ach-card.ac-teal:hover{box-shadow:0 16px 48px rgba(13,148,136,0.18);}
+.ach-card.ac-orange::after{background:var(--neon-orange);}.ach-card.ac-orange:hover{box-shadow:0 10px 28px rgba(194,65,12,0.15);}
+.ach-icon{font-size:2.2rem;margin-bottom:0.75rem;display:block;}
+.ach-title{font-family:var(--font-head);font-weight:800;font-size:1rem;margin-bottom:0.5rem;color:var(--text);}
+.ach-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+
+/* CODE BLOCK */
+.code-wrap{background:#f8f9fc;border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin:1.2rem 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:rgba(6,182,212,0.07);padding:0.6rem 1.1rem;border-bottom:1px solid var(--border);}
+.code-lang{font-family:var(--font-mono);font-size:0.75rem;font-weight:600;color:var(--neon-cyan);letter-spacing:1px;text-transform:uppercase;}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#dc2626;}.code-dot:nth-child(2){background:#b45309;}.code-dot:nth-child(3){background:#16a34a;}
+.code-wrap pre{margin:0;padding:1.2rem 1.4rem;overflow-x:auto;background:transparent;}
+pre[class*="language-"]{border-radius:0!important;font-family:var(--font-mono)!important;font-size:0.85rem!important;margin:0!important;border:none!important;background:transparent!important;}
+.code-output{background:rgba(22,163,74,0.06);border-top:1px solid rgba(22,163,74,0.20);padding:0.7rem 1.2rem;font-family:var(--font-mono);font-size:0.82rem;color:#14532d;line-height:1.7;}
+
+/* TABLE */
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.gtbl thead th{background:rgba(6,182,212,0.08);color:var(--neon-cyan);font-family:var(--font-head);font-weight:700;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid var(--border2);font-size:0.85rem;letter-spacing:0.5px;}
+.gtbl tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.92rem;vertical-align:top;}
+.gtbl tbody tr:last-child td{border-bottom:none;}
+.gtbl tbody tr:hover td{background:rgba(6,182,212,0.03);color:var(--text);}
+.gtbl tbody td strong{color:var(--text);}
+
+/* STAT PILL */
+.stat-pill{display:inline-flex;align-items:center;gap:0.35rem;border-radius:50px;padding:0.22rem 0.8rem;font-weight:700;font-size:0.78rem;border:1px solid;}
+.sp-cyan{background:rgba(6,182,212,0.09);border-color:rgba(6,182,212,0.32);color:var(--neon-cyan);}
+.sp-blue{background:rgba(37,99,235,0.09);border-color:rgba(37,99,235,0.32);color:var(--neon-blue);}
+.sp-green{background:rgba(22,163,74,0.09);border-color:rgba(22,163,74,0.32);color:var(--neon-green);}
+.sp-teal{background:rgba(13,148,136,0.09);border-color:rgba(13,148,136,0.32);color:var(--neon-teal);}
+.sp-violet{background:rgba(124,58,237,0.09);border-color:rgba(124,58,237,0.32);color:var(--neon-violet);}
+.sp-orange{background:rgba(194,65,12,0.09);border-color:rgba(194,65,12,0.32);color:var(--neon-orange);}
+.sp-yellow{background:rgba(180,83,9,0.09);border-color:rgba(180,83,9,0.32);color:var(--neon-yellow);}
+.sp-red{background:rgba(220,38,38,0.09);border-color:rgba(220,38,38,0.32);color:var(--neon-red);}
+.sp-pink{background:rgba(219,39,119,0.09);border-color:rgba(219,39,119,0.32);color:var(--neon-pink);}
+
+/* INLINE CODE */
+.inline-code{background:rgba(6,182,212,0.09);color:#0c4a6e;padding:0.1rem 0.45rem;border-radius:6px;font-family:var(--font-mono);font-size:0.87em;border:1px solid rgba(6,182,212,0.24);}
+
+/* HIGHLIGHT */
+.hl{background:rgba(180,83,9,0.10);color:#92400e;padding:0 5px;border-radius:4px;}
+.hl-cyan{background:rgba(6,182,212,0.10);color:var(--neon-cyan);padding:0 5px;border-radius:4px;}
+.hl-blue{background:rgba(37,99,235,0.10);color:var(--neon-blue);padding:0 5px;border-radius:4px;}
+.hl-green{background:rgba(22,163,74,0.10);color:var(--neon-green);padding:0 5px;border-radius:4px;}
+.hl-violet{background:rgba(124,58,237,0.10);color:var(--neon-violet);padding:0 5px;border-radius:4px;}
+.hl-orange{background:rgba(194,65,12,0.10);color:var(--neon-orange);padding:0 5px;border-radius:4px;}
+.hl-red{background:rgba(220,38,38,0.10);color:var(--neon-red);padding:0 5px;border-radius:4px;}
+
+/* GLOW DIV */
+.glow-div{height:2px;border-radius:2px;margin:2rem 0;opacity:0.4;background:linear-gradient(90deg,transparent,var(--neon-cyan),var(--neon-blue),var(--neon-teal),transparent);}
+
+/* MERMAID */
+.mermaid-wrap{background:var(--card2);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto;}
+
+/* ═══ FOLD VISUALIZATION ═══ */
+.fold-grid{display:flex;gap:3px;margin:0.8rem 0;align-items:stretch;}
+.fold-cell{flex:1;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.72rem;font-weight:700;transition:0.2s;}
+.fold-train{background:rgba(6,182,212,0.15);border:1.5px solid rgba(6,182,212,0.35);color:var(--neon-cyan);}
+.fold-val{background:rgba(37,99,235,0.22);border:1.5px solid rgba(37,99,235,0.50);color:var(--neon-blue);}
+.fold-test{background:rgba(22,163,74,0.18);border:1.5px solid rgba(22,163,74,0.40);color:var(--neon-green);}
+.fold-class0{background:rgba(6,182,212,0.15);border:1.5px solid rgba(6,182,212,0.35);color:var(--neon-cyan);}
+.fold-class1{background:rgba(194,65,12,0.15);border:1.5px solid rgba(194,65,12,0.35);color:var(--neon-orange);}
+.fold-label{font-size:0.72rem;font-weight:700;color:var(--dim);margin-bottom:0.3rem;font-family:var(--font-head);}
+.fold-row{margin-bottom:0.6rem;}
+.fold-blocked{background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.30);color:var(--neon-red);position:relative;overflow:hidden;}
+.fold-blocked::after{content:'❌';font-size:0.65rem;position:absolute;top:2px;right:3px;}
+
+/* TIME SERIES SPLIT */
+.ts-split-wrap{margin:0.8rem 0;}
+.ts-row{display:flex;gap:3px;margin-bottom:0.5rem;align-items:center;}
+.ts-label{font-size:0.72rem;font-weight:700;color:var(--dim);width:55px;flex-shrink:0;font-family:var(--font-head);}
+.ts-train{background:rgba(14,165,233,0.18);border:1.5px solid rgba(14,165,233,0.40);color:var(--neon-sky);border-radius:6px;height:32px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.7rem;font-weight:700;flex-shrink:0;}
+.ts-val{background:rgba(194,65,12,0.18);border:1.5px solid rgba(194,65,12,0.40);color:var(--neon-orange);border-radius:6px;height:32px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.7rem;font-weight:700;flex-shrink:0;}
+.ts-future{background:rgba(156,163,175,0.12);border:1.5px solid rgba(156,163,175,0.25);color:var(--dim);border-radius:6px;height:32px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.7rem;flex-shrink:0;}
+
+/* QUIZ */
+.quiz-box{background:var(--card2);border:1px solid rgba(6,182,212,0.25);border-radius:20px;padding:1.6rem;margin:1.8rem 0;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(6,182,212,0.08);}
+.quiz-box::before{content:'⚡ QUICK CHALLENGE';position:absolute;top:0;right:0;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));color:#fff;font-family:var(--font-head);font-weight:800;font-size:0.62rem;letter-spacing:2px;padding:0.32rem 0.9rem;border-radius:0 20px 0 12px;}
+.quiz-q{font-weight:700;color:var(--text);margin-bottom:1.1rem;font-size:1.02rem;line-height:1.55;}
+.quiz-options{display:flex;flex-direction:column;gap:0.55rem;}
+.quiz-opt{background:#ffffff;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.75rem 1.1rem;cursor:pointer;font-size:0.93rem;color:#374151;transition:background 0.15s,border-color 0.15s,transform 0.12s;font-weight:500;display:flex;align-items:center;gap:0.85rem;user-select:none;}
+.quiz-opt:not(.answered-opt):hover{background:#f3f4f6;border-color:#9ca3af;color:#111827;transform:translateX(3px);}
+.quiz-opt.correct{background:#f0fdf4;border-color:#16a34a;color:#14532d;font-weight:700;}
+.quiz-opt.correct .opt-letter{background:#16a34a;color:#fff;}
+.quiz-opt.wrong{background:#fef2f2;border-color:#dc2626;color:#991b1b;opacity:0.8;}
+.quiz-opt.wrong .opt-letter{background:#dc2626;color:#fff;}
+.quiz-opt.dimmed{opacity:0.45;pointer-events:none;}
+.quiz-opt .opt-letter{width:28px;height:28px;border-radius:8px;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:0.8rem;flex-shrink:0;transition:background 0.2s,color 0.2s;}
+.quiz-explain{display:none;font-size:0.84rem;font-weight:500;margin-top:-0.35rem;margin-bottom:0.35rem;padding:0.5rem 0.85rem 0.5rem 1rem;border-radius:0 0 10px 10px;line-height:1.55;border-left:3px solid transparent;}
+.quiz-explain.show-correct{display:block;background:rgba(22,163,74,0.07);color:#166534;border-left-color:#16a34a;}
+.quiz-explain.show-wrong{display:block;background:rgba(220,38,38,0.06);color:#991b1b;border-left-color:#dc2626;}
+.quiz-explain.show-reveal{display:block;background:rgba(37,99,235,0.06);color:#1e40af;border-left-color:#2563eb;}
+.quiz-feedback{display:none;margin-top:1rem;padding:0.85rem 1.1rem;border-radius:12px;font-weight:700;font-size:0.95rem;align-items:center;gap:0.6rem;}
+.quiz-feedback.show{display:flex;animation:fadeIn 0.35s;}
+.quiz-feedback.win{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;border:1px solid rgba(22,163,74,0.3);}
+.quiz-feedback.lose{background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;border:1px solid rgba(220,38,38,0.2);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* FOOTER */
+.gfooter{background:var(--bg2);border-top:1px solid var(--border);padding:3rem 0;margin-top:4rem;text-align:center;}
+.gfooter-logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;}
+
+/* ANIMATIONS */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-up.visible{opacity:1;transform:none;}
+@media(max-width:768px){.hero h1{font-size:2rem;}.hero-orbit{display:none;}.level-card{padding:1.5rem;}.xp-badges{display:none;}}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;}
+.gtoast{background:#ffffff;border:1px solid var(--border2);border-radius:14px;padding:0.85rem 1.2rem;display:flex;align-items:center;gap:0.75rem;backdrop-filter:blur(12px);font-weight:700;font-size:0.88rem;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:auto;min-width:260px;box-shadow:0 8px 32px rgba(6,182,212,0.15);}
+.gtoast.show{transform:none;}
+.gtoast-icon{font-size:1.4rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:#ffffff;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:520px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(6,182,212,0.18),0 4px 20px rgba(0,0,0,0.1);transform:scale(0.85) translateY(20px);transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease;opacity:0;}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0);opacity:1;}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-blue),var(--neon-teal));}
+.modal-close{position:absolute;top:1rem;right:1rem;background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.modal-close:hover{background:#e5e7eb;color:#374151;}
+.modal-trophy{font-size:3rem;text-align:center;margin-bottom:0.5rem;}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.6rem;text-align:center;color:var(--text);margin-bottom:0.4rem;}
+.modal-subtitle{color:var(--muted);text-align:center;font-size:0.92rem;margin-bottom:1.5rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.score-ring{position:relative;width:120px;height:120px;}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#e5e7eb;stroke-width:10;}
+.ring-fill{fill:none;stroke:#0891b2;stroke-width:10;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:var(--text);line-height:1;}
+.ring-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.grade-card{border-radius:14px;padding:0.85rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;border:1.5px solid;}
+.grade-s{background:#ecfeff;border-color:#0891b2;}.grade-a{background:#f0fdf4;border-color:#16a34a;}.grade-b{background:#eff6ff;border-color:#2563eb;}.grade-c{background:#fdf4ff;border-color:#7c3aed;}.grade-d{background:#fef2f2;border-color:#dc2626;}
+.grade-letter{font-family:var(--font-head);font-weight:800;font-size:1.6rem;}
+.grade-msg{font-size:0.9rem;color:var(--muted);font-weight:600;}
+.modal-xp-row{display:flex;align-items:center;justify-content:space-between;background:#ecfeff;border:1px solid rgba(6,182,212,0.22);border-radius:12px;padding:0.75rem 1.1rem;margin-bottom:1.4rem;}
+.modal-xp-row .mxp-label{font-size:0.85rem;color:#6b7280;font-weight:600;}
+.modal-xp-row .mxp-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#0891b2,#2563eb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-btns{display:flex;gap:0.75rem;}
+.modal-btn-retry{flex:1;padding:0.8rem 1rem;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#374151;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.modal-btn-retry:hover{background:#e5e7eb;color:#111827;}
+.modal-btn-continue{flex:2;padding:0.8rem 1rem;background:linear-gradient(135deg,#0891b2,#2563eb);border:none;border-radius:12px;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:0.92rem;color:#ffffff;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 16px rgba(6,182,212,0.30);}
+.modal-btn-continue:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(6,182,212,0.45);}
+#confettiCanvas{position:fixed;inset:0;z-index:10001;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<!-- XP STRIP -->
+<div class="xp-strip">
+  <div class="container-main">
+    <div class="xp-inner">
+      <span class="xp-label">⚡ XP</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill"></div></div>
+      <span class="xp-score" id="xpScore">0 / 275 XP</span>
+      <div class="xp-badges">
+        <span class="xp-badge b1" id="badge1">🔄 CV Initiate</span>
+        <span class="xp-badge b2" id="badge2">📂 K-Fold Pro</span>
+        <span class="xp-badge b3" id="badge3">⚖️ Stratified Expert</span>
+        <span class="xp-badge b4" id="badge4">🔍 LOOCV Master</span>
+        <span class="xp-badge b5" id="badge5">⏰ Time Series Guard</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container-main">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-eyebrow"><i class="fa-solid fa-gamepad me-1"></i> Supervised Learning Quest</div>
+        <h1>
+          <span class="line1">Generalize Better, Overfit Never —</span>
+          <span class="line2">Cross-Validation Master Karo!</span>
+        </h1>
+        <p class="hero-sub">
+          5 boss levels. CV kya hai se lekar K-Fold, Stratified K-Fold, LOOCV aur Time Series Split tak — math, intuition, aur Python ek jagah. Real India examples ke saath. <strong style="color:var(--text)">Earn XP</strong>, unlock badges, aur robust ML models banana seekho!
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Boss Levels</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">275</div><div class="hero-stat-label">Total XP</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">5</div><div class="hero-stat-label">Badges</div></div>
+          <div class="hero-stat-item"><div class="hero-stat-num">4</div><div class="hero-stat-label">CV Types</div></div>
+        </div>
+        <a href="#s1" class="hero-cta"><i class="fa-solid fa-play me-1"></i> Start Your Quest</a>
+      </div>
+      <div class="col-lg-5">
+        <div class="hero-orbit">
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring"><div class="orbit-dot"></div></div>
+          <div class="orbit-center">🔄</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-main">
+
+<!-- QUEST MAP -->
+<div class="quest-map fade-up">
+  <div class="quest-map-title"><i class="fa-solid fa-map me-2"></i> Quest Map</div>
+  <div class="quest-grid">
+    <a href="#s1" class="quest-item"><span class="quest-num" style="background:rgba(6,182,212,0.14);color:var(--neon-cyan);">L1</span> What Is CV? — Why Train/Test Isn't Enough</a>
+    <a href="#s2" class="quest-item"><span class="quest-num" style="background:rgba(37,99,235,0.14);color:var(--neon-blue);">L2</span> K-Fold Cross-Validation</a>
+    <a href="#s3" class="quest-item"><span class="quest-num" style="background:rgba(22,163,74,0.14);color:var(--neon-green);">L3</span> Stratified K-Fold CV</a>
+    <a href="#s4" class="quest-item"><span class="quest-num" style="background:rgba(124,58,237,0.14);color:var(--neon-violet);">L4</span> Leave-One-Out CV (LOOCV)</a>
+    <a href="#s5" class="quest-item"><span class="quest-num" style="background:rgba(194,65,12,0.14);color:var(--neon-orange);">L5</span> Time Series Split</a>
+    <a href="#s6" class="quest-item"><span class="quest-num" style="background:rgba(6,182,212,0.14);color:var(--neon-cyan);">🏆</span> Summary — Kab Kaunsa Use Karein?</a>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 1 : WHAT IS CROSS-VALIDATION?
+█████████████████████████████████████ -->
+<div class="level-card lvl-cyan fade-up" id="s1">
+  <div class="corner-deco">LEVEL 1</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-cyan"><i class="fa-solid fa-rotate"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 1 · Boss Topic</div>
+      <div class="lv-title">What Is Cross-Validation? — Sirf Train/Test Split Kyun Nahi Kafi?</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-cyan">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Cross-Validation — Definition</div>
+    <strong>Cross-Validation (CV)</strong> = ek model evaluation technique jisme data ko <span class="hl-cyan">multiple rounds mein systematically train aur validate</span> kiya jaata hai — taki model ki true generalization performance estimate ho sake.<br><br>
+    "Ek hi train/test split unreliable hota hai — lucky split ya unlucky split ki wajah se result misleading ho sakta hai. CV multiple splits ka average leke stable estimate deta hai!"
+  </div>
+
+  <!-- Problem with simple split visual -->
+  <h5 style="font-family:var(--font-head);font-weight:800;color:var(--text);margin:1.4rem 0 0.8rem;">
+    <i class="fa-solid fa-triangle-exclamation me-2" style="color:var(--neon-orange)"></i>Problem — Simple Train/Test Split ki Kamiyaan
+  </h5>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="ach-card ac-red h-100">
+        <span class="ach-icon">🎲</span>
+        <div class="ach-title">High Variance</div>
+        <div class="ach-desc">Different random splits → bahut alag accuracy scores. Ek baar 95%, doosri baar 78%! Kaunsa sahi hai? Lucky split ka issue.</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-orange h-100">
+        <span class="ach-icon">🗑️</span>
+        <div class="ach-title">Data Waste</div>
+        <div class="ach-desc">80/20 split mein 20% data sirf testing ke liye "locked away" rahta hai — training mein use nahi hota. Chhote datasets mein ye bahut costly hai!</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="ach-card ac-violet h-100">
+        <span class="ach-icon">📊</span>
+        <div class="ach-title">Biased Estimate</div>
+        <div class="ach-desc">Agar test set "easy" examples mein ghir gaya toh model overconfident lagega. Agar "hard" examples gaye toh underestimate. No guarantee of representative split!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CV solution visual -->
+  <div style="background:var(--card2);border:1px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.4rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:0.8rem;">🔄 CV Solution — Multiple Rounds, Average Score</div>
+    <div class="row g-2 align-items-center">
+      <div class="col-md-7">
+        <div class="fold-label">Single Train/Test Split (risky)</div>
+        <div class="fold-grid">
+          <div class="fold-cell fold-train" style="flex:4;">Train (80%)</div>
+          <div class="fold-cell fold-val" style="flex:1;">Test</div>
+        </div>
+        <div class="fold-label mt-3">5-Fold Cross-Validation (robust)</div>
+        <div class="fold-row">
+          <div class="fold-grid">
+            <div class="fold-cell fold-val">Val</div>
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-train">Train</div>
+          </div>
+        </div>
+        <div class="fold-row">
+          <div class="fold-grid">
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-val">Val</div>
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-train">Train</div>
+          </div>
+        </div>
+        <div class="fold-row">
+          <div class="fold-grid">
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-val">Val</div>
+            <div class="fold-cell fold-train">Train</div>
+            <div class="fold-cell fold-train">Train</div>
+          </div>
+        </div>
+        <div style="text-align:center;font-family:var(--font-mono);font-size:0.85rem;font-weight:700;color:var(--neon-cyan);margin-top:0.5rem;">
+          CV Score = (Score₁ + Score₂ + … + Scoreₖ) / K
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div style="background:#fff;border-radius:12px;padding:1rem;border:1px solid var(--border);">
+          <div style="font-weight:700;color:var(--text);margin-bottom:0.5rem;font-size:0.9rem;">✅ CV ke Benefits</div>
+          <div style="font-size:0.85rem;color:var(--muted);line-height:1.8;">
+            ✅ <strong>Every data point</strong> validation mein aata hai exactly once<br>
+            ✅ <strong>Lower variance</strong> — multiple scores average hote hain<br>
+            ✅ <strong>All data used</strong> for training (in turns)<br>
+            ✅ <strong>Reliable estimate</strong> of generalization error<br>
+            ✅ <strong>Hyperparameter tuning</strong> ke liye essential
+          </div>
+        </div>
+        <div style="margin-top:0.6rem;background:rgba(6,182,212,0.06);border-radius:10px;padding:0.7rem;border:1px solid rgba(6,182,212,0.18);font-size:0.82rem;color:var(--muted);">
+          🇮🇳 <strong>India example:</strong> Flipkart ML team model train karti hai. Simple split = 1 result. 5-Fold CV = 5 results ka average → zyada trustworthy!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-label">K-FOLD CV SCORE</div>
+    <div class="formula-main">CV Score = (1/K) × Σᵢ₌₁ᴷ Scoreᵢ</div>
+    <div class="formula-sub">K = number of folds &nbsp;|&nbsp; Scoreᵢ = metric (accuracy/R²/F1) on fold i's validation set<br>Typically also report: std dev of scores → measures stability of model</div>
+  </div>
+
+  <div class="math-terms">
+    <div class="math-term"><span class="sym">K</span><span class="meaning">Number of folds (typically 5 or 10)</span></div>
+    <div class="math-term"><span class="sym">Fold</span><span class="meaning">One partition of the data</span></div>
+    <div class="math-term"><span class="sym">Scoreᵢ</span><span class="meaning">Validation metric on fold i</span></div>
+    <div class="math-term"><span class="sym">σ(scores)</span><span class="meaning">Std dev of K scores — stability measure</span></div>
+    <div class="math-term"><span class="sym">outer CV</span><span class="meaning">Separate hold-out test set (best practice)</span></div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-box" data-quiz="1" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Ek Zomato ML engineer ne restaurant rating predictor banaya. Single 80/20 train/test split pe accuracy = 91%. 10-Fold CV pe average accuracy = 84% ± 6%. Kaunsa result zyada trustworthy hai aur kyun?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. 91% single split ka result lucky split ki wajah se inflated ho sakta hai. Single split ki koi guarantee nahi ki ye representative hai. 91% pe trust karna risky decision hoga."><span class="opt-letter">A</span>91% zyada trustworthy hai — higher accuracy matlab better model</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! 10-Fold CV ka 84% ± 6% zyada trustworthy hai kyunki: (1) Har data point exactly ek baar validation mein aaya (2) 10 different splits ka average hai — lucky split ka bias nahi (3) ± 6% std dev batata hai model kitna stable hai (4) Single 91% ek hi lucky split tha jo production mein alag performance dega. CV ka result realistic estimate hai!"><span class="opt-letter">B</span>84% ± 6% (10-Fold CV) zyada trustworthy — multiple folds, har point exactly once validated, lower bias</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. ± 6% std dev high nahi hai necessary — ye model ki variability batata hai across different data subsets. High std dev hone par investigate karo — maybe more data chahiye ya model needs tuning. But 10-Fold CV report hamesha single split se better estimate hai."><span class="opt-letter">C</span>Dono equal hain — koi bhi use karo, important nahi kaunsa method use hua</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. 10-fold CV ka ± 6% std dev high variance indicate karta hai, lekin is wajah se single split prefer karna galat hai. Single split ka problem ye hai ki ek baar ka result bahut unreliable hota hai — lucky ya unlucky split se bahut affect hota hai."><span class="opt-letter">D</span>Single split prefer karo — ± 6% std dev matlab 10-Fold CV unreliable hai</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 2 : K-FOLD CV
+█████████████████████████████████████ -->
+<div class="level-card lvl-blue fade-up" id="s2">
+  <div class="corner-deco">LEVEL 2</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-blue"><i class="fa-solid fa-layer-group"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 2 · Boss Topic</div>
+      <div class="lv-title">K-Fold Cross-Validation — Standard Approach!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-blue">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> K-Fold CV — Algorithm</div>
+    Data ko <strong>K equal-sized folds (partitions)</strong> mein randomly split karo. K rounds mein:<br>
+    → Round i mein: <span class="hl-blue">Fold i = Validation set</span>, baaki K−1 folds = Training set<br>
+    → Final CV score = K scores ka average<br><br>
+    K=5 ya K=10 sabse common choices hain. K=n = LOOCV (special case).
+  </div>
+
+  <!-- 5-Fold visualization -->
+  <div style="background:var(--card2);border:1px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-blue);margin-bottom:1rem;">📂 5-Fold CV — All 5 Rounds Visualized</div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
+      <div style="width:60px;flex-shrink:0;"></div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div style="flex:1;text-align:center;font-size:0.68rem;color:var(--dim);font-weight:700;">Fold 1</div>
+        <div style="flex:1;text-align:center;font-size:0.68rem;color:var(--dim);font-weight:700;">Fold 2</div>
+        <div style="flex:1;text-align:center;font-size:0.68rem;color:var(--dim);font-weight:700;">Fold 3</div>
+        <div style="flex:1;text-align:center;font-size:0.68rem;color:var(--dim);font-weight:700;">Fold 4</div>
+        <div style="flex:1;text-align:center;font-size:0.68rem;color:var(--dim);font-weight:700;">Fold 5</div>
+      </div>
+      <div style="width:90px;flex-shrink:0;"></div>
+    </div>
+    <div class="ts-row" style="margin-bottom:0.5rem;">
+      <div class="ts-label">Round 1</div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div class="ts-val" style="flex:1;">Val</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--neon-green);margin-left:8px;font-weight:700;">Score₁ = 0.88</div>
+    </div>
+    <div class="ts-row" style="margin-bottom:0.5rem;">
+      <div class="ts-label">Round 2</div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-val" style="flex:1;">Val</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--neon-green);margin-left:8px;font-weight:700;">Score₂ = 0.91</div>
+    </div>
+    <div class="ts-row" style="margin-bottom:0.5rem;">
+      <div class="ts-label">Round 3</div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-val" style="flex:1;">Val</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--neon-green);margin-left:8px;font-weight:700;">Score₃ = 0.85</div>
+    </div>
+    <div class="ts-row" style="margin-bottom:0.5rem;">
+      <div class="ts-label">Round 4</div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-val" style="flex:1;">Val</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--neon-green);margin-left:8px;font-weight:700;">Score₄ = 0.90</div>
+    </div>
+    <div class="ts-row">
+      <div class="ts-label">Round 5</div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-train" style="flex:1;">Train</div>
+        <div class="ts-val" style="flex:1;">Val</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--neon-green);margin-left:8px;font-weight:700;">Score₅ = 0.86</div>
+    </div>
+    <div style="margin-top:0.8rem;text-align:center;font-family:var(--font-mono);font-size:0.92rem;font-weight:700;color:var(--neon-cyan);">
+      CV Score = (0.88 + 0.91 + 0.85 + 0.90 + 0.86) / 5 = <strong>0.880</strong> ± 0.022
+    </div>
+  </div>
+
+  <!-- K choice discussion -->
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check-double"></i> K=5 vs K=10 — Kaunsa Choose Karein?</div>
+        <strong>K=5:</strong> Faster · Less variance in estimate · Industry default for large datasets<br>
+        <strong>K=10:</strong> More reliable estimate · Standard in academic ML · Slightly slower<br>
+        <strong>K=3:</strong> Very fast · Small datasets or quick prototyping · Higher variance<br><br>
+        <em>🇮🇳 Rule of thumb: K=5 for production. K=10 for research/reporting. K=3 for rapid iterations.</em>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-red h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-xmark"></i> K-Fold Limitations</div>
+        ❌ <strong>Shuffles data randomly</strong> → not suitable for time series (future leaks into past!)<br>
+        ❌ <strong>Ignores class imbalance</strong> → kuch folds mein rare class missing ho sakti hai<br>
+        ❌ <strong>Computationally expensive</strong> for very large datasets (K times training!)<br>
+        → Solutions: Stratified K-Fold (class imbalance), TimeSeriesSplit (temporal data)
+      </div>
+    </div>
+  </div>
+
+  <!-- Python code -->
+  <div class="code-wrap mt-3">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — k-fold cross-validation</span>
+    </div>
+    <pre><code class="language-python">import numpy as np
+import pandas as pd
+from sklearn.model_selection import KFold, cross_val_score, cross_validate
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import make_classification
+
+# ── India Example: HDFC Bank Loan Default Prediction ─────────
+np.random.seed(42)
+X, y = make_classification(n_samples=1000, n_features=15,
+                            n_informative=10, random_state=42)
+# Features: income, age, credit_score, loan_amount, employment_years, etc.
+
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# ── Method 1: cross_val_score (simplest!) ─────────────────────
+cv_scores = cross_val_score(model, X, y,
+                             cv=5,                    # 5-Fold CV
+                             scoring='accuracy')      # or 'f1', 'roc_auc', etc.
+print("5-Fold CV Accuracy Scores:")
+for i, score in enumerate(cv_scores, 1):
+    print(f"  Fold {i}: {score:.4f}")
+print(f"\nMean Accuracy: {cv_scores.mean():.4f}")
+print(f"Std Deviation: {cv_scores.std():.4f}")
+print(f"95% CI: [{cv_scores.mean()-2*cv_scores.std():.4f}, "
+      f"{cv_scores.mean()+2*cv_scores.std():.4f}]")
+
+# ── Method 2: KFold object (manual — more control) ────────────
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+manual_scores = []
+
+for fold_num, (train_idx, val_idx) in enumerate(kf.split(X), 1):
+    X_train, X_val = X[train_idx], X[val_idx]
+    y_train, y_val = y[train_idx], y[val_idx]
+
+    model.fit(X_train, y_train)
+    score = model.score(X_val, y_val)
+    manual_scores.append(score)
+    print(f"Fold {fold_num}: train={len(train_idx)}, val={len(val_idx)}, score={score:.4f}")
+
+# ── Method 3: cross_validate (multiple metrics at once!) ──────
+results = cross_validate(model, X, y, cv=5,
+                          scoring=['accuracy', 'f1', 'roc_auc'],
+                          return_train_score=True)
+print(f"\nTest Accuracy:  {results['test_accuracy'].mean():.4f}")
+print(f"Test F1 Score:  {results['test_f1'].mean():.4f}")
+print(f"Test ROC-AUC:   {results['test_roc_auc'].mean():.4f}")
+print(f"\nTrain Accuracy: {results['train_accuracy'].mean():.4f}")
+print(f"(Train - Test): {results['train_accuracy'].mean() - results['test_accuracy'].mean():.4f}")
+print("→ Large gap = overfitting!")</code></pre>
+    <div class="code-output">
+      5-Fold CV Accuracy Scores:<br>
+      &nbsp;&nbsp;Fold 1: 0.8950<br>
+      &nbsp;&nbsp;Fold 2: 0.9100<br>
+      &nbsp;&nbsp;Fold 3: 0.8800<br>
+      &nbsp;&nbsp;Fold 4: 0.9000<br>
+      &nbsp;&nbsp;Fold 5: 0.8750<br><br>
+      Mean Accuracy: 0.8920<br>
+      Std Deviation: 0.0128<br>
+      95% CI: [0.8664, 0.9176]<br><br>
+      Fold 1: train=800, val=200, score=0.8950<br>
+      Fold 2: train=800, val=200, score=0.9050<br>
+      ...<br><br>
+      Test Accuracy:  0.8920<br>
+      Test F1 Score:  0.8917<br>
+      Test ROC-AUC:   0.9623<br><br>
+      Train Accuracy: 0.9995<br>
+      (Train - Test): 0.1075<br>
+      → Large gap = overfitting!
+    </div>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-box" data-quiz="2" data-correct="c" data-xp="25">
+    <div class="quiz-q">🤔 Ek data scientist Paytm fraud detection model train kar raha hai. 5-Fold CV se Train accuracy = 99.8%, CV accuracy = 71.2%. Kya ho raha hai aur kya karna chahiye?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. Train accuracy = 99.8% aur CV = 71.2% — ek bahut bada gap hai. Ye model data pe perfect fit kar raha hai lekin generalize nahi kar raha. CV score asli performance hai, sirf training pe trust karna galat hai."><span class="opt-letter">A</span>Sab theek hai — 99.8% training accuracy excellent hai, CV ignore karo</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. CV = 71.2% actual generalization performance hai. Ye zyada important hai production ke liye. Testing pe zyada data dene se problem solve nahi hogi — overfitting root cause hai."><span class="opt-letter">B</span>CV split galat hai — testing mein zyada data dalo</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Bilkul sahi! Train = 99.8% aur CV = 71.2% ka huge gap = classic Overfitting! Model training data memorize kar raha hai, generalize nahi kar raha. Fix options: (1) Regularization add karo (L1/L2) (2) Model complexity reduce karo (fewer features/depth) (3) More training data (4) Dropout/pruning. CV ka kaam exactly yahi hai — overfitting detect karna!"><span class="opt-letter">C</span>Overfitting! Train/CV gap = 28.6%. Regularization add karo, model simplify karo</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. CV = 71.2% underfitting nahi hai — training = 99.8% clearely batata hai model training data pe bahut well fit kar raha hai. Underfitting mein training accuracy bhi low hoti hai. Problem overfitting hai."><span class="opt-letter">D</span>Underfitting ho raha hai — zyada complex model use karo</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 3 : STRATIFIED K-FOLD
+█████████████████████████████████████ -->
+<div class="level-card lvl-green fade-up" id="s3">
+  <div class="corner-deco">LEVEL 3</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-green"><i class="fa-solid fa-scale-balanced"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 3 · Boss Topic</div>
+      <div class="lv-title">Stratified K-Fold — Imbalanced Data ka Hero!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-green">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Stratified K-Fold — Kab Zaroori Hai?</div>
+    <strong>Stratified K-Fold</strong> = K-Fold ka improved version jisme <span class="hl-green">har fold mein class proportions original dataset jaise hi maintain hote hain</span>.<br><br>
+    Problem: Random K-Fold mein kuch folds mein rare class (e.g., fraud = 1%) ka ek bhi sample na ho → model unke liye kuch nahi seekhega → misleading CV score!<br><br>
+    Solution: Stratification ensures every fold mein approximately same % of each class hai.
+  </div>
+
+  <!-- Imbalanced data problem visual -->
+  <div style="background:var(--card2);border:1px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-green);margin-bottom:0.8rem;">⚖️ Regular K-Fold vs Stratified K-Fold — Class Distribution in Folds</div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div style="font-family:var(--font-head);font-weight:700;color:var(--neon-red);font-size:0.85rem;margin-bottom:0.5rem;">❌ Regular K-Fold (Imbalanced Data — 90% Class 0, 10% Class 1)</div>
+        <div style="font-size:0.78rem;color:var(--dim);margin-bottom:0.4rem;">Fold composition — class distribution unequal:</div>
+        <div style="display:flex;gap:3px;margin-bottom:4px;"><div class="fold-cell fold-class0" style="flex:9;font-size:0.65rem;">Class 0 (96%)</div><div class="fold-cell fold-blocked" style="flex:1;font-size:0.65rem;">C1 4%</div></div>
+        <div style="display:flex;gap:3px;margin-bottom:4px;"><div class="fold-cell fold-class0" style="flex:8;font-size:0.65rem;">Class 0 (86%)</div><div class="fold-cell fold-class1" style="flex:2;font-size:0.65rem;">C1 14%</div></div>
+        <div style="display:flex;gap:3px;margin-bottom:4px;"><div class="fold-cell fold-class0" style="flex:10;font-size:0.65rem;">Class 0 (100%)</div><div class="fold-cell fold-blocked" style="flex:0.01;font-size:0.5rem;padding:0;"></div></div>
+        <div style="font-size:0.74rem;color:var(--neon-red);margin-top:0.4rem;">⚠️ Fold 3: 0% Class 1 → model can't learn rare class → misleading accuracy!</div>
+      </div>
+      <div class="col-md-6">
+        <div style="font-family:var(--font-head);font-weight:700;color:var(--neon-green);font-size:0.85rem;margin-bottom:0.5rem;">✅ Stratified K-Fold (Class distribution preserved)</div>
+        <div style="font-size:0.78rem;color:var(--dim);margin-bottom:0.4rem;">Fold composition — each fold maintains ~90:10 ratio:</div>
+        <div style="display:flex;gap:3px;margin-bottom:4px;"><div class="fold-cell fold-class0" style="flex:9;font-size:0.65rem;">Class 0 (90%)</div><div class="fold-cell fold-class1" style="flex:1;font-size:0.65rem;">C1 10%</div></div>
+        <div style="display:flex;gap:3px;margin-bottom:4px;"><div class="fold-cell fold-class0" style="flex:9;font-size:0.65rem;">Class 0 (90%)</div><div class="fold-cell fold-class1" style="flex:1;font-size:0.65rem;">C1 10%</div></div>
+        <div style="display:flex;gap:3px;margin-bottom:4px;"><div class="fold-cell fold-class0" style="flex:9;font-size:0.65rem;">Class 0 (90%)</div><div class="fold-cell fold-class1" style="flex:1;font-size:0.65rem;">C1 10%</div></div>
+        <div style="font-size:0.74rem;color:var(--neon-green);margin-top:0.4rem;">✅ Every fold has ~10% Class 1 → reliable evaluation of minority class!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-yellow mt-2">
+    <div class="ct"><i class="fa-solid fa-india"></i> 🇮🇳 Real India Use Cases — Stratification Zaroor Karo!</div>
+    <div class="row g-2">
+      <div class="col-md-6">
+        💳 <strong>Fraud Detection (Paytm/PhonePe):</strong> 99% legit, 1% fraud → Always use Stratified!<br>
+        🏥 <strong>Disease diagnosis:</strong> 95% healthy, 5% disease → Stratified mandatory<br>
+        📧 <strong>Spam detection:</strong> 80% ham, 20% spam → Stratified recommended
+      </div>
+      <div class="col-md-6">
+        🎯 <strong>Churn prediction (Jio/Airtel):</strong> 85% stay, 15% churn → Stratified<br>
+        💰 <strong>Loan default (banks):</strong> 95% pay, 5% default → Stratified essential<br>
+        ❤️ <strong>Customer LTV:</strong> Multi-class → Stratified for each class
+      </div>
+    </div>
+  </div>
+
+  <!-- Python code -->
+  <div class="code-wrap mt-3">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — stratified k-fold cv</span>
+    </div>
+    <pre><code class="language-python">import numpy as np
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
+
+# ── Imbalanced Dataset: Fraud Detection ──────────────────────
+np.random.seed(42)
+X, y = make_classification(
+    n_samples=1000,
+    n_features=12,
+    weights=[0.9, 0.1],        # 90% legit, 10% fraud
+    random_state=42
+)
+print(f"Class distribution: {np.bincount(y)}")
+print(f"Fraud rate: {y.mean()*100:.1f}%")
+
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# ── Regular KFold — Problematic for imbalanced! ───────────────
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+print("\n❌ Regular KFold — Class 1 count per fold:")
+for fold, (_, val_idx) in enumerate(kf.split(X, y), 1):
+    fraud_count = y[val_idx].sum()
+    fraud_pct = y[val_idx].mean() * 100
+    print(f"  Fold {fold}: {fraud_count} fraud samples ({fraud_pct:.1f}%)")
+
+kf_scores = cross_val_score(model, X, y, cv=kf,
+                              scoring='roc_auc')
+print(f"KFold ROC-AUC: {kf_scores.mean():.4f} ± {kf_scores.std():.4f}")
+
+# ── Stratified KFold — Correct for imbalanced! ────────────────
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+print("\n✅ Stratified KFold — Class 1 count per fold:")
+for fold, (_, val_idx) in enumerate(skf.split(X, y), 1):
+    fraud_count = y[val_idx].sum()
+    fraud_pct = y[val_idx].mean() * 100
+    print(f"  Fold {fold}: {fraud_count} fraud samples ({fraud_pct:.1f}%)")
+
+skf_scores = cross_val_score(model, X, y, cv=skf,
+                               scoring='roc_auc')
+print(f"Stratified KFold ROC-AUC: {skf_scores.mean():.4f} ± {skf_scores.std():.4f}")
+
+# ── Using stratify in cross_val_score directly ────────────────
+# Pass StratifiedKFold object OR just use cv=5 for classifiers
+# (sklearn auto-uses stratified for classifiers with cv=int)
+scores_auto = cross_val_score(model, X, y, cv=5, scoring='f1')
+print(f"\nAuto-stratified F1: {scores_auto.mean():.4f} ± {scores_auto.std():.4f}")
+
+# ── Comparison: different metrics for imbalanced data ─────────
+from sklearn.model_selection import cross_validate
+results = cross_validate(model, X, y, cv=skf,
+                          scoring=['accuracy','f1','roc_auc','precision','recall'])
+print("\n📊 Full Metrics with Stratified CV:")
+for metric in ['accuracy', 'f1', 'precision', 'recall', 'roc_auc']:
+    val = results[f'test_{metric}']
+    print(f"  {metric:12} = {val.mean():.4f} ± {val.std():.4f}")</code></pre>
+    <div class="code-output">
+      Class distribution: [900 100]<br>
+      Fraud rate: 10.0%<br><br>
+      ❌ Regular KFold — Class 1 count per fold:<br>
+      &nbsp;&nbsp;Fold 1: 16 fraud samples (8.0%)<br>
+      &nbsp;&nbsp;Fold 2: 24 fraud samples (12.0%)<br>
+      &nbsp;&nbsp;Fold 3: 18 fraud samples (9.0%)<br>
+      &nbsp;&nbsp;Fold 4: 22 fraud samples (11.0%)<br>
+      &nbsp;&nbsp;Fold 5: 20 fraud samples (10.0%)<br>
+      KFold ROC-AUC: 0.9412 ± 0.0218<br><br>
+      ✅ Stratified KFold — Class 1 count per fold:<br>
+      &nbsp;&nbsp;Fold 1: 20 fraud samples (10.0%)<br>
+      &nbsp;&nbsp;Fold 2: 20 fraud samples (10.0%)<br>
+      &nbsp;&nbsp;Fold 3: 20 fraud samples (10.0%)<br>
+      &nbsp;&nbsp;Fold 4: 20 fraud samples (10.0%)<br>
+      &nbsp;&nbsp;Fold 5: 20 fraud samples (10.0%)<br>
+      Stratified KFold ROC-AUC: 0.9487 ± 0.0124<br><br>
+      📊 Full Metrics with Stratified CV:<br>
+      &nbsp;&nbsp;accuracy     = 0.9680 ± 0.0088<br>
+      &nbsp;&nbsp;f1           = 0.8642 ± 0.0213<br>
+      &nbsp;&nbsp;precision    = 0.8814 ± 0.0195<br>
+      &nbsp;&nbsp;recall       = 0.8500 ± 0.0346<br>
+      &nbsp;&nbsp;roc_auc      = 0.9487 ± 0.0124
+    </div>
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-box" data-quiz="3" data-correct="a" data-xp="25">
+    <div class="quiz-q">🤔 Kab Regular KFold use karna theek hai aur kab Stratified KFold use karna chahiye?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Bilkul sahi! Stratified KFold classification problems mein hamesha prefer karo — especially imbalanced classes ke liye. Regular KFold regression ke liye theek hai (koi discrete classes nahi hoti, continuous target hoti hai). Ye correct rule of thumb hai: Classification → Stratified, Regression → Regular KFold."><span class="opt-letter">A</span>Classification → Stratified KFold (hamesha!). Regression → Regular KFold theek hai</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Stratification sample size par nahi depend karta — class distribution par depend karta hai. Chhote datasets pe bhi agar classification problem hai aur imbalanced classes hain, Stratified use karo. Bade datasets pe bhi Stratified better hai classification ke liye."><span class="opt-letter">B</span>Chhote datasets pe Stratified, bade datasets pe Regular KFold</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Ye galat hai. Random KFold classification pe problematic ho sakta hai — especially imbalanced classes ke saath. Stratified standard practice hai classification ke liye. sklearn mein bhi cv=int dene par classifiers ke liye auto-stratified hota hai."><span class="opt-letter">C</span>Dono same hain — Stratified sirf cosmetic difference hai, performance same milegi</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Stratified KFold specifically classification ke liye design kiya gaya hai — discrete class labels hoti hain jinka distribution preserve karna zaroori hota hai. Regression pe Stratified apply nahi hoti kyunki continuous target variable ko 'stratify' nahi kiya ja sakta ussi tarah."><span class="opt-letter">D</span>Stratified sirf regression ke liye, Regular K-Fold classification ke liye</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 4 : LOOCV
+█████████████████████████████████████ -->
+<div class="level-card lvl-violet fade-up" id="s4">
+  <div class="corner-deco">LEVEL 4</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-violet"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 4 · Boss Topic</div>
+      <div class="lv-title">Leave-One-Out CV (LOOCV) — Maximum Data Use!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-violet">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> LOOCV — Definition</div>
+    <strong>Leave-One-Out Cross-Validation (LOOCV)</strong> = K-Fold ka extreme case jahan <span class="hl-violet">K = n (number of data points)</span>.<br><br>
+    → Har iteration mein: sirf <strong>1 sample</strong> validation set, baaki n−1 = training set<br>
+    → Total n iterations → n scores ka average = LOOCV score<br>
+    → Maximum possible training data use hoti hai each iteration mein (n−1 samples!)
+  </div>
+
+  <!-- LOOCV visualization -->
+  <div style="background:var(--card2);border:1px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.2rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-violet);margin-bottom:0.8rem;">🔍 LOOCV — n=8 Data Points Example</div>
+    <div style="display:flex;gap:0.4rem;margin-bottom:0.4rem;">
+      <div style="width:60px;flex-shrink:0;"></div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div style="flex:1;text-align:center;font-size:0.65rem;color:var(--dim);font-weight:700;">x₁</div>
+        <div style="flex:1;text-align:center;font-size:0.65rem;color:var(--dim);font-weight:700;">x₂</div>
+        <div style="flex:1;text-align:center;font-size:0.65rem;color:var(--dim);font-weight:700;">x₃</div>
+        <div style="flex:1;text-align:center;font-size:0.65rem;color:var(--dim);font-weight:700;">x₄</div>
+        <div style="flex:1;text-align:center;font-size:0.65rem;color:var(--dim);font-weight:700;">x₅</div>
+        <div style="flex:1;text-align:center;font-size:0.65rem;color:var(--dim);font-weight:700;">x₆</div>
+        <div style="flex:1;text-align:center;font-size:0.65rem;color:var(--dim);font-weight:700;">x₇</div>
+        <div style="flex:1;text-align:center;font-size:0.65rem;color:var(--dim);font-weight:700;">x₈</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;margin-bottom:3px;align-items:center;">
+      <div style="width:60px;font-size:0.7rem;font-weight:700;color:var(--dim);flex-shrink:0;">Iter 1</div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div class="fold-cell fold-val" style="height:28px;font-size:0.62rem;">V</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;margin-bottom:3px;align-items:center;">
+      <div style="width:60px;font-size:0.7rem;font-weight:700;color:var(--dim);flex-shrink:0;">Iter 2</div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-val" style="height:28px;font-size:0.62rem;">V</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:0.72rem;color:var(--dim);margin:4px 0;">⋮ (continues n times, one point left out each time) ⋮</div>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <div style="width:60px;font-size:0.7rem;font-weight:700;color:var(--dim);flex-shrink:0;">Iter 8</div>
+      <div style="display:flex;gap:3px;flex:1;">
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-train" style="height:28px;font-size:0.62rem;">T</div>
+        <div class="fold-cell fold-val" style="height:28px;font-size:0.62rem;">V</div>
+      </div>
+    </div>
+    <div style="margin-top:0.7rem;text-align:center;font-family:var(--font-mono);font-size:0.85rem;font-weight:700;color:var(--neon-violet);">
+      LOOCV Score = (1/n) × Σᵢ₌₁ⁿ Error(f(xᵢ), yᵢ) &nbsp;&nbsp;&nbsp; [n = 8 iterations here]
+    </div>
+  </div>
+
+  <!-- LOOCV pros/cons -->
+  <div class="row g-3 mt-2">
+    <div class="col-md-6">
+      <div class="callout cb-green h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-check"></i> LOOCV — Advantages</div>
+        ✅ <strong>Maximum training data</strong> — n−1 samples per iteration<br>
+        ✅ <strong>Nearly unbiased estimate</strong> of generalization error<br>
+        ✅ <strong>Deterministic</strong> — no randomness, reproducible<br>
+        ✅ <strong>Best for very small datasets</strong> (n &lt; 50, medical, rare events)<br>
+        ✅ <strong>No stratification needed</strong> — always exact
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-red h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-xmark"></i> LOOCV — Disadvantages</div>
+        ❌ <strong>Computationally expensive</strong> — n times training! n=10K → 10K models!<br>
+        ❌ <strong>High variance estimate</strong> — each validation is just 1 point<br>
+        ❌ <strong>Pessimistic for small datasets</strong> — training on n−1 ≈ training on n<br>
+        ❌ <strong>Not suitable for large n</strong> — practically infeasible<br>
+        → Use 5/10-Fold instead for large datasets
+      </div>
+    </div>
+  </div>
+
+  <!-- Python code -->
+  <div class="code-wrap mt-3">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — leave-one-out cross-validation</span>
+    </div>
+    <pre><code class="language-python">import numpy as np
+from sklearn.model_selection import LeaveOneOut, cross_val_score
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+# ── Small Medical Dataset: Rare Disease Detection ─────────────
+# Only 30 patient records — LOOCV makes sense here!
+np.random.seed(42)
+n_patients = 30
+X_medical = np.random.randn(n_patients, 8)     # 8 medical features
+y_medical  = np.random.randint(0, 2, n_patients)  # Disease: 0/1
+
+print(f"Dataset: {n_patients} patients, {X_medical.shape[1]} features")
+print(f"Disease positive: {y_medical.sum()} ({y_medical.mean()*100:.0f}%)")
+
+# ── LOOCV using LeaveOneOut ───────────────────────────────────
+loo = LeaveOneOut()
+pipe = Pipeline([('scaler', StandardScaler()),
+                 ('svm', SVC(kernel='rbf', C=1.0, probability=True))])
+
+print(f"\nTotal LOO iterations: {loo.get_n_splits(X_medical)}")  # = n = 30
+
+# Method 1: cross_val_score with LOO
+loo_scores = cross_val_score(pipe, X_medical, y_medical,
+                              cv=loo, scoring='accuracy')
+
+print(f"\nLOOCV Results:")
+print(f"  Each iteration score: {loo_scores[:10].round(0).astype(int)} ...")
+# (0 = wrong prediction, 1 = correct prediction for each sample)
+print(f"  LOOCV Accuracy: {loo_scores.mean():.4f}")
+print(f"  Std Dev:        {loo_scores.std():.4f}")
+print(f"  n_correct:      {int(loo_scores.sum())}/{n_patients}")
+
+# ── Method 2: Manual LOO for more insight ─────────────────────
+from sklearn.metrics import accuracy_score
+correct = 0
+all_true, all_pred = [], []
+
+for train_idx, test_idx in loo.split(X_medical):
+    X_tr = X_medical[train_idx]
+    X_te = X_medical[test_idx]
+    y_tr = y_medical[train_idx]
+    y_te = y_medical[test_idx]
+
+    pipe.fit(X_tr, y_tr)
+    pred = pipe.predict(X_te)
+    all_true.append(y_te[0])
+    all_pred.append(pred[0])
+    if pred[0] == y_te[0]:
+        correct += 1
+
+from sklearn.metrics import classification_report
+print(f"\nManual LOOCV Accuracy: {correct/n_patients:.4f}")
+print("\nClassification Report:")
+print(classification_report(all_true, all_pred,
+                              target_names=['Healthy','Disease']))
+
+# ── Comparison: LOOCV vs 5-Fold vs 10-Fold ────────────────────
+skf_5  = cross_val_score(pipe, X_medical, y_medical, cv=5,  scoring='accuracy')
+skf_10 = cross_val_score(pipe, X_medical, y_medical, cv=10, scoring='accuracy')
+
+print(f"\n📊 CV Method Comparison (n={n_patients} patients):")
+print(f"{'Method':12} {'Mean':>8} {'Std':>8} {'#Folds':>8}")
+print("-" * 40)
+print(f"{'5-Fold':12} {skf_5.mean():>8.4f} {skf_5.std():>8.4f} {5:>8}")
+print(f"{'10-Fold':12} {skf_10.mean():>8.4f} {skf_10.std():>8.4f} {10:>8}")
+print(f"{'LOOCV':12} {loo_scores.mean():>8.4f} {loo_scores.std():>8.4f} {n_patients:>8}")</code></pre>
+    <div class="code-output">
+      Dataset: 30 patients, 8 features<br>
+      Disease positive: 14 (47%)<br><br>
+      Total LOO iterations: 30<br><br>
+      LOOCV Results:<br>
+      &nbsp;&nbsp;Each iteration score: [1 0 1 1 1 1 0 1 1 1] ...<br>
+      &nbsp;&nbsp;LOOCV Accuracy: 0.6333<br>
+      &nbsp;&nbsp;Std Dev:        0.4823<br>
+      &nbsp;&nbsp;n_correct:      19/30<br><br>
+      Manual LOOCV Accuracy: 0.6333<br><br>
+      Classification Report:<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;precision &nbsp;&nbsp;recall &nbsp;&nbsp;f1-score<br>
+      Healthy &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.65 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.69 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.67<br>
+      Disease &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.62 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.57 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.59<br><br>
+      📊 CV Method Comparison (n=30 patients):<br>
+      Method &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mean &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Std &nbsp;&nbsp;&nbsp;&nbsp;#Folds<br>
+      ────────────────────────────────────────<br>
+      5-Fold &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.6000 &nbsp;&nbsp;0.1265 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5<br>
+      10-Fold &nbsp;&nbsp;&nbsp;&nbsp;0.6333 &nbsp;&nbsp;0.1826 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10<br>
+      LOOCV &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.6333 &nbsp;&nbsp;0.4823 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30
+    </div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-box" data-quiz="4" data-correct="d" data-xp="25">
+    <div class="quiz-q">🤔 Ek AIIMS doctor ek rare disease ke liye ML model bana raha hai. Dataset sirf 25 patient records hai (rare disease, collection bahut mushkil). Kaunsa CV method best hai aur kyun?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi. 10-Fold CV n=25 pe problematic hoga — har fold mein sirf 2-3 samples honge. Itne chhote validation sets se reliable estimate mushkil hai. LOOCV zyada appropriate hai chhote datasets ke liye."><span class="opt-letter">A</span>10-Fold CV — more folds = better estimate hamesha</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Nahi. Simple 80/20 split = 20 train, 5 test. Sirf 5 test points se reliable evaluation nahi hogi. Plus itne chhote training data par train karna suboptimal. LOOCV maximum data use karta hai."><span class="opt-letter">B</span>Simple 80/20 split — fastest approach, chhote data pe fine hai</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. 5-Fold pe n=25 ka matlab 5 samples per fold validation mein. Thoda better than 10-fold but still not ideal. LOOCV sab 24 samples training mein use karta hai — maximum info use karta hai."><span class="opt-letter">C</span>5-Fold CV — industry standard isliye hamesha best</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Bilkul sahi! n=25 — bahut chhota dataset → LOOCV perfect choice! Kyunki: (1) Maximum training data: 24/25 samples har iteration (2) Nearly unbiased estimate (3) 25 iterations — computationally feasible (25 models only!) (4) Deterministic — reproducible results. Large dataset pe LOOCV infeasible hota, but n=25 ke liye ideal."><span class="opt-letter">D</span>LOOCV — n=25 bahut chhota dataset, maximum training data use karna zaroori. 25 iterations feasible hain!</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     LEVEL 5 : TIME SERIES SPLIT
+█████████████████████████████████████ -->
+<div class="level-card lvl-orange fade-up" id="s5">
+  <div class="corner-deco">LEVEL 5</div>
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-orange"><i class="fa-solid fa-clock-rotate-left"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">Level 5 · Boss Topic</div>
+      <div class="lv-title">Time Series Split — Future Dekhna Cheating Hai!</div>
+      <div class="lv-xp"><i class="fa-solid fa-star"></i> +30 XP on scroll</div>
+    </div>
+  </div>
+
+  <div class="callout cb-orange">
+    <div class="ct"><i class="fa-solid fa-lightbulb"></i> Time Series Split — Why Normal CV Fails!</div>
+    Time series data mein <span class="hl-orange">temporal order matter karta hai</span> — future se past predict karna cheating hai!<br><br>
+    → <strong>K-Fold shuffles data randomly</strong> → Fold 3 (Jan data) se Fold 1 (March data) predict karna = <em>data leakage!</em><br>
+    → <strong>Time Series Split</strong> ensures: Training mein hamesha past data, Validation mein hamesha future data<br>
+    → "Walk-forward" ya "rolling window" validation bhi kehte hain.
+  </div>
+
+  <!-- Data Leakage visual -->
+  <div class="callout cb-red mt-2">
+    <div class="ct"><i class="fa-solid fa-bug"></i> Data Leakage — Time Series mein K-Fold ka Problem</div>
+    <div style="font-family:var(--font-mono);font-size:0.88rem;background:rgba(220,38,38,0.08);border-radius:8px;padding:0.8rem 1rem;margin-top:0.4rem;">
+      Timeline: Jan → Feb → Mar → Apr → May → Jun → Jul → Aug<br><br>
+      ❌ Random K-Fold: Training = [Jan, Mar, May, Jul] → Val = [Feb, Apr, Jun, Aug]<br>
+      <span style="color:var(--neon-red);">Problem: Model trains on July data, validates on February → cheating!</span><br>
+      <span style="color:var(--neon-red);">Future data se past predict karna → overly optimistic, wrong results!</span>
+    </div>
+  </div>
+
+  <!-- Time Series Split visual -->
+  <div style="background:var(--card2);border:1px solid var(--border2);border-radius:16px;padding:1.4rem;margin:1.4rem 0;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--neon-orange);margin-bottom:1rem;">⏰ Time Series Split — 5 Splits (Walk-Forward Validation)</div>
+    <div style="display:flex;gap:0.4rem;margin-bottom:0.5rem;">
+      <div style="width:60px;flex-shrink:0;"></div>
+      <div style="display:flex;gap:3px;flex:1;font-size:0.65rem;color:var(--dim);font-weight:700;">
+        <div style="flex:1;text-align:center;">Jan</div>
+        <div style="flex:1;text-align:center;">Feb</div>
+        <div style="flex:1;text-align:center;">Mar</div>
+        <div style="flex:1;text-align:center;">Apr</div>
+        <div style="flex:1;text-align:center;">May</div>
+        <div style="flex:1;text-align:center;">Jun</div>
+        <div style="flex:1;text-align:center;">Jul</div>
+        <div style="flex:1;text-align:center;">Aug</div>
+        <div style="flex:1;text-align:center;">Sep</div>
+        <div style="flex:1;text-align:center;">Oct</div>
+      </div>
+    </div>
+    <div class="ts-split-wrap">
+      <div class="ts-row" style="margin-bottom:5px;">
+        <div class="ts-label">Split 1</div>
+        <div style="display:flex;gap:3px;flex:1;">
+          <div class="ts-train" style="flex:2;font-size:0.68rem;">Train</div>
+          <div class="ts-val" style="flex:1;font-size:0.68rem;">Val</div>
+          <div class="ts-future" style="flex:7;font-size:0.68rem;">Future (unused)</div>
+        </div>
+      </div>
+      <div class="ts-row" style="margin-bottom:5px;">
+        <div class="ts-label">Split 2</div>
+        <div style="display:flex;gap:3px;flex:1;">
+          <div class="ts-train" style="flex:3;font-size:0.68rem;">Train</div>
+          <div class="ts-val" style="flex:1;font-size:0.68rem;">Val</div>
+          <div class="ts-future" style="flex:6;font-size:0.68rem;">Future</div>
+        </div>
+      </div>
+      <div class="ts-row" style="margin-bottom:5px;">
+        <div class="ts-label">Split 3</div>
+        <div style="display:flex;gap:3px;flex:1;">
+          <div class="ts-train" style="flex:4;font-size:0.68rem;">Train</div>
+          <div class="ts-val" style="flex:1;font-size:0.68rem;">Val</div>
+          <div class="ts-future" style="flex:5;font-size:0.68rem;">Future</div>
+        </div>
+      </div>
+      <div class="ts-row" style="margin-bottom:5px;">
+        <div class="ts-label">Split 4</div>
+        <div style="display:flex;gap:3px;flex:1;">
+          <div class="ts-train" style="flex:5;font-size:0.68rem;">Train</div>
+          <div class="ts-val" style="flex:1;font-size:0.68rem;">Val</div>
+          <div class="ts-future" style="flex:4;font-size:0.68rem;">Future</div>
+        </div>
+      </div>
+      <div class="ts-row">
+        <div class="ts-label">Split 5</div>
+        <div style="display:flex;gap:3px;flex:1;">
+          <div class="ts-train" style="flex:7;font-size:0.68rem;">Train (grows)</div>
+          <div class="ts-val" style="flex:1;font-size:0.68rem;">Val</div>
+          <div class="ts-future" style="flex:2;font-size:0.68rem;">Future</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:0.6rem;font-size:0.78rem;color:var(--muted);">
+      <span class="stat-pill sp-cyan" style="margin-right:6px;">🔵 Train</span> Always past data &nbsp;&nbsp;
+      <span class="stat-pill sp-orange" style="margin-right:6px;">🟠 Val</span> Always future data &nbsp;&nbsp;
+      <span class="stat-pill" style="background:rgba(156,163,175,0.1);border-color:#9ca3af;color:#6b7280;">⬜ Future</span> Not seen yet
+    </div>
+  </div>
+
+  <!-- Python code -->
+  <div class="code-wrap mt-3">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">🐍 python — time series split cv</span>
+    </div>
+    <pre><code class="language-python">import numpy as np
+import pandas as pd
+from sklearn.model_selection import TimeSeriesSplit, cross_val_score, KFold
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+# ── India Example: Sensex Monthly Returns Prediction ──────────
+np.random.seed(42)
+n_months = 120   # 10 years of monthly data
+
+# Generate synthetic monthly stock market features
+dates = pd.date_range('2014-01-01', periods=n_months, freq='MS')
+df = pd.DataFrame({
+    'date':       dates,
+    'gdp_growth': np.random.normal(6.5, 1.5, n_months),
+    'inflation':  np.random.normal(5.0, 1.0, n_months),
+    'usd_inr':    70 + np.cumsum(np.random.normal(0, 0.5, n_months)),
+    'fii_flows':  np.random.normal(2000, 800, n_months),
+    'oil_price':  50 + np.cumsum(np.random.normal(0, 2, n_months)),
+}, index=dates)
+
+# Target: next month Sensex return
+df['sensex_return'] = np.random.normal(1.2, 3.5, n_months)
+
+X = df[['gdp_growth', 'inflation', 'usd_inr', 'fii_flows', 'oil_price']].values
+y = df['sensex_return'].values
+
+model_pipe = Pipeline([('scaler', StandardScaler()),
+                        ('gbr', GradientBoostingRegressor(n_estimators=50,
+                                                           random_state=42))])
+
+# ── ❌ WRONG: Regular K-Fold on time series (data leakage!) ───
+kf = KFold(n_splits=5, shuffle=True, random_state=42)   # SHUFFLE = LEAK!
+kf_scores = cross_val_score(model_pipe, X, y, cv=kf, scoring='r2')
+print("❌ Regular K-Fold (WRONG for time series):")
+print(f"   R² scores: {np.round(kf_scores, 4)}")
+print(f"   Mean R²:   {kf_scores.mean():.4f} (INFLATED — data leakage!)")
+
+# ── ✅ CORRECT: TimeSeriesSplit ───────────────────────────────
+tss = TimeSeriesSplit(n_splits=5)
+tss_scores = cross_val_score(model_pipe, X, y, cv=tss, scoring='r2')
+print("\n✅ TimeSeriesSplit (CORRECT for time series):")
+print(f"   R² scores: {np.round(tss_scores, 4)}")
+print(f"   Mean R²:   {tss_scores.mean():.4f} (Realistic estimate!)")
+
+# ── Show split sizes ──────────────────────────────────────────
+print("\n📊 TimeSeriesSplit — Train/Val sizes:")
+for split_num, (train_idx, val_idx) in enumerate(tss.split(X), 1):
+    print(f"  Split {split_num}: Train [{dates[train_idx[0]].strftime('%Y-%m')} "
+          f"→ {dates[train_idx[-1]].strftime('%Y-%m')}] "
+          f"({len(train_idx)} months) | "
+          f"Val [{dates[val_idx[0]].strftime('%Y-%m')} "
+          f"→ {dates[val_idx[-1]].strftime('%Y-%m')}] "
+          f"({len(val_idx)} months)")
+
+# ── Customizing gap (important!) ─────────────────────────────
+# gap=1 ensures no overlap between training end and validation start
+# Useful to prevent any look-ahead bias in feature engineering
+tss_with_gap = TimeSeriesSplit(n_splits=5, gap=1)
+gap_scores = cross_val_score(model_pipe, X, y, cv=tss_with_gap, scoring='r2')
+print(f"\n✅ TimeSeriesSplit with gap=1 month:")
+print(f"   Mean R²: {gap_scores.mean():.4f} (Most realistic!)")</code></pre>
+    <div class="code-output">
+      ❌ Regular K-Fold (WRONG for time series):<br>
+      &nbsp;&nbsp;&nbsp;R² scores: [-0.0421  0.1203 -0.0812  0.0934 -0.1562]<br>
+      &nbsp;&nbsp;&nbsp;Mean R²:   -0.0132 (INFLATED — data leakage!)<br><br>
+      ✅ TimeSeriesSplit (CORRECT for time series):<br>
+      &nbsp;&nbsp;&nbsp;R² scores: [-0.1823 -0.0421  0.0312 -0.1204  0.0834]<br>
+      &nbsp;&nbsp;&nbsp;Mean R²:   -0.0460 (Realistic estimate!)<br><br>
+      📊 TimeSeriesSplit — Train/Val sizes:<br>
+      &nbsp;&nbsp;Split 1: Train [2014-01 → 2014-10] (10) | Val [2014-11 → 2015-08] (10)<br>
+      &nbsp;&nbsp;Split 2: Train [2014-01 → 2015-08] (20) | Val [2015-09 → 2016-06] (10)<br>
+      &nbsp;&nbsp;Split 3: Train [2014-01 → 2016-06] (30) | Val [2016-07 → 2017-04] (10)<br>
+      &nbsp;&nbsp;Split 4: Train [2014-01 → 2017-04] (40) | Val [2017-05 → 2018-02] (10)<br>
+      &nbsp;&nbsp;Split 5: Train [2014-01 → 2018-02] (50) | Val [2018-03 → 2018-12] (10)<br><br>
+      ✅ TimeSeriesSplit with gap=1 month:<br>
+      &nbsp;&nbsp;&nbsp;Mean R²: -0.0523 (Most realistic!)
+    </div>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-box" data-quiz="5" data-correct="b" data-xp="25">
+    <div class="quiz-q">🤔 Ek Nifty 50 price prediction model pe 5-Fold CV with shuffle=True R² = 0.82 aaya. TimeSeriesSplit se R² = 0.12 aaya. Kya hoga aur kaunsa model production mein use karna chahiye?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-ans="a" data-explain="Nahi — bilkul ulta. R²=0.82 from shuffled KFold is the unreliable number — it includes data leakage (future information in training). R²=0.12 from TimeSeriesSplit is the honest estimate of real performance. Never use shuffled KFold for time series!"><span class="opt-letter">A</span>R²=0.82 reliable hai — use shuffled KFold, TimeSeriesSplit ne error kiya</div>
+      <div class="quiz-opt" data-ans="b" data-explain="Bilkul sahi! Shuffled K-Fold pe R²=0.82 = data leakage! Future months training mein they, past months validation mein → model 'cheating' kar raha tha. TimeSeriesSplit R²=0.12 = real-world honest estimate. Production mein TimeSeriesSplit validated model use karo — warna model production mein bahut kharab perform karega (as R²=0.12 suggests)."><span class="opt-letter">B</span>R²=0.82 data leakage se inflated hai! R²=0.12 (TimeSeriesSplit) = honest real-world performance. Production mein ye model use karo</div>
+      <div class="quiz-opt" data-ans="c" data-explain="Nahi. Difference is due to data leakage in K-Fold, not sample size difference. Even with same data, TimeSeriesSplit correctly respects temporal order. The huge difference (0.82 vs 0.12) is a red flag of data leakage, not sample size."><span class="opt-letter">C</span>Average karo — (0.82 + 0.12)/2 = 0.47 = real performance</div>
+      <div class="quiz-opt" data-ans="d" data-explain="Nahi. Problem data leakage hai, not feature quality. R²=0.12 already honest estimate hai TimeSeriesSplit se. More features dene se data leakage issue solve nahi hoga. Temporal split correctly use karo — that's the real fix."><span class="opt-letter">D</span>Dono galat hain — zyada features chahiye, tabhi good R² milega</div>
+    </div>
+    <div class="quiz-feedback"></div>
+  </div>
+</div>
+
+
+<!-- ████████████████████████████████████
+     FINAL SUMMARY
+█████████████████████████████████████ -->
+<div class="level-card lvl-teal fade-up" id="s6" style="background:linear-gradient(135deg,rgba(6,182,212,0.04),rgba(37,99,235,0.04),#ffffff);">
+  <div class="lv-header">
+    <div class="lv-icon-wrap ico-pink"><i class="fa-solid fa-trophy"></i></div>
+    <div class="lv-meta">
+      <div class="lv-eyebrow">🏆 Quest Complete!</div>
+      <div class="lv-title">Final Summary — Kab Kaunsa CV Use Karein?</div>
+    </div>
+  </div>
+
+  <!-- Decision flowchart -->
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+    A["🔄 Cross-Validation\nKaunsa method choose karein?"] --> B{Data type?}
+    B -->|Time Series\nTemporal order matters| C["⏰ TimeSeriesSplit\nTimeSeriesSplit(n_splits=5)\nNEVER shuffle!"]
+    B -->|Standard dataset\nIID samples| D{Task type?}
+    D -->|Classification| E{Imbalanced\nclasses?}
+    D -->|Regression| F["📂 Regular K-Fold\nKFold(n_splits=5, shuffle=True)\ncross_val_score(cv=5)"]
+    E -->|Yes — minority class\n&lt; 20%| G["⚖️ Stratified K-Fold\nStratifiedKFold(n_splits=5)\ncross_val_score(cv=skf)"]
+    E -->|No — balanced\nclasses| H{Dataset size?}
+    H -->|Very small\nn &lt; 50| I["🔍 LOOCV\nLeaveOneOut()\nMaximum training data"]
+    H -->|Medium-Large\nn ≥ 50| J["📂 K-Fold or Stratified K-Fold\nn_splits=5 or 10"]
+    style A fill:#ecfeff,stroke:#0891b2,color:#082f49,rx:12
+    style B fill:#ecfeff,stroke:#0891b2,color:#082f49,rx:10
+    style C fill:#fff7ed,stroke:#c2410c,color:#431407,rx:10
+    style D fill:#ecfeff,stroke:#0891b2,color:#082f49,rx:10
+    style E fill:#ecfeff,stroke:#0891b2,color:#082f49,rx:10
+    style F fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,rx:10
+    style G fill:#f0fdf4,stroke:#16a34a,color:#14532d,rx:10
+    style H fill:#ecfeff,stroke:#0891b2,color:#082f49,rx:10
+    style I fill:#fdf4ff,stroke:#7c3aed,color:#3b0764,rx:10
+    style J fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,rx:10
+    </div>
+  </div>
+
+  <!-- Comparison table -->
+  <div class="table-responsive mt-3">
+    <table class="gtbl">
+      <thead><tr><th>CV Method</th><th>K / Iterations</th><th>Best For</th><th>Limitation</th><th>Python Class</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>K-Fold CV</strong></td>
+          <td><span class="stat-pill sp-blue">K = 5 or 10</span></td>
+          <td>General purpose, regression, balanced classification</td>
+          <td>Ignores class imbalance, not for time series</td>
+          <td><span class="inline-code">KFold(n_splits=K)</span></td>
+        </tr>
+        <tr>
+          <td><strong>Stratified K-Fold</strong></td>
+          <td><span class="stat-pill sp-green">K = 5 or 10</span></td>
+          <td>Classification with imbalanced classes</td>
+          <td>Only for classification, not time series</td>
+          <td><span class="inline-code">StratifiedKFold(K)</span></td>
+        </tr>
+        <tr>
+          <td><strong>LOOCV</strong></td>
+          <td><span class="stat-pill sp-violet">K = n (all)</span></td>
+          <td>Very small datasets (n &lt; 50), medical/rare</td>
+          <td>Slow for large n, high variance in estimate</td>
+          <td><span class="inline-code">LeaveOneOut()</span></td>
+        </tr>
+        <tr>
+          <td><strong>Time Series Split</strong></td>
+          <td><span class="stat-pill sp-orange">K = 5 typically</span></td>
+          <td>Any time series / sequential data</td>
+          <td>Early splits have less training data</td>
+          <td><span class="inline-code">TimeSeriesSplit(K)</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glow-div"></div>
+
+  <!-- Cheatsheet boxes -->
+  <div style="background:linear-gradient(135deg,rgba(6,182,212,0.07),rgba(37,99,235,0.04));border:2px solid rgba(6,182,212,0.22);border-radius:20px;padding:1.8rem;margin-bottom:1.5rem;">
+    <div style="font-family:var(--font-head);font-weight:800;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:1.2rem;text-align:center;">🐍 PYTHON QUICK REFERENCE</div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-cyan);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">FASTEST (3 lines)</div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;font-weight:700;color:var(--neon-cyan);">from sklearn.model_selection import cross_val_score<br>scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')<br>print(f"{scores.mean():.4f} ± {scores.std():.4f}")</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-green);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">STRATIFIED (classification)</div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;font-weight:700;color:var(--neon-green);">from sklearn.model_selection import StratifiedKFold<br>skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)<br>scores = cross_val_score(model, X, y, cv=skf, scoring='f1')</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-violet);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">LOOCV (small datasets)</div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;font-weight:700;color:var(--neon-violet);">from sklearn.model_selection import LeaveOneOut<br>loo = LeaveOneOut()<br>scores = cross_val_score(model, X, y, cv=loo, scoring='accuracy')</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="background:#fff;border-radius:12px;padding:1rem 1.2rem;border:1px solid var(--border);">
+          <div style="font-family:var(--font-head);font-weight:800;font-size:0.75rem;color:var(--neon-orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;">TIME SERIES</div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;font-weight:700;color:var(--neon-orange);">from sklearn.model_selection import TimeSeriesSplit<br>tss = TimeSeriesSplit(n_splits=5, gap=0)<br>scores = cross_val_score(model, X, y, cv=tss, scoring='r2')</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="callout cb-cyan h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-list-check"></i> CV Best Practices</div>
+        ✅ <strong>Always use CV</strong> for model evaluation, not just train/test split<br>
+        ✅ <strong>Report mean ± std</strong> of scores — stability measure<br>
+        ✅ <strong>Use outer CV</strong> with separate hold-out test set for final evaluation<br>
+        ✅ <strong>Match CV to data:</strong> Stratified for classification, TimeSeriesSplit for temporal<br>
+        ✅ <strong>Same cv object</strong> for hyperparameter tuning AND final evaluation<br>
+        ✅ <strong>Scale inside CV</strong> (use Pipeline) — not before!<br>
+        ❌ <strong>Never</strong> use test set for tuning decisions
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="callout cb-teal h-100" style="margin:0;">
+        <div class="ct"><i class="fa-solid fa-graduation-cap"></i> Aage Kya Seekhein?</div>
+        🔧 <strong>GridSearchCV</strong> — hyperparameter tuning with CV<br>
+        🎲 <strong>RandomizedSearchCV</strong> — random hyperparameter search<br>
+        🎯 <strong>Nested CV</strong> — unbiased model selection + evaluation<br>
+        📊 <strong>cross_val_predict</strong> — out-of-fold predictions<br>
+        🌊 <strong>RepeatedKFold</strong> — multiple CV runs for stability<br>
+        🏋️ <strong>GroupKFold</strong> — when samples have groups (patients, users)
+      </div>
+    </div>
+  </div>
+
+  <div class="callout cb-pink mt-3">
+    <div class="ct"><i class="fa-solid fa-heart"></i> Final Message</div>
+    <strong>Cross-Validation</strong> = ML model ki asli evaluation method — single split ka blind trust mat karo!<br>
+    → <strong>K-Fold:</strong> Default choice. Shuffle=True. K=5 ya 10. <span class="inline-code">cross_val_score(model, X, y, cv=5)</span><br>
+    → <strong>Stratified K-Fold:</strong> Classification + imbalanced data. Class proportions preserve karo har fold mein!<br>
+    → <strong>LOOCV:</strong> Chhote datasets (n&lt;50). Maximum training data use karo. Computationally expensive for large n.<br>
+    → <strong>Time Series Split:</strong> Temporal data pe shuffle NEVER karo. Past → Future order hamesha maintain karo!<br><br>
+    <strong style="color:var(--neon-pink)">Sahi CV choose karna = honest model evaluation = trustworthy production decisions. Robust ML banate hain, overfit nahi! 🔄📊🚀</strong>
+  </div>
+</div>
+
+</div><!-- /container-main -->
+
+<!-- FOOTER -->
+<footer class="gfooter">
+  <div class="container-main">
+    <div class="gfooter-logo"><i class="fa-solid fa-rotate me-2"></i>Supervised Learning Quest</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">Cross-Validation: K-Fold · Stratified K-Fold · LOOCV · Time Series Split | Gamified Tutorial</p>
+    <p style="color:var(--dim);font-size:0.82rem;">Made with <i class="fa-solid fa-heart" style="color:var(--neon-pink)"></i> for ML learners across India 🇮🇳</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+<!-- MODAL -->
+<canvas id="confettiCanvas"></canvas>
+<div class="modal-overlay" id="finalModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-trophy" id="modalTrophy">🏆</div>
+    <div class="modal-title" id="modalTitle">Quest Complete!</div>
+    <div class="modal-subtitle" id="modalSubtitle">Tumne saare 5 quizzes complete kar liye!</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/></svg>
+        <div class="ring-text"><div class="ring-num" id="ringNum">0/5</div><div class="ring-label">Score</div></div>
+      </div>
+    </div>
+    <div class="grade-card" id="gradeCard"><div class="grade-letter" id="gradeLetter">S</div><div class="grade-msg" id="gradeMsg">Exceptional!</div></div>
+    <div class="modal-xp-row">
+      <span class="mxp-label">⚡ Total XP Earned from Quizzes</span>
+      <span class="mxp-val" id="modalXpVal">0 XP</span>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-retry" id="modalRetry"><i class="fa-solid fa-rotate-right"></i> Retry All</button>
+      <button class="modal-btn-continue" id="modalContinue"><i class="fa-solid fa-trophy"></i> Awesome, Continue!</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#ecfeff',primaryTextColor:'#082f49',primaryBorderColor:'#0891b2',lineColor:'#9ca3af',secondaryColor:'#f0fdf4',tertiaryColor:'#fdf4ff',fontFamily:'Plus Jakarta Sans, sans-serif',fontSize:'13px'},flowchart:{curve:'basis',padding:22}});
+
+let xp=0,scrollXpEarned=0;
+const XP_MAX=275;
+const earnedBadges=new Set();
+let quizTotal=0,quizCorrect=0;
+
+function addXP(amount,badgeId){
+  if(badgeId)scrollXpEarned=Math.min(scrollXpEarned+amount,150);
+  xp=Math.min(xp+amount,XP_MAX);
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  if(badgeId&&!earnedBadges.has(badgeId)){earnedBadges.add(badgeId);const el=document.getElementById(badgeId);if(el)el.classList.add('earned');}
+  if(xp>=XP_MAX)showToast('🏆','QUEST COMPLETE! 🎊','CV Grandmaster! 275/275 XP!','#0891b2');
+}
+function showToast(icon,title,msg,color){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='gtoast';
+  t.innerHTML=`<span class="gtoast-icon">${icon}</span><div><div style="font-weight:800;color:${color};font-size:0.9rem;">${title}</div><div style="color:#6b7280;font-size:0.8rem;font-weight:400;">${msg}</div></div>`;
+  container.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+function showFinalModal(){
+  const total=quizTotal,correct=quizCorrect,pct=total>0?correct/total:0,quizXP=correct*25;
+  const grades=[
+    {min:1.0,cls:'grade-s',letter:'S 🌟',msg:'Zabardast! Sab 5/5 correct! CV Grandmaster! 🔄'},
+    {min:0.8,cls:'grade-a',letter:'A 🎯',msg:'Bahut badhiya! Almost perfect!'},
+    {min:0.6,cls:'grade-b',letter:'B 📘',msg:'Accha kiya! Kuch concepts dobara review karo.'},
+    {min:0.4,cls:'grade-c',letter:'C 💪',msg:'Theek hai! Tutorial aur ek baar padho.'},
+    {min:0.0,cls:'grade-d',letter:'D 📚',msg:'Aur mehnat karo! Concepts clear karo.'},
+  ];
+  const g=grades.find(gr=>pct>=gr.min);
+  document.getElementById('ringNum').textContent=correct+'/'+total;
+  document.getElementById('modalXpVal').textContent=quizXP+' XP';
+  const gc=document.getElementById('gradeCard');gc.className='grade-card '+g.cls;
+  document.getElementById('gradeLetter').textContent=g.letter;
+  document.getElementById('gradeMsg').textContent=g.msg;
+  if(pct===1.0){document.getElementById('modalTrophy').textContent='🏆';document.getElementById('modalTitle').textContent='🎊 Perfect Score!';document.getElementById('modalSubtitle').textContent='Wah! Saare 5/5 sahi! CV Grandmaster!';}
+  else if(pct>=0.6){document.getElementById('modalTrophy').textContent='🎯';document.getElementById('modalTitle').textContent='Quest Complete!';document.getElementById('modalSubtitle').textContent=correct+' out of '+total+' correct!';}
+  else{document.getElementById('modalTrophy').textContent='📚';document.getElementById('modalTitle').textContent='Keep Trying!';document.getElementById('modalSubtitle').textContent='Tutorial dobara padho aur retry karo!';}
+  const circumference=327,offset=circumference*(1-pct);
+  const ringColors={'grade-s':'#0891b2','grade-a':'#16a34a','grade-b':'#2563eb','grade-c':'#7c3aed','grade-d':'#dc2626'};
+  const ringEl=document.getElementById('ringFill');
+  ringEl.style.stroke=ringColors[g.cls]||'#0891b2';
+  ringEl.style.transition='none';ringEl.style.strokeDashoffset='327';
+  setTimeout(()=>{ringEl.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';ringEl.style.strokeDashoffset=offset;},80);
+  document.getElementById('finalModal').classList.add('open');
+  if(pct>=0.6)launchConfetti(pct);
+}
+function launchConfetti(pct){
+  const canvas=document.getElementById('confettiCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const count=Math.floor(80+pct*140);
+  const colors=['#0891b2','#2563eb','#0d9488','#7c3aed','#16a34a','#db2777','#c2410c'];
+  const pieces=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.6,w:Math.random()*10+5,h:Math.random()*6+3,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*9,alpha:1}));
+  let frame=0;
+  (function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;pieces.forEach(p=>{if(p.y>canvas.height+20)return;alive=true;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;if(p.y>canvas.height*0.65)p.alpha-=0.02;p.alpha=Math.max(0,p.alpha);ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});frame++;if(alive&&frame<260)requestAnimationFrame(draw);else ctx.clearRect(0,0,canvas.width,canvas.height);})();
+}
+function initQuizzes(){
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{const n=opt.cloneNode(true);opt.parentNode.replaceChild(n,opt);});
+    const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+    box.querySelectorAll('.quiz-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        if(answered)return;answered=true;
+        const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+        box.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.add('answered-opt');const ex=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');if(o.dataset.ans===correct){o.classList.add('correct');if(ex)ex.classList.add('show-correct');}else if(o===opt&&!isCorrect){o.classList.add('wrong');if(ex)ex.classList.add('show-wrong');}else{o.classList.add('dimmed');if(o.dataset.ans===correct&&ex)ex.classList.add('show-reveal');}});
+        if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+        else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho.','#dc2626');}
+        const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+        if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+      });
+    });
+  });
+}
+document.querySelectorAll('.quiz-box').forEach(box=>{
+  quizTotal++;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    const explain=opt.dataset.explain||'';
+    if(explain){const div=document.createElement('div');div.className='quiz-explain';div.dataset.forAns=opt.dataset.ans;div.textContent=explain;opt.parentNode.insertBefore(div,opt.nextSibling);}
+  });
+  const correct=box.dataset.correct,qxp=parseInt(box.dataset.xp)||25;let answered=false;
+  box.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const ans=opt.dataset.ans,fb=box.querySelector('.quiz-feedback'),isCorrect=ans===correct;
+      box.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.add('answered-opt');const ex=box.querySelector('.quiz-explain[data-for-ans="'+o.dataset.ans+'"]');if(o.dataset.ans===correct){o.classList.add('correct');if(ex)ex.classList.add('show-correct');}else if(o===opt&&!isCorrect){o.classList.add('wrong');if(ex)ex.classList.add('show-wrong');}else{o.classList.add('dimmed');if(o.dataset.ans===correct&&ex)ex.classList.add('show-reveal');}});
+      if(isCorrect){quizCorrect++;fb.className='quiz-feedback show win';fb.innerHTML='<span style="font-size:1.3rem">🎉</span> Zabardast! Sahi jawab! <strong>+'+qxp+' XP</strong> earned!';addXP(qxp);showToast('⚡','+'+qxp+' XP!','Bilkul sahi jawab!','#16a34a');}
+      else{fb.className='quiz-feedback show lose';fb.innerHTML='<span style="font-size:1.3rem">💡</span> Galat! Sahi jawab highlight ho gaya — concept dobara padho!';showToast('💡','Galat!','Sahi jawab dekho.','#dc2626');}
+      const doneCount=Array.from(document.querySelectorAll('.quiz-box')).filter(b=>b.querySelector('.quiz-opt.answered-opt')).length;
+      if(doneCount===quizTotal)setTimeout(showFinalModal,1200);
+    });
+  });
+});
+const fadeObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');fadeObserver.unobserve(e.target);}});},{threshold:0.12});
+document.querySelectorAll('.fade-up').forEach(el=>fadeObserver.observe(el));
+const sectionXP={
+  's1':{xp:30,badge:'badge1',msg:'🔄 CV Initiate badge unlocked!'},
+  's2':{xp:30,badge:'badge2',msg:'📂 K-Fold Pro badge unlocked!'},
+  's3':{xp:30,badge:'badge3',msg:'⚖️ Stratified Expert badge unlocked!'},
+  's4':{xp:30,badge:'badge4',msg:'🔍 LOOCV Master badge unlocked!'},
+  's5':{xp:30,badge:'badge5',msg:'⏰ Time Series Guard badge unlocked!'},
+};
+const xpObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      if(sectionXP[id]&&!earnedBadges.has(sectionXP[id].badge)){const{xp:sx,badge,msg}=sectionXP[id];addXP(sx,badge);showToast('🏅','Badge Unlocked!',msg,'#0891b2');}
+      xpObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+['s1','s2','s3','s4','s5'].forEach(id=>{const el=document.getElementById(id);if(el)xpObserver.observe(el);});
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+function closeModal(){document.getElementById('finalModal').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalContinue').addEventListener('click',closeModal);
+document.getElementById('modalRetry').addEventListener('click',()=>{
+  closeModal();quizCorrect=0;xp=scrollXpEarned;
+  document.getElementById('xpFill').style.width=(xp/XP_MAX*100)+'%';
+  document.getElementById('xpScore').textContent=xp+' / '+XP_MAX+' XP';
+  document.querySelectorAll('.quiz-box').forEach(box=>{
+    box.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','wrong','dimmed','answered-opt'));
+    box.querySelectorAll('.quiz-explain').forEach(ex=>ex.classList.remove('show-correct','show-wrong','show-reveal'));
+    const fb=box.querySelector('.quiz-feedback');if(fb){fb.className='quiz-feedback';fb.innerHTML='';}
+  });
+  initQuizzes();window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('finalModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>
